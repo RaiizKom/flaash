@@ -1,26 +1,399 @@
+/* ── Google Fonts — must precede @import "tailwindcss" ── */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap");
+
 @import "tailwindcss";
 
+/* ── Flaash design tokens ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand palette */
+  --flaash-cream:        #FAF7F2;
+  --flaash-cream-deep:   #F0EBE3;
+  --flaash-cream-line:   #E6DFD2;
+  --flaash-ink:          #1A1A1A;
+  --flaash-ink-soft:     #3D3A36;
+  --flaash-ink-mute:     #6E6862;
+  --flaash-amber:        #E07B2E;
+  --flaash-amber-deep:   #B85F1E;
+  --flaash-amber-soft:   #F4D6B7;
+  --flaash-forest:       #1E3D2F;
+  --flaash-forest-deep:  #14291F;
+  --flaash-forest-soft:  #C9D8CE;
+  --flaash-error:        #B5321B;
+  --flaash-error-deep:   #8C2614;
+  --flaash-error-soft:   #F5D0C8;
+
+  /* Semantic */
+  --bg:          var(--flaash-cream);
+  --surface-2:   var(--flaash-cream-deep);
+  --border:      var(--flaash-cream-line);
+  --fg:          var(--flaash-ink);
+  --fg-2:        var(--flaash-ink-soft);
+  --fg-3:        var(--flaash-ink-mute);
+  --fg-inverse:  var(--flaash-cream);
+
+  /* Typography */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body:    "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-script:  "Caveat", cursive;
+
+  /* Radii */
+  --radius-xs:   6px;
+  --radius-sm:   10px;
+  --radius-md:   16px;
+  --radius-lg:   24px;
+  --radius-xl:   32px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-sm:       0 2px 6px rgb(26 26 26 / 0.08);
+  --shadow-md:       0 8px 24px rgb(26 26 26 / 0.10);
+  --shadow-lg:       0 18px 48px rgb(26 26 26 / 0.14);
+  --shadow-polaroid: 0 8px 18px rgb(26 26 26 / 0.16), 0 1px 0 rgb(26 26 26 / 0.04);
+
+  /* Motion */
+  --ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-fast:      120ms;
+  --t-base:      220ms;
+  --t-slow:      380ms;
 }
 
+/* ── Tailwind v4 color + font extensions ── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream:        #FAF7F2;
+  --color-cream-deep:   #F0EBE3;
+  --color-cream-line:   #E6DFD2;
+  --color-ink:          #1A1A1A;
+  --color-ink-soft:     #3D3A36;
+  --color-ink-mute:     #6E6862;
+  --color-amber:        #E07B2E;
+  --color-amber-deep:   #B85F1E;
+  --color-amber-soft:   #F4D6B7;
+  --color-forest:       #1E3D2F;
+  --color-forest-deep:  #14291F;
+  --color-forest-soft:  #C9D8CE;
+  --color-error:        #B5321B;
+  --color-error-soft:   #F5D0C8;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base reset ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  min-height: 100%;
+  min-height: 100dvh;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Caps the mobile shell on desktop */
+.flaash-shell {
+  max-width: 480px;
+  margin-inline: auto;
+  min-height: 100dvh;
+  position: relative;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+/* ── Typography ── */
+.f-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(52px, 18vw, 80px);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+}
+
+.f-h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(34px, 10vw, 44px);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+
+.f-h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.f-h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.18;
+}
+
+.f-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--fg-3);
+}
+
+.f-script {
+  font-family: var(--font-script);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.08;
+}
+
+.f-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--fg-2);
+}
+
+/* ── Pill button ── */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 28px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: transform var(--t-fast) var(--ease-out),
+              background var(--t-fast) var(--ease-out),
+              opacity var(--t-fast);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  width: 100%;
+  text-decoration: none;
+}
+
+.btn-pill:active { transform: scale(0.97); }
+.btn-pill:disabled, .btn-pill[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
+
+.btn-ink    { background: var(--flaash-ink);    color: var(--flaash-cream); }
+.btn-ink:hover { background: #2a2a2a; }
+.btn-amber  { background: var(--flaash-amber);  color: var(--flaash-ink); }
+.btn-amber:hover { background: var(--flaash-amber-deep); color: var(--flaash-cream); }
+.btn-forest { background: var(--flaash-forest); color: var(--flaash-cream); }
+.btn-forest:hover { background: var(--flaash-forest-deep); }
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--flaash-amber);
+  color: var(--flaash-amber-deep);
+}
+
+.btn-text {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg);
+  padding: 10px 4px;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+}
+
+/* ── Underline input ── */
+.f-input-wrap { display: flex; flex-direction: column; gap: 6px; }
+
+.f-input {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--flaash-cream-line);
+  padding: 6px 0 10px;
+  color: var(--fg);
+  outline: none;
+  width: 100%;
+  transition: border-color var(--t-base);
+}
+
+.f-input:focus { border-bottom-color: var(--flaash-ink); }
+.f-input::placeholder { color: var(--fg-3); font-weight: 400; font-family: var(--font-body); font-size: 16px; }
+.f-input.error { border-bottom-color: var(--flaash-error); }
+
+/* Standard bordered input for forms */
+.f-input-box {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  color: var(--fg);
+  outline: none;
+  width: 100%;
+  transition: border-color var(--t-base);
+  -webkit-appearance: none;
+}
+
+.f-input-box:focus { border-color: var(--flaash-ink); }
+.f-input-box::placeholder { color: var(--fg-3); }
+
+/* ── Card ── */
+.f-card {
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Polaroid ── */
+.polaroid {
+  background: #FFFFFF;
+  padding: 8px 8px 22px;
+  box-shadow: var(--shadow-polaroid);
+  flex-shrink: 0;
+}
+
+/* ── Counter badge ── */
+.f-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 10px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.f-counter-n {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ── Toast ── */
+.f-toast {
+  position: fixed;
+  left: 16px; right: 16px;
+  bottom: 110px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: var(--flaash-ink);
+  color: var(--flaash-cream);
+  box-shadow: var(--shadow-lg);
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 50;
+  max-width: 448px;
+  margin-inline: auto;
+  transition: transform var(--t-slow) var(--ease-spring),
+              opacity var(--t-base) var(--ease-out);
+}
+
+.f-toast[data-hidden="true"] {
+  transform: translateY(140px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Bottom bar ── */
+.bottom-bar {
+  position: fixed;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  padding: 14px 20px 28px;
+  background: linear-gradient(to top, var(--bg) 65%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 20;
+}
+
+/* ── Slider ── */
+.f-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--flaash-cream-line);
+  outline: none;
+  cursor: pointer;
+}
+
+.f-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--flaash-ink);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.f-slider::-moz-range-thumb {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: var(--flaash-ink);
+  cursor: pointer;
+}
+
+/* ── QR card ── */
+.qr-card {
+  background: var(--flaash-cream);
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ── Status badge ── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
