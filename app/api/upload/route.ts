@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invité introuvable." }, { status: 404 });
   }
 
-  // Supabase returns the FK relation as a single object
-  const event = guest.events as {
+  // Supabase infers the FK join as an array type; cast via unknown
+  const event = guest.events as unknown as {
     id: string;
     status: string;
     photos_per_guest: number;
