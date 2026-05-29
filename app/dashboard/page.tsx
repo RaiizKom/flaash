@@ -12,20 +12,31 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
 };
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user;
+  let events: Event[] = [];
+  try {
+    const supabase = await createClient();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) console.error("[dashboard/page] getUser error:", userError.message);
+    user = userData.user;
+
+    if (user) {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false });
+      if (error) console.error("[dashboard/page] events query error:", error.message);
+      events = (data ?? []) as Event[];
+    }
+  } catch (err) {
+    console.error("[dashboard/page] createClient THREW:", err);
+    throw err;
+  }
 
   if (!user) redirect("/login");
 
-  const { data: events } = await supabase
-    .from("events")
-    .select("*")
-    .eq("owner_id", user.id)
-    .order("created_at", { ascending: false });
-
-  const eventsData = (events ?? []) as Event[];
+  const eventsData = events;
 
   return (
     <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 32, paddingBottom: 80 }}>
