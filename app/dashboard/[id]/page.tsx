@@ -3,10 +3,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { type Event, STATUS_LABELS, EVENT_TYPE_LABELS } from "@/types";
 import QRCodeCard from "./QRCodeCard";
-import { revealNow } from "./actions";
+import { revealNow, activateEvent } from "./actions";
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
@@ -17,7 +17,7 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
 };
 
 export default async function EventDetailPage({ params }: Props) {
-  const { id } = await params;
+  const { id } = params;
   const supabase = await createClient();
 
   const {
@@ -36,7 +36,6 @@ export default async function EventDetailPage({ params }: Props) {
 
   const ev = event as Event;
 
-  // Fetch stats
   const [{ count: photoCount }, { count: guestCount }] = await Promise.all([
     supabase
       .from("photos")
@@ -50,7 +49,8 @@ export default async function EventDetailPage({ params }: Props) {
       .eq("is_blocked", false),
   ]);
 
-  const appUrl   = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.app";
+  // BUG 4 fix — use NEXT_PUBLIC_APP_URL for the full guest link
+  const appUrl   = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const eventUrl = `${appUrl}/e/${ev.slug}`;
 
   const statusColors = STATUS_COLORS[ev.status] ?? STATUS_COLORS.draft;
@@ -115,14 +115,7 @@ export default async function EventDetailPage({ params }: Props) {
               textAlign: "center",
             }}
           >
-            <div
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 800,
-                fontSize: 28,
-                lineHeight: 1,
-              }}
-            >
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 28, lineHeight: 1 }}>
               {n}
             </div>
             <div style={{ fontSize: 11, color: "var(--fg-3)", marginTop: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
@@ -142,14 +135,7 @@ export default async function EventDetailPage({ params }: Props) {
             marginBottom: 24,
           }}
         >
-          <p
-            style={{
-              fontWeight: 700,
-              fontSize: 15,
-              color: "var(--flaash-amber-deep)",
-              marginBottom: 8,
-            }}
-          >
+          <p style={{ fontWeight: 700, fontSize: 15, color: "var(--flaash-amber-deep)", marginBottom: 8 }}>
             Activez votre événement
           </p>
           <p style={{ fontSize: 14, color: "var(--flaash-ink-soft)", marginBottom: 14 }}>
@@ -165,7 +151,30 @@ export default async function EventDetailPage({ params }: Props) {
         </div>
       )}
 
-      {/* Active / Revealed: show QR card on forest background */}
+      {/* BUG 3 — Dev-only: activate without payment */}
+      {process.env.NODE_ENV === "development" && ev.status === "draft" && (
+        <form action={activateEvent.bind(null, ev.id)} style={{ marginBottom: 16 }}>
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: "14px",
+              borderRadius: "var(--radius-sm)",
+              border: "2px dashed var(--flaash-forest)",
+              background: "var(--flaash-forest-soft)",
+              color: "var(--flaash-forest)",
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+              letterSpacing: "0.06em",
+            }}
+          >
+            DEV — ACTIVER SANS PAIEMENT
+          </button>
+        </form>
+      )}
+
+      {/* Active / Revealed: show QR card */}
       {(ev.status === "active" || ev.status === "revealed") && (
         <div
           style={{
@@ -177,7 +186,6 @@ export default async function EventDetailPage({ params }: Props) {
             overflow: "hidden",
           }}
         >
-          {/* Script accent */}
           <p className="f-script" style={{ color: "var(--flaash-amber)", marginBottom: 16, textAlign: "center" }}>
             {ev.status === "active"
               ? "tendez le code aux invités —"
@@ -217,7 +225,8 @@ export default async function EventDetailPage({ params }: Props) {
                 ? new Date(ev.reveal_at).toLocaleString("fr-CH")
                 : "Immédiate",
             ],
-            ["Lien", `flaash.app/e/${ev.slug}`],
+            // BUG 4 fix — use eventUrl (built from NEXT_PUBLIC_APP_URL)
+            ["Lien invité", eventUrl],
             ["Prix payé", `CHF ${ev.price_chf}`],
           ].map(([k, v]) => (
             <div
@@ -240,7 +249,7 @@ export default async function EventDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Reveal now button (active events only) */}
+      {/* Reveal now button (active events with a future reveal date) */}
       {ev.status === "active" && ev.reveal_at && (
         <form
           action={async () => {

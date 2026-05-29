@@ -2,11 +2,11 @@ import Link from "next/link";
 import { register } from "../actions";
 
 interface Props {
-  searchParams: Promise<{ error?: string; success?: string }>;
+  searchParams: { error?: string; success?: string };
 }
 
 export default async function RegisterPage({ searchParams }: Props) {
-  const { error, success } = await searchParams;
+  const { error, success } = searchParams;
 
   if (success === "check-email") {
     return (

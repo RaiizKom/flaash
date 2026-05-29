@@ -2,11 +2,11 @@ import Link from "next/link";
 import { login } from "../actions";
 
 interface Props {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: { error?: string; next?: string };
 }
 
 export default async function LoginPage({ searchParams }: Props) {
-  const { error, next } = await searchParams;
+  const { error, next } = searchParams;
 
   return (
     <div className="flex flex-col flex-1" style={{ background: "var(--flaash-ink)" }}>

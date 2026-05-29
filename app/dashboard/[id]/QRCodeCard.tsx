@@ -5,16 +5,21 @@ import { QRCodeSVG } from "qrcode.react";
 interface Props {
   url: string;
   title: string;
-  slug: string;
+  slug: string; // kept for caller compatibility
 }
 
-export default function QRCodeCard({ url, title, slug }: Props) {
+export default function QRCodeCard({ url, title }: Props) {
   async function handleShare() {
-    if (navigator.share) {
-      await navigator.share({ title, url });
-    } else {
-      await navigator.clipboard.writeText(url);
-      alert("Lien copié !");
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert("Lien copié !");
+      }
+    } catch {
+      // clipboard.writeText fails on HTTP (non-localhost) — fall back to prompt
+      prompt("Copie ce lien :", url);
     }
   }
 
@@ -37,7 +42,7 @@ export default function QRCodeCard({ url, title, slug }: Props) {
         />
       </div>
 
-      {/* Event name + slug */}
+      {/* Event name + full URL (BUG 4 fix — show actual URL from prop) */}
       <div style={{ textAlign: "center" }}>
         <p
           style={{
@@ -51,8 +56,8 @@ export default function QRCodeCard({ url, title, slug }: Props) {
         >
           {title}
         </p>
-        <p style={{ fontSize: 12, color: "var(--fg-3)", margin: "4px 0 0" }}>
-          flaash.app/e/{slug}
+        <p style={{ fontSize: 11, color: "var(--fg-3)", margin: "4px 0 0", wordBreak: "break-all" }}>
+          {url.replace(/^https?:\/\//, "")}
         </p>
       </div>
 
