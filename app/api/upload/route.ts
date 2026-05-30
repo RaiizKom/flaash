@@ -7,6 +7,12 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
+  console.log('[upload] ENV CHECK:', {
+    keyId:    process.env.CLOUDFLARE_R2_ACCESS_KEY_ID?.slice(0, 8),
+    secret:   process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY?.slice(0, 8),
+    endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
+    bucket:   process.env.CLOUDFLARE_R2_BUCKET,
+  });
   console.log("[upload] POST received");
 
   let formData: FormData;
