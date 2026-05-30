@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
   const thumbKey = `events/${guest.event_id}/thumbs/${photoId}.jpg`;
 
   console.log("[upload] uploading to R2...");
-  console.log("[upload] R2 key ID set:", !!process.env.CLOUDFLARE_R2_ACCESS_KEY_ID);
+  console.log("[upload] R2 key prefix:", process.env.CLOUDFLARE_R2_ACCESS_KEY_ID?.slice(0, 4));
   console.log("[upload] R2 secret set:", !!process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY);
   console.log("[upload] R2 endpoint:", process.env.CLOUDFLARE_R2_ENDPOINT);
   console.log("[upload] R2 bucket:", process.env.CLOUDFLARE_R2_BUCKET);
