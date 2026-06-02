@@ -10,10 +10,16 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user;
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+    if (error) console.error("[dashboard/layout] getUser error:", error.message);
+    user = data.user;
+  } catch (err) {
+    console.error("[dashboard/layout] createClient THREW:", err);
+    throw err;
+  }
 
   if (!user) redirect("/login");
 

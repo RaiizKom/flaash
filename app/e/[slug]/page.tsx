@@ -4,11 +4,11 @@ import { type Event, EVENT_TYPE_LABELS } from "@/types";
 import GuestCamera from "./GuestCamera";
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }
 
 export default async function EventGuestPage({ params }: Props) {
-  const { slug } = await params;
+  const { slug } = params;
   const supabase = createAdminClient();
 
   const { data: event } = await supabase

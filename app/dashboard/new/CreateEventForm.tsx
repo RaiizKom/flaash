@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createEvent } from "./actions";
-import {
-  type EventType,
-  EVENT_TYPE_LABELS,
-  EVENT_TYPE_TITLE_TEMPLATES,
-} from "@/types";
+import { type EventType, EVENT_TYPE_LABELS } from "@/types";
 import { calculatePrice, formatChf } from "@/lib/utils/pricing";
 
 const EVENT_TYPES: EventType[] = [
@@ -18,42 +14,182 @@ const EVENT_TYPES: EventType[] = [
   "other",
 ];
 
+const TITLE_PREFIXES: Record<EventType, string> = {
+  wedding:     "Mariage de ",
+  anniversary: "Anniversaire de ",
+  engagement:  "Fiançailles de ",
+  party:       "Soirée ",
+  corporate:   "Événement ",
+  other:       "",
+};
+
+const TITLE_PLACEHOLDERS: Record<EventType, string> = {
+  wedding:     "Marie & Jean",
+  anniversary: "Pierre — 50 ans",
+  engagement:  "Sophie & Thomas",
+  party:       "d'été",
+  corporate:   "Team Building",
+  other:       "Mon événement",
+};
+
+/* ── Stepper: − [number input] + ── */
+function Stepper({
+  id,
+  label,
+  value,
+  min,
+  max,
+  step = 1,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (n: number) => void;
+}) {
+  const clamp = (n: number) => Math.min(max, Math.max(min, n));
+
+  return (
+    <div className="f-input-wrap">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
+        <label className="f-label" htmlFor={id}>{label}</label>
+        <span style={{ fontSize: 11, color: "var(--fg-3)", fontWeight: 600 }}>
+          {min} – {max}
+        </span>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          background: "var(--surface-2)",
+          border: "1.5px solid var(--border)",
+          borderRadius: "var(--radius-sm)",
+          padding: "8px 12px",
+        }}
+      >
+        {/* − */}
+        <button
+          type="button"
+          onClick={() => onChange(clamp(value - step))}
+          disabled={value <= min}
+          style={{
+            width: 44, height: 44, borderRadius: "50%",
+            border: "1.5px solid var(--border)",
+            background: value <= min ? "transparent" : "var(--flaash-ink)",
+            color: value <= min ? "var(--fg-3)" : "var(--flaash-cream)",
+            fontSize: 22, fontWeight: 700, lineHeight: 1,
+            cursor: value <= min ? "not-allowed" : "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+            transition: "all var(--t-fast)",
+            userSelect: "none",
+          }}
+          aria-label={`Diminuer ${label}`}
+        >
+          −
+        </button>
+
+        {/* editable number */}
+        <input
+          id={id}
+          type="number"
+          inputMode="numeric"
+          value={value}
+          min={min}
+          max={max}
+          onChange={(e) => {
+            const n = parseInt(e.target.value, 10);
+            if (!isNaN(n)) onChange(clamp(n));
+          }}
+          onFocus={(e) => e.target.select()}
+          style={{
+            flex: 1,
+            textAlign: "center",
+            fontFamily: "var(--font-display)",
+            fontWeight: 800,
+            fontSize: 36,
+            border: "none",
+            background: "transparent",
+            color: "var(--flaash-ink)",
+            padding: 0,
+            outline: "none",
+            WebkitAppearance: "none",
+            MozAppearance: "textfield",
+          }}
+        />
+
+        {/* + */}
+        <button
+          type="button"
+          onClick={() => onChange(clamp(value + step))}
+          disabled={value >= max}
+          style={{
+            width: 44, height: 44, borderRadius: "50%",
+            border: "1.5px solid var(--border)",
+            background: value >= max ? "transparent" : "var(--flaash-ink)",
+            color: value >= max ? "var(--fg-3)" : "var(--flaash-cream)",
+            fontSize: 22, fontWeight: 700, lineHeight: 1,
+            cursor: value >= max ? "not-allowed" : "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+            transition: "all var(--t-fast)",
+            userSelect: "none",
+          }}
+          aria-label={`Augmenter ${label}`}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main form ── */
 export default function CreateEventForm({ error }: { error?: string }) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [eventType, setEventType] = useState<EventType>("wedding");
-  const [title, setTitle] = useState(EVENT_TYPE_TITLE_TEMPLATES.wedding);
+  const [title, setTitle]         = useState(TITLE_PREFIXES.wedding);
   const [maxGuests, setMaxGuests] = useState(75);
   const [photosPerGuest, setPhotosPerGuest] = useState(8);
-  const [revealMode, setRevealMode] = useState<"immediate" | "delayed">("delayed");
-  const [revealAt, setRevealAt] = useState("");
-  const [pending, setPending] = useState(false);
+  const [revealMode, setRevealMode] = useState<"immediate" | "delayed">("immediate");
+  const [revealAt, setRevealAt]   = useState("");
+  const [isPending, setIsPending] = useState(false);
 
   const price = calculatePrice(maxGuests, photosPerGuest);
 
   function handleTypeChange(type: EventType) {
     setEventType(type);
-    setTitle(EVENT_TYPE_TITLE_TEMPLATES[type]);
+    setTitle(TITLE_PREFIXES[type]);
   }
 
-  // BUG FIX: use onSubmit instead of form action={asyncFn}.
-  // In React 19, passing a client async function to <form action> routes all
-  // form events through React's transition system, which freezes controlled
-  // inputs (sliders, radios, chips) before any submission ever happens.
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (pending) return;
-    setPending(true);
-    const formData = new FormData(e.currentTarget);
-    // Inject state-driven values that are not native form fields
-    formData.set("event_type", eventType);
-    formData.set("reveal_mode", revealMode);
-    await createEvent(formData);
-    // redirect() in createEvent throws — Next.js handles navigation.
-    // This line only runs if createEvent somehow returns without redirecting.
-    setPending(false);
+  // type="button" means the browser NEVER fires a native form submission.
+  // We build FormData from state and call the server action directly.
+  async function handleSubmit() {
+    if (isPending) return;
+    setIsPending(true);
+    const fd = new FormData();
+    fd.set("title",            title);
+    fd.set("event_type",       eventType);
+    fd.set("max_guests",       String(maxGuests));
+    fd.set("photos_per_guest", String(photosPerGuest));
+    fd.set("reveal_mode",      revealMode);
+    if (revealMode === "delayed" && revealAt) fd.set("reveal_at", revealAt);
+    const checkbox = formRef.current?.querySelector<HTMLInputElement>(
+      "input[name=allow_library_upload]"
+    );
+    if (checkbox?.checked) fd.set("allow_library_upload", "on");
+    await createEvent(fd); // redirects on success; throws on error (handled by Next.js)
+    setIsPending(false);   // only reached if createEvent didn't redirect
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-7">
+    <form ref={formRef} className="flex flex-col gap-7">
+      {/* Error banner */}
       {error && (
         <div
           style={{
@@ -70,36 +206,27 @@ export default function CreateEventForm({ error }: { error?: string }) {
         </div>
       )}
 
-      {/* Event type chips */}
+      {/* ── Event type ── */}
       <div className="f-input-wrap">
         <label className="f-label">Type d&apos;événement</label>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
           {EVENT_TYPES.map((type) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => handleTypeChange(type)}
-              style={{
-                padding: "10px 16px",
-                borderRadius: "var(--radius-pill)",
-                border: "1.5px solid",
-                borderColor: eventType === type ? "var(--flaash-ink)" : "var(--border)",
-                background: eventType === type ? "var(--flaash-ink)" : "transparent",
-                color: eventType === type ? "var(--flaash-cream)" : "var(--fg-2)",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all var(--t-fast)",
-              }}
-            >
+            <label key={type} className="f-chip-radio">
+              <input
+                type="radio"
+                name="event_type"
+                value={type}
+                checked={eventType === type}
+                onChange={() => handleTypeChange(type)}
+                style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
+              />
               {EVENT_TYPE_LABELS[type]}
-            </button>
+            </label>
           ))}
         </div>
       </div>
 
-      {/* Title — BUG FIX: select-all on focus so the template is instantly
-          replaceable without having to manually clear "___" on mobile */}
+      {/* ── Title ── */}
       <div className="f-input-wrap">
         <label className="f-label" htmlFor="title">
           Titre de l&apos;événement
@@ -110,150 +237,47 @@ export default function CreateEventForm({ error }: { error?: string }) {
           type="text"
           required
           value={title}
+          placeholder={TITLE_PLACEHOLDERS[eventType]}
           onChange={(e) => setTitle(e.target.value)}
           onFocus={(e) => e.target.select()}
           className="f-input"
-          style={{ fontSize: 22 }}
+          style={{ fontSize: 20 }}
         />
       </div>
 
-      {/* Guests */}
-      <div className="f-input-wrap">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-          }}
-        >
-          <label className="f-label" htmlFor="max_guests">
-            Nombre d&apos;invités
-          </label>
-          <input
-            type="number"
-            name="max_guests"
-            value={maxGuests}
-            min={10}
-            max={500}
-            onChange={(e) => setMaxGuests(Number(e.target.value) || 10)}
-            onBlur={(e) => {
-              const v = Number(e.target.value);
-              setMaxGuests(Math.min(500, Math.max(10, isNaN(v) ? 10 : v)));
-            }}
-            style={{
-              fontFamily: "var(--font-display)",
-              fontWeight: 800,
-              fontSize: 22,
-              width: 72,
-              textAlign: "right",
-              border: "none",
-              background: "transparent",
-              color: "var(--fg)",
-              outline: "none",
-              MozAppearance: "textfield",
-            }}
-          />
-        </div>
-        <input
-          id="max_guests"
-          type="range"
-          min={10}
-          max={500}
-          step={5}
-          value={maxGuests}
-          onChange={(e) => setMaxGuests(Number(e.target.value))}
-          className="f-slider"
-          style={{ marginTop: 10 }}
-        />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: 12,
-            color: "var(--fg-3)",
-            marginTop: 4,
-          }}
-        >
-          <span>10</span>
-          <span>500</span>
-        </div>
-      </div>
+      {/* ── Steppers ── */}
+      <Stepper
+        id="max_guests"
+        label="Nombre d'invités"
+        value={maxGuests}
+        min={10}
+        max={500}
+        step={5}
+        onChange={setMaxGuests}
+      />
+      <Stepper
+        id="photos_per_guest"
+        label="Photos par invité"
+        value={photosPerGuest}
+        min={1}
+        max={20}
+        step={1}
+        onChange={setPhotosPerGuest}
+      />
 
-      {/* Photos per guest */}
-      <div className="f-input-wrap">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-          }}
-        >
-          <label className="f-label" htmlFor="photos_per_guest">
-            Photos par invité
-          </label>
-          <span
-            style={{
-              fontFamily: "var(--font-display)",
-              fontWeight: 800,
-              fontSize: 22,
-            }}
-          >
-            {photosPerGuest}
-          </span>
-        </div>
-        <input
-          id="photos_per_guest"
-          name="photos_per_guest"
-          type="range"
-          min={1}
-          max={20}
-          step={1}
-          value={photosPerGuest}
-          onChange={(e) => setPhotosPerGuest(Number(e.target.value))}
-          className="f-slider"
-          style={{ marginTop: 10 }}
-        />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: 12,
-            color: "var(--fg-3)",
-            marginTop: 4,
-          }}
-        >
-          <span>1</span>
-          <span>20</span>
-        </div>
-      </div>
-
-      {/* Reveal mode */}
+      {/* ── Galerie révélation ── */}
       <div className="f-input-wrap">
         <label className="f-label">Révélation de la galerie</label>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
           {(["immediate", "delayed"] as const).map((mode) => (
-            <label
-              key={mode}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "14px 16px",
-                borderRadius: "var(--radius-sm)",
-                border: "1.5px solid",
-                borderColor: revealMode === mode ? "var(--flaash-ink)" : "var(--border)",
-                background: revealMode === mode ? "var(--flaash-cream-deep)" : "transparent",
-                cursor: "pointer",
-                transition: "all var(--t-fast)",
-              }}
-            >
+            <label key={mode} className="f-reveal-option">
               <input
                 type="radio"
                 name="reveal_mode"
                 value={mode}
                 checked={revealMode === mode}
                 onChange={() => setRevealMode(mode)}
-                style={{ accentColor: "var(--flaash-ink)", width: 18, height: 18 }}
+                style={{ accentColor: "var(--flaash-ink)", width: 18, height: 18, flexShrink: 0 }}
               />
               <div>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>
@@ -270,6 +294,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
         </div>
       </div>
 
+      {/* ── Date/heure (conditional) ── */}
       {revealMode === "delayed" && (
         <div className="f-input-wrap">
           <label className="f-label" htmlFor="reveal_at">
@@ -287,7 +312,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
         </div>
       )}
 
-      {/* Library upload toggle */}
+      {/* ── Photothèque ── */}
       <label
         style={{
           display: "flex",
@@ -296,7 +321,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
           padding: "14px 16px",
           borderRadius: "var(--radius-sm)",
           background: "var(--surface-2)",
-          border: "1px solid var(--border)",
+          border: "1.5px solid var(--border)",
           cursor: "pointer",
         }}
       >
@@ -311,29 +336,30 @@ export default function CreateEventForm({ error }: { error?: string }) {
         <input
           type="checkbox"
           name="allow_library_upload"
-          style={{ accentColor: "var(--flaash-ink)", width: 20, height: 20 }}
+          style={{ accentColor: "var(--flaash-ink)", width: 20, height: 20, flexShrink: 0 }}
         />
       </label>
 
-      {/* Price card */}
+      {/* ── Prix dynamique ── */}
       <div
         style={{
           background: "var(--flaash-ink)",
           borderRadius: "var(--radius-md)",
-          padding: "20px 22px",
+          padding: "22px 22px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: 12,
         }}
       >
         <div>
           <p
             style={{
-              fontSize: 11,
-              fontWeight: 600,
+              fontSize: 10,
+              fontWeight: 700,
               textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              color: "rgba(250,247,242,0.6)",
+              letterSpacing: "0.16em",
+              color: "rgba(250,247,242,0.55)",
               margin: 0,
             }}
           >
@@ -343,7 +369,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 900,
-              fontSize: 38,
+              fontSize: 42,
               color: "var(--flaash-cream)",
               margin: "4px 0 0",
               lineHeight: 1,
@@ -353,32 +379,27 @@ export default function CreateEventForm({ error }: { error?: string }) {
           </p>
         </div>
         <div style={{ textAlign: "right" }}>
-          <p style={{ fontSize: 13, color: "rgba(250,247,242,0.6)", margin: 0 }}>
+          <p style={{ fontSize: 13, color: "rgba(250,247,242,0.55)", margin: 0 }}>
             {maxGuests} invités
           </p>
-          <p style={{ fontSize: 13, color: "rgba(250,247,242,0.6)", margin: "2px 0 0" }}>
+          <p style={{ fontSize: 13, color: "rgba(250,247,242,0.55)", margin: "3px 0 0" }}>
             × {photosPerGuest} photos
           </p>
         </div>
       </div>
 
-      {/* Submit */}
+      {/* ── Submit ── */}
       <div style={{ paddingBottom: 8 }}>
         <button
-          type="submit"
-          disabled={pending}
+          type="button"
+          onClick={handleSubmit}
+          disabled={isPending}
           className="btn-pill btn-amber"
+          style={{ opacity: isPending ? 0.6 : 1 }}
         >
-          {pending ? "CRÉATION…" : "CRÉER L'ÉVÉNEMENT →"}
+          {isPending ? "CRÉATION…" : "CRÉER L'ÉVÉNEMENT →"}
         </button>
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: 12,
-            color: "var(--fg-3)",
-            marginTop: 12,
-          }}
-        >
+        <p style={{ textAlign: "center", fontSize: 12, color: "var(--fg-3)", marginTop: 12 }}>
           Paiement Stripe requis pour activer l&apos;événement.
         </p>
       </div>

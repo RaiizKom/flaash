@@ -4,11 +4,11 @@ import Link from "next/link";
 import CreateEventForm from "./CreateEventForm";
 
 interface Props {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: { error?: string };
 }
 
 export default async function NewEventPage({ searchParams }: Props) {
-  const { error } = await searchParams;
+  const { error } = searchParams;
 
   return (
     <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>

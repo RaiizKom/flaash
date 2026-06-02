@@ -397,3 +397,51 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Chip radio (event type selector — native :checked, no JS needed) ── */
+.f-chip-radio {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  color: var(--fg-2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  position: relative;
+  user-select: none;
+}
+.f-chip-radio:has(input[type="radio"]:checked) {
+  border-color: var(--flaash-ink);
+  background: var(--flaash-ink);
+  color: var(--flaash-cream);
+}
+
+/* ── Reveal option toggle (native :checked, no JS needed) ── */
+.f-reveal-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.f-reveal-option:has(input[type="radio"]:checked) {
+  border-color: var(--flaash-ink);
+  background: var(--flaash-cream-deep);
+}
+
+/* ── Stepper number input — hide browser spinners ── */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
