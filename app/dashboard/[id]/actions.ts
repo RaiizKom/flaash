@@ -12,13 +12,19 @@ export async function revealNow(eventId: string) {
 
   if (!user) redirect("/login");
 
-  await supabase
+  const { data: event } = await supabase
     .from("events")
     .update({ status: "revealed", reveal_at: new Date().toISOString() })
     .eq("id", eventId)
-    .eq("owner_id", user.id);
+    .eq("owner_id", user.id)
+    .select("slug")
+    .single();
 
   revalidatePath(`/dashboard/${eventId}`);
+  if (event?.slug) {
+    revalidatePath(`/e/${event.slug}`);
+    revalidatePath(`/e/${event.slug}/gallery`);
+  }
 }
 
 export async function activateWithoutPayment(eventId: string) {

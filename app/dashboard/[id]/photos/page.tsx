@@ -40,6 +40,14 @@ export default async function PhotosPage({ params }: Props) {
   const activePhotos = allPhotos.filter((p) => !p.is_deleted);
   const deletedPhotos = allPhotos.filter((p) => p.is_deleted);
 
+  // Debug: log photo URLs to server/Vercel logs
+  if (allPhotos.length > 0) {
+    console.log("[photos] count:", allPhotos.length);
+    allPhotos.slice(0, 3).forEach((p, i) =>
+      console.log(`[photos][${i}] thumbnail_url=${p.thumbnail_url} storage_url=${p.storage_url}`)
+    );
+  }
+
   return (
     <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>
       {/* Back */}
@@ -109,10 +117,20 @@ export default async function PhotosPage({ params }: Props) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={photo.thumbnail_url || photo.storage_url}
+                src={photo.storage_url}
                 alt=""
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.2"; }}
               />
+              {/* Debug: URL visible under image */}
+              <div style={{
+                position: "absolute", bottom: 0, left: 0, right: 0,
+                background: "rgba(0,0,0,0.7)", color: "#fff",
+                fontSize: 8, padding: "2px 4px", wordBreak: "break-all",
+                lineHeight: 1.2,
+              }}>
+                {photo.storage_url}
+              </div>
               <form
                 action={deletePhoto.bind(null, photo.id, id)}
                 style={{ position: "absolute", top: 4, right: 4 }}

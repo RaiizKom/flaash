@@ -1,4 +1,7 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { type Event, EVENT_TYPE_LABELS } from "@/types";
 import GuestCamera from "./GuestCamera";
@@ -65,9 +68,13 @@ export default async function EventGuestPage({ params }: Props) {
         <h1 className="f-h2" style={{ textAlign: "center", marginBottom: 20 }}>
           {event.title}
         </h1>
-        <p style={{ color: "var(--fg-3)", fontSize: 14, textAlign: "center" }}>
-          La galerie photo de cet événement est disponible.
-        </p>
+        <Link
+          href={`/e/${slug}/gallery`}
+          className="btn-pill btn-forest"
+          style={{ maxWidth: 280 }}
+        >
+          VOIR LA GALERIE →
+        </Link>
       </div>
     );
   }

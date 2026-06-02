@@ -290,12 +290,31 @@ export default function GuestCamera({ event }: { event: Event }) {
         >
           {taken} photo{taken > 1 ? "s" : ""} capturée{taken > 1 ? "s" : ""}
         </h2>
-        <p style={{ color: "rgba(250,247,242,0.65)", fontSize: 14, maxWidth: 280 }}>
-          Tu as utilisé toutes tes photos pour cet événement.{" "}
-          {event.reveal_at === null
-            ? "📷 La galerie est disponible après la soirée."
-            : "La galerie sera révélée bientôt."}
+        <p style={{ color: "rgba(250,247,242,0.65)", fontSize: 14, maxWidth: 280, marginBottom: 20 }}>
+          Tu as utilisé toutes tes photos pour cet événement.
         </p>
+        {event.reveal_at === null ? (
+          <a
+            href={`/e/${event.slug}/gallery`}
+            style={{
+              display: "inline-block",
+              padding: "12px 24px",
+              background: "var(--flaash-amber)",
+              color: "var(--flaash-ink)",
+              borderRadius: "var(--radius-pill)",
+              fontWeight: 700,
+              fontSize: 13,
+              letterSpacing: "0.08em",
+              textDecoration: "none",
+            }}
+          >
+            GALERIE DISPONIBLE MAINTENANT →
+          </a>
+        ) : (
+          <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 13 }}>
+            La galerie sera révélée bientôt.
+          </p>
+        )}
 
         {lastThumb && (
           <div
@@ -493,9 +512,18 @@ export default function GuestCamera({ event }: { event: Event }) {
         </p>
 
         {event.reveal_at === null && (
-          <p style={{ fontSize: 12, color: "var(--fg-3)", textAlign: "center", maxWidth: 240 }}>
-            📷 La galerie est disponible après la soirée.
-          </p>
+          <a
+            href={`/e/${event.slug}/gallery`}
+            style={{
+              fontSize: 12,
+              color: "var(--flaash-forest)",
+              fontWeight: 600,
+              textDecoration: "underline",
+              textUnderlineOffset: 3,
+            }}
+          >
+            Galerie disponible maintenant →
+          </a>
         )}
       </div>
 

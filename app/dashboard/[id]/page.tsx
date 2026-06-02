@@ -143,34 +143,11 @@ export default async function EventDetailPage({ params }: Props) {
           <p style={{ fontSize: 14, color: "var(--flaash-ink-soft)", marginBottom: 14 }}>
             Procédez au paiement pour générer le QR code et accueillir vos invités.
           </p>
-          <Link
-            href={`/dashboard/${ev.id}/checkout`}
-            className="btn-pill btn-amber"
-            style={{ fontSize: 14 }}
-          >
-            PAYER {ev.price_chf} CHF →
-          </Link>
-
-          {process.env.NODE_ENV === "development" && (
-            <form action={activateEvent.bind(null, ev.id)} style={{ marginTop: 10 }}>
-              <button
-                type="submit"
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "var(--flaash-amber-deep)",
-                  background: "none",
-                  border: "1.5px dashed var(--flaash-amber-deep)",
-                  borderRadius: "var(--radius-pill)",
-                  padding: "8px 16px",
-                  cursor: "pointer",
-                  letterSpacing: "0.06em",
-                }}
-              >
-                ⚡ ACTIVER SANS PAIEMENT (dev)
-              </button>
-            </form>
-          )}
+          <form action={activateEvent.bind(null, ev.id)}>
+            <button type="submit" className="btn-pill btn-amber" style={{ fontSize: 14 }}>
+              ⚡ ACTIVER L&apos;ÉVÉNEMENT →
+            </button>
+          </form>
         </div>
       )}
 

@@ -51,6 +51,21 @@ function Stepper({
   onChange: (n: number) => void;
 }) {
   const clamp = (n: number) => Math.min(max, Math.max(min, n));
+  // raw lets the user type freely — clamped only on blur, not on every keystroke
+  const [raw, setRaw] = useState(String(value));
+
+  function commit(raw: string) {
+    const n = parseInt(raw, 10);
+    const clamped = clamp(isNaN(n) ? min : n);
+    setRaw(String(clamped));
+    onChange(clamped);
+  }
+
+  function stepBy(delta: number) {
+    const next = clamp(value + delta);
+    setRaw(String(next));
+    onChange(next);
+  }
 
   return (
     <div className="f-input-wrap">
@@ -75,7 +90,7 @@ function Stepper({
         {/* − */}
         <button
           type="button"
-          onClick={() => onChange(clamp(value - step))}
+          onClick={() => stepBy(-step)}
           disabled={value <= min}
           style={{
             width: 44, height: 44, borderRadius: "50%",
@@ -94,18 +109,14 @@ function Stepper({
           −
         </button>
 
-        {/* editable number */}
+        {/* editable number — free typing, clamp on blur only */}
         <input
           id={id}
           type="number"
           inputMode="numeric"
-          value={value}
-          min={min}
-          max={max}
-          onChange={(e) => {
-            const n = parseInt(e.target.value, 10);
-            if (!isNaN(n)) onChange(clamp(n));
-          }}
+          value={raw}
+          onChange={(e) => setRaw(e.target.value)}
+          onBlur={() => commit(raw)}
           onFocus={(e) => e.target.select()}
           style={{
             flex: 1,
@@ -126,7 +137,7 @@ function Stepper({
         {/* + */}
         <button
           type="button"
-          onClick={() => onChange(clamp(value + step))}
+          onClick={() => stepBy(step)}
           disabled={value >= max}
           style={{
             width: 44, height: 44, borderRadius: "50%",
