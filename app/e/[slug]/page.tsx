@@ -58,23 +58,80 @@ export default async function EventGuestPage({ params }: Props) {
 
   if (event.status === "revealed") {
     return (
-      <div className="flaash-shell" style={shellCenter}>
-        <p
-          className="f-script"
-          style={{ color: "var(--flaash-forest)", marginBottom: 12, fontSize: 32 }}
+      <div
+        style={{
+          minHeight: "100dvh",
+          display: "flex",
+          flexDirection: "column",
+          background: "var(--flaash-ink)",
+        }}
+      >
+        {/* Amber top stripe */}
+        <div style={{ height: 6, background: "var(--flaash-amber)", flexShrink: 0 }} />
+
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "40px 28px",
+            textAlign: "center",
+          }}
         >
-          la galerie est révélée.
-        </p>
-        <h1 className="f-h2" style={{ textAlign: "center", marginBottom: 20 }}>
-          {event.title}
-        </h1>
-        <Link
-          href={`/e/${slug}/gallery`}
-          className="btn-pill btn-forest"
-          style={{ maxWidth: 280 }}
-        >
-          VOIR LA GALERIE →
-        </Link>
+          {/* Script subtitle */}
+          <p
+            className="f-script"
+            style={{
+              color: "var(--flaash-amber)",
+              fontSize: 28,
+              marginBottom: 16,
+              lineHeight: 1,
+            }}
+          >
+            vos souvenirs sont développés.
+          </p>
+
+          {/* Playfair title */}
+          <h1
+            className="f-display"
+            style={{
+              color: "var(--flaash-cream)",
+              fontSize: "clamp(28px, 8vw, 48px)",
+              marginBottom: 8,
+              lineHeight: 1.1,
+            }}
+          >
+            La galerie est disponible&nbsp;!
+          </h1>
+
+          {/* Event name */}
+          <p
+            style={{
+              color: "rgba(250,247,242,0.45)",
+              fontSize: 14,
+              fontWeight: 500,
+              marginBottom: 40,
+            }}
+          >
+            {event.title}
+          </p>
+
+          {/* CTA */}
+          <Link
+            href={`/e/${slug}/gallery`}
+            className="btn-pill btn-ink"
+            style={{
+              background: "var(--flaash-cream)",
+              color: "var(--flaash-ink)",
+              maxWidth: 280,
+              fontSize: 14,
+            }}
+          >
+            VOIR LA GALERIE →
+          </Link>
+        </div>
       </div>
     );
   }
