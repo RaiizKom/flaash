@@ -98,12 +98,24 @@ export default function GuestCamera({ event }: { event: Event }) {
     setIsUploading(true);
     const previewUrl = URL.createObjectURL(file);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+
     try {
       const fd = new FormData();
       fd.append("token", session.token);
       fd.append("file", file);
 
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      let res: Response;
+      try {
+        res = await fetch("/api/upload", { method: "POST", body: fd, signal: controller.signal });
+      } catch (err) {
+        const isTimeout = err instanceof Error && err.name === "AbortError";
+        showToast(isTimeout ? "Délai dépassé. Réessaie." : "Erreur réseau. Réessaie.", false);
+        return;
+      } finally {
+        clearTimeout(timeoutId);
+      }
       const data = await res.json();
 
       if (!res.ok) {
@@ -129,8 +141,6 @@ export default function GuestCamera({ event }: { event: Event }) {
       if (data.remainingShots === 0) {
         setTimeout(() => setPhase("quota-full"), 1400);
       }
-    } catch {
-      showToast("Erreur réseau. Réessaie.", false);
     } finally {
       setIsUploading(false);
     }
@@ -281,8 +291,10 @@ export default function GuestCamera({ event }: { event: Event }) {
           {taken} photo{taken > 1 ? "s" : ""} capturée{taken > 1 ? "s" : ""}
         </h2>
         <p style={{ color: "rgba(250,247,242,0.65)", fontSize: 14, maxWidth: 280 }}>
-          Tu as utilisé toutes tes photos pour cet événement.
-          La galerie sera révélée bientôt.
+          Tu as utilisé toutes tes photos pour cet événement.{" "}
+          {event.reveal_at === null
+            ? "📷 La galerie est disponible après la soirée."
+            : "La galerie sera révélée bientôt."}
         </p>
 
         {lastThumb && (
@@ -479,6 +491,12 @@ export default function GuestCamera({ event }: { event: Event }) {
         >
           {isUploading ? "Envoi en cours…" : "PRENDRE UNE PHOTO"}
         </p>
+
+        {event.reveal_at === null && (
+          <p style={{ fontSize: 12, color: "var(--fg-3)", textAlign: "center", maxWidth: 240 }}>
+            📷 La galerie est disponible après la soirée.
+          </p>
+        )}
       </div>
 
       {/* Hidden file input */}

@@ -14,7 +14,7 @@ export default async function EventGuestPage({ params }: Props) {
   const { data: event } = await supabase
     .from("events")
     .select(
-      "id, title, slug, status, photos_per_guest, allow_library_upload, max_guests, event_type"
+      "id, title, slug, status, photos_per_guest, allow_library_upload, max_guests, event_type, reveal_at"
     )
     .eq("slug", slug)
     .single();

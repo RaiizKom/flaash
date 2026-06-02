@@ -1,9 +1,11 @@
+export const dynamic = 'force-dynamic';
+
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { type Event, STATUS_LABELS, EVENT_TYPE_LABELS } from "@/types";
 import QRCodeCard from "./QRCodeCard";
-import { revealNow } from "./actions";
+import { revealNow, activateWithoutPayment } from "./actions";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -162,6 +164,33 @@ export default async function EventDetailPage({ params }: Props) {
           >
             PAYER {ev.price_chf} CHF →
           </Link>
+
+          {process.env.NODE_ENV === "development" && (
+            <form
+              action={async () => {
+                "use server";
+                await activateWithoutPayment(ev.id);
+              }}
+              style={{ marginTop: 10 }}
+            >
+              <button
+                type="submit"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "var(--flaash-amber-deep)",
+                  background: "none",
+                  border: "1.5px dashed var(--flaash-amber-deep)",
+                  borderRadius: "var(--radius-pill)",
+                  padding: "8px 16px",
+                  cursor: "pointer",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                ⚡ ACTIVER SANS PAIEMENT (dev)
+              </button>
+            </form>
+          )}
         </div>
       )}
 
@@ -241,7 +270,7 @@ export default async function EventDetailPage({ params }: Props) {
       </div>
 
       {/* Reveal now button (active events only) */}
-      {ev.status === "active" && ev.reveal_at && (
+      {ev.status === "active" && (
         <form
           action={async () => {
             "use server";

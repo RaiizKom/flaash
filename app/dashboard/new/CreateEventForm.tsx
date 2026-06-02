@@ -129,19 +129,33 @@ export default function CreateEventForm({ error }: { error?: string }) {
           <label className="f-label" htmlFor="max_guests">
             Nombre d&apos;invités
           </label>
-          <span
+          <input
+            type="number"
+            name="max_guests"
+            value={maxGuests}
+            min={10}
+            max={500}
+            onChange={(e) => setMaxGuests(Number(e.target.value) || 10)}
+            onBlur={(e) => {
+              const v = Number(e.target.value);
+              setMaxGuests(Math.min(500, Math.max(10, isNaN(v) ? 10 : v)));
+            }}
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 800,
               fontSize: 22,
+              width: 72,
+              textAlign: "right",
+              border: "none",
+              background: "transparent",
+              color: "var(--fg)",
+              outline: "none",
+              MozAppearance: "textfield",
             }}
-          >
-            {maxGuests}
-          </span>
+          />
         </div>
         <input
           id="max_guests"
-          name="max_guests"
           type="range"
           min={10}
           max={500}
