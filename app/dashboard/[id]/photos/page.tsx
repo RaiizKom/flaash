@@ -3,8 +3,8 @@ export const dynamic = "force-dynamic";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { type Event, type Photo } from "@/types";
-import { deletePhoto, restorePhoto } from "./actions";
+import { type Event } from "@/types";
+import PhotoGrid, { type PhotoItem } from "./PhotoGrid";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -27,26 +27,34 @@ export default async function PhotosPage({ params }: Props) {
     .single();
 
   if (!event) notFound();
-
   const ev = event as Event;
 
-  const { data: photos } = await supabase
+  const { data: rows } = await supabase
     .from("photos")
-    .select("*")
+    .select("id, storage_url, thumbnail_url, taken_at, is_deleted, guests(first_name)")
     .eq("event_id", id)
     .order("taken_at", { ascending: false });
 
-  const allPhotos = (photos ?? []) as Photo[];
-  const activePhotos = allPhotos.filter((p) => !p.is_deleted);
-  const deletedPhotos = allPhotos.filter((p) => p.is_deleted);
+  const allPhotos: PhotoItem[] = (rows ?? []).map((p: {
+    id: string;
+    storage_url: string;
+    thumbnail_url: string;
+    taken_at: string;
+    is_deleted: boolean;
+    guests: { first_name: string } | { first_name: string }[] | null;
+  }) => ({
+    id:            p.id,
+    storage_url:   p.storage_url,
+    thumbnail_url: p.thumbnail_url,
+    taken_at:      p.taken_at,
+    is_deleted:    p.is_deleted,
+    guestName:     p.guests
+      ? (Array.isArray(p.guests) ? p.guests[0]?.first_name : p.guests.first_name) ?? null
+      : null,
+  }));
 
-  // Debug: log photo URLs to server/Vercel logs
-  if (allPhotos.length > 0) {
-    console.log("[photos] count:", allPhotos.length);
-    allPhotos.slice(0, 3).forEach((p, i) =>
-      console.log(`[photos][${i}] thumbnail_url=${p.thumbnail_url} storage_url=${p.storage_url}`)
-    );
-  }
+  const activePhotos  = allPhotos.filter((p) => !p.is_deleted);
+  const deletedPhotos = allPhotos.filter((p) =>  p.is_deleted);
 
   return (
     <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>
@@ -94,127 +102,11 @@ export default async function PhotosPage({ params }: Props) {
         </div>
       )}
 
-      {/* Active photos grid */}
-      {activePhotos.length > 0 && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 8,
-            marginBottom: 32,
-          }}
-        >
-          {activePhotos.map((photo) => (
-            <div
-              key={photo.id}
-              style={{
-                position: "relative",
-                aspectRatio: "1",
-                borderRadius: "var(--radius-sm)",
-                overflow: "hidden",
-                background: "var(--surface-2)",
-              }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo.storage_url}
-                alt=""
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.2"; }}
-              />
-              {/* Debug: URL visible under image */}
-              <div style={{
-                position: "absolute", bottom: 0, left: 0, right: 0,
-                background: "rgba(0,0,0,0.7)", color: "#fff",
-                fontSize: 8, padding: "2px 4px", wordBreak: "break-all",
-                lineHeight: 1.2,
-              }}>
-                {photo.storage_url}
-              </div>
-              <form
-                action={deletePhoto.bind(null, photo.id, id)}
-                style={{ position: "absolute", top: 4, right: 4 }}
-              >
-                <button
-                  type="submit"
-                  title="Supprimer"
-                  style={{
-                    background: "rgba(0,0,0,0.55)",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: 28,
-                    height: 28,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    color: "white",
-                    fontSize: 18,
-                    lineHeight: 1,
-                  }}
-                >
-                  ×
-                </button>
-              </form>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Deleted photos */}
-      {deletedPhotos.length > 0 && (
-        <>
-          <p className="f-eyebrow" style={{ marginBottom: 12 }}>SUPPRIMÉES</p>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 8,
-              opacity: 0.5,
-            }}
-          >
-            {deletedPhotos.map((photo) => (
-              <div
-                key={photo.id}
-                style={{
-                  position: "relative",
-                  aspectRatio: "1",
-                  borderRadius: "var(--radius-sm)",
-                  overflow: "hidden",
-                  background: "var(--surface-2)",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.thumbnail_url || photo.storage_url}
-                  alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
-                <form
-                  action={restorePhoto.bind(null, photo.id, id)}
-                  style={{ position: "absolute", bottom: 4, right: 4 }}
-                >
-                  <button
-                    type="submit"
-                    style={{
-                      background: "rgba(0,0,0,0.55)",
-                      border: "none",
-                      borderRadius: "var(--radius-sm)",
-                      padding: "3px 8px",
-                      cursor: "pointer",
-                      color: "white",
-                      fontSize: 11,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Restaurer
-                  </button>
-                </form>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+      <PhotoGrid
+        eventId={id}
+        activePhotos={activePhotos}
+        deletedPhotos={deletedPhotos}
+      />
     </div>
   );
 }
