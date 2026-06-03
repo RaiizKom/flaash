@@ -115,23 +115,23 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
   const [isDownloading, setIsDownloading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null); // photo id pending confirm
 
-  // Read guest session from localStorage (debug + two possible keys)
+  // Read guest session from localStorage — key: flaash_guest_<slug>
   useEffect(() => {
     try {
-      // Debug: log all relevant localStorage values
-      const legacyToken = localStorage.getItem("guest_token");
-      const sessionRaw  = localStorage.getItem(`flaash_guest_${eventSlug}`);
-      console.log("[gallery] guest_token:", legacyToken);
-      console.log("[gallery] flaash_guest key:", sessionRaw);
-      console.log("[gallery] photo guest_ids:", photos.map((p) => p.guest_id));
-
+      const sessionRaw = localStorage.getItem(`flaash_guest_${eventSlug}`);
+      console.log("[gallery] localStorage key:", `flaash_guest_${eventSlug}`);
+      console.log("[gallery] raw session:", sessionRaw);
       if (sessionRaw) {
         const s = JSON.parse(sessionRaw) as { guestId: string };
-        console.log("[gallery] guestId from session:", s.guestId);
+        console.log("[gallery] guestId:", s.guestId);
+        console.log("[gallery] photo guest_ids:", photos.map((p) => p.guest_id));
         setGuestId(s.guestId);
+      } else {
+        console.log("[gallery] no session found for slug:", eventSlug);
       }
     } catch { /* */ }
-  }, [eventSlug, photos]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventSlug]); // photos intentionally excluded — stable initial value
 
   // BUG 2: Realtime — watch event status changes
   useEffect(() => {

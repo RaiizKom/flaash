@@ -19,6 +19,11 @@ interface Toast {
   ok: boolean;
 }
 
+interface UploadedPhoto {
+  id: string;
+  thumbnailUrl: string;
+}
+
 export default function GuestCamera({ event }: { event: Event }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [session, setSession] = useState<GuestSession | null>(null);
@@ -29,6 +34,8 @@ export default function GuestCamera({ event }: { event: Event }) {
   const [lastThumb, setLastThumb] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
+  const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const storageKey = `flaash_guest_${event.slug}`;
 
@@ -39,21 +46,41 @@ export default function GuestCamera({ event }: { event: Event }) {
     setTimeout(() => setToast(null), 3200);
   }, []);
 
-  // Restore session from localStorage on mount
+  // Restore session from localStorage on mount + fetch existing photos
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw) {
-        const s = JSON.parse(raw) as GuestSession;
-        setSession(s);
-        setPhase(s.photosTaken >= event.photos_per_guest ? "quota-full" : "camera");
-        return;
+    let mounted = true;
+    async function restore() {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) {
+          const s = JSON.parse(raw) as GuestSession;
+          if (mounted) {
+            setSession(s);
+            setPhase(s.photosTaken >= event.photos_per_guest ? "quota-full" : "camera");
+          }
+          // Fetch this guest's existing photos via Supabase anon client
+          const supabase = createClient();
+          const { data: rows } = await supabase
+            .from("photos")
+            .select("id, thumbnail_url")
+            .eq("event_id", event.id)
+            .eq("guest_id", s.guestId)
+            .eq("is_deleted", false)
+            .order("taken_at", { ascending: true });
+          if (mounted && rows) {
+            setUploadedPhotos(rows.map((r) => ({ id: r.id, thumbnailUrl: r.thumbnail_url })));
+          }
+          return;
+        }
+      } catch {
+        // corrupted — fall through to join
       }
-    } catch {
-      // corrupted — fall through to join
+      if (mounted) setPhase("join");
     }
-    setPhase("join");
-  }, [storageKey, event.photos_per_guest]);
+    restore();
+    return () => { mounted = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey, event.photos_per_guest, event.id]);
 
   // Realtime: watch for event status → "revealed"
   useEffect(() => {
@@ -156,6 +183,8 @@ export default function GuestCamera({ event }: { event: Event }) {
       localStorage.setItem(storageKey, JSON.stringify(updated));
       setSession(updated);
       setLastThumb(previewUrl);
+      // Track uploaded photo for carousel
+      setUploadedPhotos((prev) => [...prev, { id: data.photoId, thumbnailUrl: data.thumbnailUrl }]);
       showToast("Photo enregistrée !");
 
       if (data.remainingShots === 0) {
@@ -164,6 +193,25 @@ export default function GuestCamera({ event }: { event: Event }) {
     } finally {
       setIsUploading(false);
     }
+  }
+
+  // ── Delete own photo ─────────────────────────────────────────────────────
+
+  async function handleDeletePhoto(photoId: string) {
+    const token = session?.token;
+    if (!token) return;
+    const res = await fetch(`/api/photos/${photoId}`, {
+      method: "DELETE",
+      headers: { Authorization: token },
+    });
+    if (res.ok) {
+      setUploadedPhotos((prev) => prev.filter((p) => p.id !== photoId));
+      const newCount = Math.max(0, (session?.photosTaken ?? 1) - 1);
+      const updated: GuestSession = { ...session!, photosTaken: newCount };
+      localStorage.setItem(storageKey, JSON.stringify(updated));
+      setSession(updated);
+    }
+    setDeleteConfirm(null);
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -602,6 +650,53 @@ export default function GuestCamera({ event }: { event: Event }) {
         )}
       </div>
 
+      {/* ── Carrousel photos prises ─────────────────────────────────────── */}
+      {uploadedPhotos.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--fg-3)", textTransform: "uppercase", marginBottom: 10 }}>
+            Mes photos ({uploadedPhotos.length})
+          </p>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              overflowX: "auto",
+              paddingBottom: 4,
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            {uploadedPhotos.map((photo) => (
+              <div
+                key={photo.id}
+                style={{ position: "relative", flexShrink: 0, width: 80, height: 80, borderRadius: "var(--radius-sm)", overflow: "hidden", background: "var(--surface-2)" }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo.thumbnailUrl}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setDeleteConfirm(photo.id)}
+                  style={{
+                    position: "absolute", top: 3, right: 3,
+                    background: "rgba(220,38,38,0.85)",
+                    border: "none", borderRadius: "50%",
+                    width: 22, height: 22,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", color: "white", fontSize: 12, lineHeight: 1,
+                  }}
+                  aria-label="Supprimer"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Hidden file input */}
       <input
         ref={fileRef}
@@ -611,6 +706,30 @@ export default function GuestCamera({ event }: { event: Event }) {
         style={{ display: "none" }}
         onChange={handleFileChange}
       />
+
+      {/* Delete confirmation */}
+      {deleteConfirm && (
+        <div
+          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(10,8,5,0.82)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+          onClick={() => setDeleteConfirm(null)}
+        >
+          <div
+            style={{ background: "var(--flaash-cream)", borderRadius: "var(--radius-xl)", padding: "28px 24px", maxWidth: 300, width: "100%", textAlign: "center" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Supprimer cette photo ?</p>
+            <p style={{ color: "var(--fg-3)", fontSize: 14, marginBottom: 24 }}>Cette action est irréversible.</p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: "12px", borderRadius: "var(--radius-pill)", border: "1.5px solid var(--border)", background: "transparent", cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
+                Annuler
+              </button>
+              <button onClick={() => handleDeletePhoto(deleteConfirm)} style={{ flex: 1, padding: "12px", borderRadius: "var(--radius-pill)", border: "none", background: "#dc2626", color: "white", cursor: "pointer", fontWeight: 700, fontSize: 13 }}>
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (
