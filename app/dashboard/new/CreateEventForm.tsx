@@ -79,12 +79,12 @@ function Stepper({
       <div
         style={{
           display: "flex",
+          justifyContent: "space-between",
           alignItems: "center",
-          gap: 8,
           background: "var(--surface-2)",
           border: "1.5px solid var(--border)",
           borderRadius: "var(--radius-sm)",
-          padding: "8px 10px",
+          padding: "10px 12px",
         }}
       >
         {/* − */}
@@ -93,14 +93,15 @@ function Stepper({
           onClick={() => stepBy(-step)}
           disabled={value <= min}
           style={{
-            width: 40, height: 40, borderRadius: "50%",
+            width: 48, height: 48,
+            flexShrink: 0,
+            borderRadius: "50%",
             border: "1.5px solid var(--border)",
             background: value <= min ? "transparent" : "var(--flaash-ink)",
             color: value <= min ? "var(--fg-3)" : "var(--flaash-cream)",
-            fontSize: 20, fontWeight: 700, lineHeight: 1,
+            fontSize: 22, fontWeight: 700, lineHeight: 1,
             cursor: value <= min ? "not-allowed" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0,
             transition: "all var(--t-fast)",
             userSelect: "none",
           }}
@@ -124,11 +125,11 @@ function Stepper({
             textAlign: "center",
             fontFamily: "var(--font-display)",
             fontWeight: 800,
-            fontSize: "clamp(24px, 7vw, 32px)",
+            fontSize: 32,
             border: "none",
             background: "transparent",
             color: "var(--flaash-ink)",
-            padding: 0,
+            padding: "0 8px",
             outline: "none",
             WebkitAppearance: "none",
             MozAppearance: "textfield",
@@ -141,14 +142,15 @@ function Stepper({
           onClick={() => stepBy(step)}
           disabled={value >= max}
           style={{
-            width: 40, height: 40, borderRadius: "50%",
+            width: 48, height: 48,
+            flexShrink: 0,
+            borderRadius: "50%",
             border: "1.5px solid var(--border)",
             background: value >= max ? "transparent" : "var(--flaash-ink)",
             color: value >= max ? "var(--fg-3)" : "var(--flaash-cream)",
-            fontSize: 20, fontWeight: 700, lineHeight: 1,
+            fontSize: 22, fontWeight: 700, lineHeight: 1,
             cursor: value >= max ? "not-allowed" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0,
             transition: "all var(--t-fast)",
             userSelect: "none",
           }}

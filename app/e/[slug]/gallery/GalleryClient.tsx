@@ -115,16 +115,23 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
   const [isDownloading, setIsDownloading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null); // photo id pending confirm
 
-  // Read guest session from localStorage
+  // Read guest session from localStorage (debug + two possible keys)
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(`flaash_guest_${eventSlug}`);
-      if (raw) {
-        const s = JSON.parse(raw) as { guestId: string };
+      // Debug: log all relevant localStorage values
+      const legacyToken = localStorage.getItem("guest_token");
+      const sessionRaw  = localStorage.getItem(`flaash_guest_${eventSlug}`);
+      console.log("[gallery] guest_token:", legacyToken);
+      console.log("[gallery] flaash_guest key:", sessionRaw);
+      console.log("[gallery] photo guest_ids:", photos.map((p) => p.guest_id));
+
+      if (sessionRaw) {
+        const s = JSON.parse(sessionRaw) as { guestId: string };
+        console.log("[gallery] guestId from session:", s.guestId);
         setGuestId(s.guestId);
       }
     } catch { /* */ }
-  }, [eventSlug]);
+  }, [eventSlug, photos]);
 
   // BUG 2: Realtime — watch event status changes
   useEffect(() => {
@@ -240,15 +247,19 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
       {photos.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 6 }}>
           {photos.map((photo, index) => (
-            <div key={photo.id} style={{ position: "relative", aspectRatio: "1", borderRadius: 4, overflow: "hidden", background: "rgba(250,247,242,0.05)", cursor: "zoom-in" }}>
+            <div key={photo.id} style={{ position: "relative", aspectRatio: "1", borderRadius: 4, overflow: "hidden", background: "rgba(250,247,242,0.05)" }}>
               <button
                 type="button"
-                onClick={() => setLightboxIdx(index)}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxIdx(index); }}
                 style={{ display: "block", width: "100%", height: "100%", padding: 0, border: "none", background: "none", cursor: "zoom-in" }}
                 aria-label="Agrandir"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.thumbnail_url || photo.storage_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <img
+                  src={photo.thumbnail_url || photo.storage_url}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }}
+                />
               </button>
 
               {/* FEATURE 7: Delete button for own photos only */}
