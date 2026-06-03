@@ -262,21 +262,24 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
                 />
               </button>
 
-              {/* FEATURE 7: Delete button for own photos only */}
+              {/* Delete button — own photos only */}
               {guestId && photo.guest_id === guestId && (
                 <button
                   type="button"
                   onClick={() => setDeleteConfirm(photo.id)}
                   title="Supprimer ma photo"
                   style={{
-                    position: "absolute", bottom: 4, right: 4,
-                    background: "rgba(0,0,0,0.6)", border: "none",
-                    borderRadius: "50%", width: 28, height: 28,
+                    position: "absolute", top: 4, right: 4,
+                    background: "rgba(220,38,38,0.82)",
+                    border: "1.5px solid rgba(255,255,255,0.25)",
+                    borderRadius: "50%", width: 26, height: 26,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", color: "white", fontSize: 13,
+                    cursor: "pointer", color: "white", fontSize: 13, fontWeight: 700,
+                    lineHeight: 1,
                   }}
+                  aria-label="Supprimer"
                 >
-                  🗑
+                  ✕
                 </button>
               )}
             </div>

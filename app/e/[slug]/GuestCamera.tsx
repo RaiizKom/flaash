@@ -36,6 +36,7 @@ export default function GuestCamera({ event }: { event: Event }) {
   const [toastVisible, setToastVisible] = useState(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null); // thumbnailUrl
   const fileRef = useRef<HTMLInputElement>(null);
   const storageKey = `flaash_guest_${event.slug}`;
 
@@ -670,12 +671,19 @@ export default function GuestCamera({ event }: { event: Event }) {
                 key={photo.id}
                 style={{ position: "relative", flexShrink: 0, width: 80, height: 80, borderRadius: "var(--radius-sm)", overflow: "hidden", background: "var(--surface-2)" }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.thumbnailUrl}
-                  alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
+                <button
+                  type="button"
+                  onClick={() => setLightboxPhoto(photo.thumbnailUrl)}
+                  style={{ display: "block", width: "100%", height: "100%", padding: 0, border: "none", background: "none", cursor: "zoom-in" }}
+                  aria-label="Agrandir"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.thumbnailUrl}
+                    alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }}
+                  />
+                </button>
                 <button
                   type="button"
                   onClick={() => setDeleteConfirm(photo.id)}
@@ -691,7 +699,7 @@ export default function GuestCamera({ event }: { event: Event }) {
                 >
                   ✕
                 </button>
-              </div>
+              </div>  {/* end carousel item */}
             ))}
           </div>
         </div>
@@ -706,6 +714,45 @@ export default function GuestCamera({ event }: { event: Event }) {
         style={{ display: "none" }}
         onChange={handleFileChange}
       />
+
+      {/* Lightbox plein écran pour les miniatures */}
+      {lightboxPhoto && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setLightboxPhoto(null)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 9999,
+            background: "rgba(10,8,5,0.96)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <button
+            onClick={() => setLightboxPhoto(null)}
+            aria-label="Fermer"
+            style={{
+              position: "absolute", top: 16, right: 16,
+              background: "rgba(250,247,242,0.1)", border: "none",
+              borderRadius: "50%", width: 40, height: 40,
+              color: "var(--flaash-cream)", fontSize: 20,
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            ✕
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lightboxPhoto}
+            alt=""
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "92vw", maxHeight: "88dvh",
+              objectFit: "contain", borderRadius: 6,
+              boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
+            }}
+          />
+        </div>
+      )}
 
       {/* Delete confirmation */}
       {deleteConfirm && (
