@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import GalleryClient, { type GalleryPhoto } from "./GalleryClient";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -30,26 +31,44 @@ export default async function GalleryPage({ params }: Props) {
           justifyContent: "center",
           padding: "40px 24px",
           textAlign: "center",
+          background: "var(--flaash-ink)",
         }}
       >
+        <div style={{ height: 6, background: "var(--flaash-amber)", position: "absolute", top: 0, left: 0, right: 0 }} />
         <p className="f-script" style={{ color: "var(--flaash-amber)", fontSize: 28, marginBottom: 12 }}>
           bientôt —
         </p>
-        <p style={{ color: "var(--fg-3)", fontSize: 14 }}>
+        <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 14 }}>
           La galerie n&apos;est pas encore disponible.
         </p>
       </div>
     );
   }
 
-  const { data: rawPhotos } = await supabase
+  const { data: rows } = await supabase
     .from("photos")
-    .select("id, storage_url, thumbnail_url, taken_at")
+    .select("id, storage_url, thumbnail_url, taken_at, guest_id, guests(first_name)")
     .eq("event_id", event.id)
     .eq("is_deleted", false)
     .order("taken_at", { ascending: true });
 
-  const photos = rawPhotos ?? [];
+  const photos: GalleryPhoto[] = (rows ?? []).map((p: {
+    id: string;
+    storage_url: string;
+    thumbnail_url: string;
+    taken_at: string;
+    guest_id: string;
+    guests: { first_name: string } | { first_name: string }[] | null;
+  }) => ({
+    id:            p.id,
+    storage_url:   p.storage_url,
+    thumbnail_url: p.thumbnail_url,
+    taken_at:      p.taken_at,
+    guest_id:      p.guest_id,
+    guestName:     p.guests
+      ? (Array.isArray(p.guests) ? p.guests[0]?.first_name : p.guests.first_name) ?? null
+      : null,
+  }));
 
   return (
     <div style={{ minHeight: "100dvh", background: "var(--flaash-ink)" }}>
@@ -68,41 +87,12 @@ export default async function GalleryPage({ params }: Props) {
           </p>
         </div>
 
-        {photos.length === 0 && (
-          <div style={{ textAlign: "center", paddingTop: 40 }}>
-            <p style={{ fontSize: 40 }}>📷</p>
-            <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 14, marginTop: 12 }}>
-              Aucune photo pour l&apos;instant.
-            </p>
-          </div>
-        )}
-
-        {photos.length > 0 && (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-              gap: 6,
-            }}
-          >
-            {photos.map((photo) => (
-              <a
-                key={photo.id}
-                href={photo.storage_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: "block", aspectRatio: "1", borderRadius: 4, overflow: "hidden" }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.thumbnail_url || photo.storage_url}
-                  alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
-              </a>
-            ))}
-          </div>
-        )}
+        <GalleryClient
+          eventId={event.id}
+          eventSlug={slug}
+          eventTitle={event.title}
+          photos={photos}
+        />
       </div>
     </div>
   );

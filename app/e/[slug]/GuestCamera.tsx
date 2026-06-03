@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { type Event } from "@/types";
 
 interface GuestSession {
@@ -10,7 +12,7 @@ interface GuestSession {
   firstName: string;
 }
 
-type Phase = "loading" | "join" | "camera" | "quota-full" | "blocked";
+type Phase = "loading" | "join" | "camera" | "quota-full" | "blocked" | "revealed";
 
 interface Toast {
   msg: string;
@@ -52,6 +54,24 @@ export default function GuestCamera({ event }: { event: Event }) {
     }
     setPhase("join");
   }, [storageKey, event.photos_per_guest]);
+
+  // Realtime: watch for event status → "revealed"
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`event-status-${event.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "events", filter: `id=eq.${event.id}` },
+        (payload) => {
+          if ((payload.new as { status: string }).status === "revealed") {
+            setPhase("revealed");
+          }
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [event.id]);
 
   // ── Join ──────────────────────────────────────────────────────────────────
 
@@ -329,6 +349,61 @@ export default function GuestCamera({ event }: { event: Event }) {
             />
           </div>
         )}
+      </div>
+    );
+  }
+
+  if (phase === "revealed") {
+    return (
+      <div
+        style={{
+          minHeight: "100dvh",
+          display: "flex",
+          flexDirection: "column",
+          background: "var(--flaash-ink)",
+        }}
+      >
+        <div style={{ height: 6, background: "var(--flaash-amber)", flexShrink: 0 }} />
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "40px 28px",
+            textAlign: "center",
+          }}
+        >
+          <p className="f-script" style={{ color: "var(--flaash-amber)", fontSize: 28, marginBottom: 16, lineHeight: 1 }}>
+            vos souvenirs sont développés.
+          </p>
+          <h1 className="f-display" style={{ color: "var(--flaash-cream)", fontSize: "clamp(28px,8vw,48px)", marginBottom: 8, lineHeight: 1.1 }}>
+            La galerie est disponible&nbsp;!
+          </h1>
+          <p style={{ color: "rgba(250,247,242,0.45)", fontSize: 14, fontWeight: 500, marginBottom: 40 }}>
+            {event.title}
+          </p>
+          <Link
+            href={`/e/${event.slug}/gallery`}
+            style={{
+              display: "inline-block",
+              padding: "14px 28px",
+              background: "var(--flaash-cream)",
+              color: "var(--flaash-ink)",
+              borderRadius: "var(--radius-pill)",
+              fontWeight: 700,
+              fontSize: 14,
+              letterSpacing: "0.08em",
+              textDecoration: "none",
+              maxWidth: 280,
+              width: "100%",
+              textAlign: "center",
+            }}
+          >
+            VOIR LA GALERIE →
+          </Link>
+        </div>
       </div>
     );
   }

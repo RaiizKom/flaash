@@ -80,11 +80,11 @@ function Stepper({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 8,
           background: "var(--surface-2)",
           border: "1.5px solid var(--border)",
           borderRadius: "var(--radius-sm)",
-          padding: "8px 12px",
+          padding: "8px 10px",
         }}
       >
         {/* − */}
@@ -93,11 +93,11 @@ function Stepper({
           onClick={() => stepBy(-step)}
           disabled={value <= min}
           style={{
-            width: 44, height: 44, borderRadius: "50%",
+            width: 40, height: 40, borderRadius: "50%",
             border: "1.5px solid var(--border)",
             background: value <= min ? "transparent" : "var(--flaash-ink)",
             color: value <= min ? "var(--fg-3)" : "var(--flaash-cream)",
-            fontSize: 22, fontWeight: 700, lineHeight: 1,
+            fontSize: 20, fontWeight: 700, lineHeight: 1,
             cursor: value <= min ? "not-allowed" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
             flexShrink: 0,
@@ -120,10 +120,11 @@ function Stepper({
           onFocus={(e) => e.target.select()}
           style={{
             flex: 1,
+            minWidth: 0,
             textAlign: "center",
             fontFamily: "var(--font-display)",
             fontWeight: 800,
-            fontSize: 36,
+            fontSize: "clamp(24px, 7vw, 32px)",
             border: "none",
             background: "transparent",
             color: "var(--flaash-ink)",
@@ -140,11 +141,11 @@ function Stepper({
           onClick={() => stepBy(step)}
           disabled={value >= max}
           style={{
-            width: 44, height: 44, borderRadius: "50%",
+            width: 40, height: 40, borderRadius: "50%",
             border: "1.5px solid var(--border)",
             background: value >= max ? "transparent" : "var(--flaash-ink)",
             color: value >= max ? "var(--fg-3)" : "var(--flaash-cream)",
-            fontSize: 22, fontWeight: 700, lineHeight: 1,
+            fontSize: 20, fontWeight: 700, lineHeight: 1,
             cursor: value >= max ? "not-allowed" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
             flexShrink: 0,
