@@ -663,7 +663,6 @@ export default function GuestCamera({ event }: { event: Event }) {
               gap: 8,
               overflowX: "auto",
               paddingBottom: 4,
-              WebkitOverflowScrolling: "touch",
             }}
           >
             {uploadedPhotos.map((photo) => (
