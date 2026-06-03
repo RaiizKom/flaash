@@ -698,7 +698,7 @@ export default function GuestCamera({ event }: { event: Event }) {
                 >
                   ✕
                 </button>
-              </div>  {/* end carousel item */}
+              </div>
             ))}
           </div>
         </div>
