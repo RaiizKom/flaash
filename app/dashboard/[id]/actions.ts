@@ -71,30 +71,19 @@ export async function activateEvent(eventId: string) {
 
   if (!user) redirect("/login");
 
-  // Fetch reveal_at to decide final status:
-  // reveal_at === null → immediate mode → go straight to "revealed"
   const { data: ev } = await supabase
     .from("events")
-    .select("reveal_at, slug")
+    .select("slug")
     .eq("id", eventId)
     .eq("owner_id", user.id)
     .single();
 
-  const isImmediate = ev?.reveal_at === null;
-  const newStatus   = isImmediate ? "revealed" : "active";
-  const now         = new Date().toISOString();
-
   await supabase
     .from("events")
-    .update(isImmediate
-      ? { status: "revealed", reveal_at: now }
-      : { status: "active" })
+    .update({ status: "active" })
     .eq("id", eventId)
     .eq("owner_id", user.id);
 
   revalidatePath(`/dashboard/${eventId}`);
-  if (ev?.slug) {
-    revalidatePath(`/e/${ev.slug}`);
-    revalidatePath(`/e/${ev.slug}/gallery`);
-  }
+  if (ev?.slug) revalidatePath(`/e/${ev.slug}`);
 }

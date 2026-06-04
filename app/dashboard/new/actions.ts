@@ -18,12 +18,11 @@ export async function createEvent(formData: FormData) {
   const event_type      = formData.get("event_type") as EventType;
   const max_guests      = parseInt(formData.get("max_guests") as string, 10);
   const photos_per_guest = parseInt(formData.get("photos_per_guest") as string, 10);
-  const reveal_mode     = formData.get("reveal_mode") as string;
   const reveal_at_raw   = formData.get("reveal_at") as string | null;
   const allow_library   = formData.get("allow_library_upload") === "on";
 
   const price_chf = calculatePrice(max_guests, photos_per_guest);
-  const reveal_at = reveal_mode === "immediate" ? null : reveal_at_raw || null;
+  const reveal_at = reveal_at_raw || null;
 
   // Ensure unique slug (retry once on collision)
   let slug = generateSlug(title);

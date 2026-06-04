@@ -170,7 +170,6 @@ export default function CreateEventForm({ error }: { error?: string }) {
   const [title, setTitle]         = useState(TITLE_PREFIXES.wedding);
   const [maxGuests, setMaxGuests] = useState(75);
   const [photosPerGuest, setPhotosPerGuest] = useState(8);
-  const [revealMode, setRevealMode] = useState<"immediate" | "delayed">("immediate");
   const [revealAt, setRevealAt]   = useState("");
   const [isPending, setIsPending] = useState(false);
 
@@ -191,8 +190,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
     fd.set("event_type",       eventType);
     fd.set("max_guests",       String(maxGuests));
     fd.set("photos_per_guest", String(photosPerGuest));
-    fd.set("reveal_mode",      revealMode);
-    if (revealMode === "delayed" && revealAt) fd.set("reveal_at", revealAt);
+    if (revealAt) fd.set("reveal_at", revealAt);
     const checkbox = formRef.current?.querySelector<HTMLInputElement>(
       "input[name=allow_library_upload]"
     );
@@ -279,52 +277,24 @@ export default function CreateEventForm({ error }: { error?: string }) {
         onChange={setPhotosPerGuest}
       />
 
-      {/* ── Galerie révélation ── */}
+      {/* ── Date de révélation (optionnelle) ── */}
       <div className="f-input-wrap">
-        <label className="f-label">Révélation de la galerie</label>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
-          {(["immediate", "delayed"] as const).map((mode) => (
-            <label key={mode} className="f-reveal-option">
-              <input
-                type="radio"
-                name="reveal_mode"
-                value={mode}
-                checked={revealMode === mode}
-                onChange={() => setRevealMode(mode)}
-                style={{ accentColor: "var(--flaash-ink)", width: 18, height: 18, flexShrink: 0 }}
-              />
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>
-                  {mode === "immediate" ? "Immédiate" : "Différée"}
-                </div>
-                <div style={{ fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>
-                  {mode === "immediate"
-                    ? "La galerie est visible dès la première photo."
-                    : "La galerie se révèle à une date et heure choisies."}
-                </div>
-              </div>
-            </label>
-          ))}
-        </div>
+        <label className="f-label" htmlFor="reveal_at">
+          Date de révélation
+        </label>
+        <p style={{ fontSize: 12, color: "var(--fg-3)", marginBottom: 8 }}>
+          Optionnelle — la galerie se révèle automatiquement à cette date,
+          ou manuellement depuis le dashboard.
+        </p>
+        <input
+          id="reveal_at"
+          name="reveal_at"
+          type="datetime-local"
+          value={revealAt}
+          onChange={(e) => setRevealAt(e.target.value)}
+          className="f-input-box"
+        />
       </div>
-
-      {/* ── Date/heure (conditional) ── */}
-      {revealMode === "delayed" && (
-        <div className="f-input-wrap">
-          <label className="f-label" htmlFor="reveal_at">
-            Date et heure de révélation
-          </label>
-          <input
-            id="reveal_at"
-            name="reveal_at"
-            type="datetime-local"
-            value={revealAt}
-            onChange={(e) => setRevealAt(e.target.value)}
-            className="f-input-box"
-            style={{ marginTop: 4 }}
-          />
-        </div>
-      )}
 
       {/* ── Photothèque ── */}
       <label
