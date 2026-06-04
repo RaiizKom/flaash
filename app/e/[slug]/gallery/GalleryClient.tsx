@@ -156,28 +156,30 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
   const next  = useCallback(() => setLightboxIdx((i) => (i !== null && i < total - 1 ? i + 1 : i)), [total]);
   const close = useCallback(() => setLightboxIdx(null), []);
 
-  // BUG 4: Download all as ZIP
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
   async function handleDownload() {
     if (isDownloading || photos.length === 0) return;
     setIsDownloading(true);
+    setDownloadError(null);
     try {
-      const JSZip = (await import("jszip")).default;
-      const zip = new JSZip();
-      await Promise.all(
-        photos.map(async (p, i) => {
-          const res = await fetch(p.storage_url);
-          const buf = await res.arrayBuffer();
-          const ext = p.storage_url.split(".").pop()?.split("?")[0] ?? "jpg";
-          zip.file(`photo-${String(i + 1).padStart(3, "0")}.${ext}`, buf);
-        })
-      );
-      const blob = await zip.generateAsync({ type: "blob" });
+      const res = await fetch(`/api/download/${eventSlug}`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setDownloadError(body.error ?? "Erreur lors du téléchargement.");
+        return;
+      }
+      const blob = await res.blob();
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement("a");
       a.href     = url;
       a.download = `${eventSlug}-photos.zip`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    } catch {
+      setDownloadError("Erreur réseau. Réessaie.");
     } finally {
       setIsDownloading(false);
     }
@@ -212,25 +214,39 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
     <>
       {/* Actions bar */}
       {photos.length > 0 && (
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
-          <button
-            onClick={handleDownload}
-            disabled={isDownloading}
-            style={{
-              background: "rgba(250,247,242,0.08)",
-              border: "1px solid rgba(250,247,242,0.2)",
-              borderRadius: "var(--radius-pill)",
-              color: "var(--flaash-cream)",
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              style={{
+                background: "rgba(250,247,242,0.08)",
+                border: "1px solid rgba(250,247,242,0.2)",
+                borderRadius: "var(--radius-pill)",
+                color: "var(--flaash-cream)",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                padding: "10px 18px",
+                cursor: isDownloading ? "default" : "pointer",
+                opacity: isDownloading ? 0.6 : 1,
+                transition: "opacity 0.15s",
+              }}
+            >
+              {isDownloading ? "⏳ PRÉPARATION…" : "⬇ TOUT TÉLÉCHARGER"}
+            </button>
+          </div>
+          {downloadError && (
+            <p style={{
+              marginTop: 8,
+              textAlign: "right",
               fontSize: 12,
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              padding: "10px 18px",
-              cursor: isDownloading ? "default" : "pointer",
-              opacity: isDownloading ? 0.6 : 1,
-            }}
-          >
-            {isDownloading ? "PRÉPARATION…" : "⬇ TOUT TÉLÉCHARGER"}
-          </button>
+              color: "#f87171",
+              fontWeight: 500,
+            }}>
+              {downloadError}
+            </p>
+          )}
         </div>
       )}
 

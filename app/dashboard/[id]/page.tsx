@@ -200,7 +200,7 @@ export default async function EventDetailPage({ params }: Props) {
               "Révélation",
               ev.reveal_at
                 ? new Date(ev.reveal_at).toLocaleString("fr-CH")
-                : "Immédiate",
+                : "Manuelle",
             ],
             // BUG 4 fix — use eventUrl (built from NEXT_PUBLIC_APP_URL)
             ["Lien invité", eventUrl],
@@ -239,6 +239,32 @@ export default async function EventDetailPage({ params }: Props) {
             RÉVÉLER MAINTENANT
           </button>
         </form>
+      )}
+
+      {/* Download ZIP — available once there are photos */}
+      {(ev.status === "active" || ev.status === "revealed") && (photoCount ?? 0) > 0 && (
+        <a
+          href={`/api/download/${ev.slug}`}
+          download
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            padding: "14px 20px",
+            borderRadius: "var(--radius-pill)",
+            border: "1.5px solid var(--border)",
+            background: "var(--surface-2)",
+            color: "var(--fg-2)",
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: "0.06em",
+            textDecoration: "none",
+            textAlign: "center",
+          }}
+        >
+          ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({photoCount})
+        </a>
       )}
     </div>
   );
