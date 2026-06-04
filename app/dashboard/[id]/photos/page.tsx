@@ -89,6 +89,31 @@ export default async function PhotosPage({ params }: Props) {
         )}
       </div>
 
+      {/* Download ZIP */}
+      {activePhotos.length > 0 && (
+        <a
+          href={`/api/download/${ev.slug}`}
+          download
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "12px 18px",
+            marginBottom: 24,
+            borderRadius: "var(--radius-pill)",
+            border: "1.5px solid var(--border)",
+            background: "var(--surface-2)",
+            color: "var(--fg-2)",
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: "0.06em",
+            textDecoration: "none",
+          }}
+        >
+          ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({activePhotos.length})
+        </a>
+      )}
+
       {/* Empty state */}
       {allPhotos.length === 0 && (
         <div style={{ textAlign: "center", paddingTop: 60 }}>
