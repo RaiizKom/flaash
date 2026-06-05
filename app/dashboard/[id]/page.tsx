@@ -214,7 +214,7 @@ export default async function EventDetailPage({ params }: Props) {
 
           <QRCodeCard url={eventUrl} title={ev.title} slug={ev.slug} />
 
-          <div style={{ marginTop: 16, textAlign: "center" }}>
+          <div style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
             <Link
               href={`/dashboard/${ev.id}/photos`}
               className="btn-pill btn-forest"
@@ -226,6 +226,23 @@ export default async function EventDetailPage({ params }: Props) {
               }}
             >
               MODÉRER LES PHOTOS
+            </Link>
+            <Link
+              href={`/dashboard/${ev.id}/print`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "rgba(250,247,242,0.7)",
+                textDecoration: "none",
+                letterSpacing: "0.05em",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              🖨 Imprimer le QR code
             </Link>
           </div>
         </div>

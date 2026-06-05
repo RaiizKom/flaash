@@ -230,7 +230,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
         </div>
 
         {/* Steppers */}
-        <Stepper id="max_guests" label="Nombre d'invités" value={maxGuests} min={1} max={250} step={5} onChange={setMaxGuests} />
+        <Stepper id="max_guests" label="Nombre d'invités" value={maxGuests} min={1} max={500} step={5} onChange={setMaxGuests} />
         <Stepper id="photos_per_guest" label="Photos par invité" value={photosPerGuest} min={1} max={20} step={1} onChange={setPhotosPerGuest} />
 
         {/* Reveal mode */}
