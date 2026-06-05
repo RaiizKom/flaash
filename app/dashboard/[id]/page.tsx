@@ -228,7 +228,7 @@ export default async function EventDetailPage({ params }: Props) {
               MODÉRER LES PHOTOS
             </Link>
             <Link
-              href={`/dashboard/${ev.id}/print`}
+              href={`/print/${ev.slug}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{

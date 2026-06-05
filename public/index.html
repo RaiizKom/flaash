@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flaash — Logo pack</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { background: #F0EBE3; margin: 0; font-family: "Inter", sans-serif; color: #1A1A1A; }
+  .page { max-width: 1080px; margin: 0 auto; padding: 48px 40px 80px; }
+  h1 { font-family: "Playfair Display", serif; font-weight: 900; font-size: 52px; letter-spacing: -0.04em; margin: 0; }
+  h1 em { font-weight: 800; font-style: italic; }
+  .lede { font-size: 14px; color: #3D3A36; max-width: 580px; line-height: 1.55; margin: 12px 0 0; }
+  .lede code { font-family: ui-monospace, monospace; font-size: 12.5px; background: #E6DFD2; padding: 1px 6px; border-radius: 4px; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #6E6862; margin: 44px 0 14px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .cell { border-radius: 18px; overflow: hidden; border: 1px solid #E6DFD2; display: flex; flex-direction: column; }
+  .cell .stage { flex: 1; min-height: 150px; display: flex; align-items: center; justify-content: center; padding: 34px 38px; }
+  .cell .stage img { width: 100%; height: auto; max-height: 96px; object-fit: contain; }
+  .cell .stage.tall img { max-height: 150px; }
+  .cell .meta { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-top: 1px solid #E6DFD2; background: rgba(255,255,255,0.35); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: #6E6862; }
+  .cell .meta b { color: #1A1A1A; font-weight: 700; letter-spacing: 0; text-transform: none; font-size: 12px; }
+  .cell.cream-bg { background: #FAF7F2; }
+  .cell.dark { background: #1A1A1A; }
+  .cell.dark .meta { background: rgba(0,0,0,0.25); border-color: rgba(250,247,242,0.12); color: rgba(250,247,242,0.55); }
+  .cell.dark .meta b { color: #FAF7F2; }
+  .cell.amber { background: #E07B2E; }
+  .cell.amber .meta { background: rgba(26,26,26,0.10); border-color: rgba(26,26,26,0.14); color: rgba(26,26,26,0.65); }
+  .cell.amber .meta b { color: #1A1A1A; }
+  .cell.forest { background: #1E3D2F; }
+  .cell.forest .meta { background: rgba(0,0,0,0.20); border-color: rgba(250,247,242,0.12); color: rgba(250,247,242,0.55); }
+  .cell.forest .meta b { color: #FAF7F2; }
+  .note { margin-top: 40px; padding: 18px 20px; background: #FAF7F2; border: 1px solid #E6DFD2; border-radius: 14px; font-size: 13px; line-height: 1.6; color: #3D3A36; }
+  .note b { color: #1A1A1A; }
+  .note code { font-family: ui-monospace, monospace; font-size: 12px; background: #F0EBE3; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Flaash <em>logo</em> pack</h1>
+  <p class="lede">Wordmark Playfair Black avec la signature <em>aa</em> italique. Les aperçus ci-dessous sont les <b>PNG haute résolution</b> (rendu pixel-perfect, à utiliser partout). Le dossier <code>/logo</code> contient aussi les SVG éditables et les marques en tracés vectoriels.</p>
+
+  <div class="section-label">Wordmark — variantes principales</div>
+  <div class="grid2">
+    <div class="cell cream-bg"><div class="stage"><img src="png/flaash-wordmark-ink.png" alt=""/></div><div class="meta"><b>01 — Primaire</b><span>ink sur crème</span></div></div>
+    <div class="cell dark"><div class="stage"><img src="png/flaash-wordmark-amber.png" alt=""/></div><div class="meta"><b>02 — Secondaire</b><span>ambre sur ink</span></div></div>
+    <div class="cell amber"><div class="stage"><img src="png/flaash-wordmark-ink.png" alt=""/></div><div class="meta"><b>03 — Hero</b><span>ink sur ambre</span></div></div>
+    <div class="cell forest"><div class="stage"><img src="png/flaash-wordmark-cream.png" alt=""/></div><div class="meta"><b>04 — Calme</b><span>crème sur forêt</span></div></div>
+  </div>
+
+  <div class="section-label">Lockups · wordmark + éclair</div>
+  <div class="grid3">
+    <div class="cell cream-bg"><div class="stage"><img src="png/flaash-lockup-horizontal-ink.png" alt=""/></div><div class="meta"><b>Horizontal</b><span>ink</span></div></div>
+    <div class="cell dark"><div class="stage"><img src="png/flaash-lockup-horizontal-cream.png" alt=""/></div><div class="meta"><b>Horizontal</b><span>cream</span></div></div>
+    <div class="cell cream-bg"><div class="stage tall"><img src="png/flaash-lockup-vertical-ink.png" alt=""/></div><div class="meta"><b>Vertical</b><span>ink</span></div></div>
+  </div>
+
+  <div class="section-label">Mark · éclair &amp; favicon</div>
+  <div class="grid3">
+    <div class="cell cream-bg"><div class="stage"><img src="flaash-bolt.svg" style="max-height:88px" alt=""/></div><div class="meta"><b>Bolt</b><span>vecteur · ink stroke</span></div></div>
+    <div class="cell dark"><div class="stage"><img src="flaash-bolt-cream.svg" style="max-height:88px" alt=""/></div><div class="meta"><b>Bolt</b><span>vecteur · cream stroke</span></div></div>
+    <div class="cell cream-bg"><div class="stage"><img src="flaash-favicon.svg" style="max-height:60px;width:auto" alt=""/></div><div class="meta"><b>Favicon</b><span>vecteur · 64px</span></div></div>
+  </div>
+
+  <div class="section-label">App icons</div>
+  <div class="grid2">
+    <div class="cell cream-bg"><div class="stage"><img src="flaash-app-icon-ink.svg" style="max-height:128px;width:auto;border-radius:28px" alt=""/></div><div class="meta"><b>App icon</b><span>vecteur · ink</span></div></div>
+    <div class="cell cream-bg"><div class="stage"><img src="flaash-app-icon-amber.svg" style="max-height:128px;width:auto;border-radius:28px" alt=""/></div><div class="meta"><b>App icon</b><span>vecteur · amber</span></div></div>
+  </div>
+
+  <div class="note">
+    <b>Quels fichiers utiliser ?</b><br/>
+    · <code>png/</code> — wordmarks &amp; lockups en <b>PNG transparent ~2000px</b> : rendu garanti partout (réseaux sociaux, slides, print rapide), aucune police requise.<br/>
+    · <code>flaash-*.svg</code> wordmarks/lockups — SVG éditables avec texte Playfair : parfaits dans le web app et les outils de design où la police est installée. Pour un SVG 100% autonome, vectorise le texte (Figma/Illustrator → "Outline").<br/>
+    · <code>flaash-bolt*.svg</code>, <code>app-icon</code>, <code>favicon</code> — déjà en <b>tracés vectoriels purs</b>, autonomes, utilisables partout.
+  </div>
+</div>
+</body>
+</html>
