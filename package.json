@@ -16,7 +16,6 @@
     "@stripe/stripe-js": "^9.6.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
-    "html-to-image": "^1.11.13",
     "jszip": "^3.10.1",
     "next": "14.2.29",
     "next-intl": "^3.26.5",
