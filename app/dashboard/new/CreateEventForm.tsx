@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { createEvent } from "./actions";
 import { type EventType, EVENT_TYPE_LABELS } from "@/types";
 import { PLANS, getPlanForGuests, getPlan, type Plan } from "@/lib/utils/pricing";
@@ -108,7 +108,6 @@ function PlanCard({
 
 // ── Main form ─────────────────────────────────────────────────────────────────
 export default function CreateEventForm({ error }: { error?: string }) {
-  const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<1 | 2>(1);
 
   // Step 1 state
@@ -117,6 +116,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
   const [maxGuests, setMaxGuests]   = useState(75);
   const [photosPerGuest, setPhotosPerGuest] = useState(8);
   const [revealAt, setRevealAt]     = useState("");
+  const [allowLibrary, setAllowLibrary] = useState(false);
   const [step1Error, setStep1Error] = useState<string | null>(null);
 
   // Step 2 state
@@ -169,8 +169,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
     fd.set("photos_per_guest", String(photosPerGuest));
     fd.set("plan_id",          selectedPlanId);
     if (revealAt) fd.set("reveal_at", revealAt);
-    const checkbox = formRef.current?.querySelector<HTMLInputElement>("input[name=allow_library_upload]");
-    if (checkbox?.checked) fd.set("allow_library_upload", "on");
+    if (allowLibrary) fd.set("allow_library_upload", "on");
 
     const result = await createEvent(fd);
 
@@ -204,7 +203,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
   // ── Step 1 ─────────────────────────────────────────────────────────────────
   if (step === 1) {
     return (
-      <form ref={formRef} className="flex flex-col gap-7">
+      <form className="flex flex-col gap-7">
         {error && (
           <div style={{ background: "var(--flaash-error-soft)", border: "1px solid var(--flaash-error)", borderRadius: "var(--radius-sm)", padding: "12px 14px", fontSize: 14, color: "var(--flaash-error)", fontWeight: 500 }}>
             {decodeURIComponent(error)}
@@ -257,6 +256,8 @@ export default function CreateEventForm({ error }: { error?: string }) {
             <div style={{ fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>Les invités peuvent importer des photos existantes.</div>
           </div>
           <input type="checkbox" name="allow_library_upload"
+            checked={allowLibrary}
+            onChange={(e) => setAllowLibrary(e.target.checked)}
             style={{ accentColor: "var(--flaash-ink)", width: 20, height: 20, flexShrink: 0 }} />
         </label>
 
