@@ -30,7 +30,6 @@ export const PLANS: Plan[] = [
     price: 99,
     maxGuests: 120,
     description: "Jusqu'à 120 invités, support prioritaire",
-    recommended: true,
   },
   {
     id: "premium",
@@ -41,9 +40,9 @@ export const PLANS: Plan[] = [
   },
 ];
 
-/** Returns the cheapest plan that fits n guests (with +10% tolerance). */
+/** Returns the cheapest plan that fits n guests (strict threshold, no tolerance). */
 export function getPlanForGuests(n: number): Plan | undefined {
-  return PLANS.find((p) => n <= p.maxGuests * 1.1);
+  return PLANS.find((p) => n <= p.maxGuests);
 }
 
 /** Returns a plan by id. */

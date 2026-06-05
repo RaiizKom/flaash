@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
 const BUCKET     = process.env.CLOUDFLARE_R2_BUCKET!;
 const PUBLIC_BASE = (process.env.CLOUDFLARE_R2_PUBLIC_URL ?? "").replace(/\/$/, "");
@@ -12,6 +12,29 @@ const s3 = new S3Client({
     secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
   },
 });
+
+export async function deleteEventObjects(eventId: string): Promise<void> {
+  const prefix = `events/${eventId}/`;
+  let continuationToken: string | undefined;
+
+  do {
+    const list = await s3.send(new ListObjectsV2Command({
+      Bucket: BUCKET,
+      Prefix: prefix,
+      ContinuationToken: continuationToken,
+    }));
+
+    const keys = (list.Contents ?? []).map((o) => ({ Key: o.Key! }));
+    if (keys.length > 0) {
+      await s3.send(new DeleteObjectsCommand({
+        Bucket: BUCKET,
+        Delete: { Objects: keys, Quiet: true },
+      }));
+    }
+
+    continuationToken = list.NextContinuationToken;
+  } while (continuationToken);
+}
 
 export async function uploadBuffer(
   key: string,

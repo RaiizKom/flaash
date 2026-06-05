@@ -7,42 +7,65 @@ export const runtime = "nodejs";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
+  // ── Step 1: read raw body (must be text, not JSON) ────────────────────────
   const body = await req.text();
   const sig  = req.headers.get("stripe-signature");
 
+  console.log("[webhook] Received request, body length:", body.length);
+  console.log("[webhook] stripe-signature header present:", !!sig);
+  console.log("[webhook] STRIPE_WEBHOOK_SECRET set:", !!process.env.STRIPE_WEBHOOK_SECRET,
+    "prefix:", process.env.STRIPE_WEBHOOK_SECRET?.slice(0, 8));
+
   if (!sig) {
+    console.error("[webhook] Missing stripe-signature header");
     return NextResponse.json({ error: "Missing stripe-signature header." }, { status: 400 });
   }
 
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error("[webhook] STRIPE_WEBHOOK_SECRET is not set — set it in Vercel env vars");
+    return NextResponse.json({ error: "Webhook secret not configured." }, { status: 500 });
+  }
+
+  // ── Step 2: verify signature ──────────────────────────────────────────────
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    console.log("[webhook] Signature verified. Event type:", event.type);
   } catch (err) {
     console.error("[webhook] Signature verification failed:", err);
     return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
   }
 
+  // ── Step 3: handle checkout.session.completed ─────────────────────────────
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const eventId = session.metadata?.event_id;
+    console.log("[webhook] Session ID:", session.id, "— metadata:", session.metadata);
 
+    const eventId = session.metadata?.event_id;
     if (!eventId) {
-      console.error("[webhook] Missing event_id in session metadata", session.id);
+      console.error("[webhook] Missing event_id in session metadata");
       return NextResponse.json({ error: "Missing event_id." }, { status: 400 });
     }
 
     const supabase = createAdminClient();
 
-    // Read plan from DB (Option B architecture — plan stored at event creation)
+    // Read plan from DB
     const { data: flaashEvent, error: fetchError } = await supabase
       .from("events")
-      .select("plan_id")
+      .select("plan_id, status")
       .eq("id", eventId)
       .single();
+
+    console.log("[webhook] DB fetch result:", { flaashEvent, fetchError });
 
     if (fetchError || !flaashEvent) {
       console.error("[webhook] Event not found:", eventId, fetchError);
       return NextResponse.json({ error: "Event not found." }, { status: 500 });
+    }
+
+    if (flaashEvent.status === "active") {
+      console.log("[webhook] Event already active, skipping update:", eventId);
+      return NextResponse.json({ received: true });
     }
 
     const updateData: Record<string, unknown> = {
@@ -50,11 +73,12 @@ export async function POST(req: NextRequest) {
       stripe_payment_id: session.id,
     };
 
-    // Double enforcement: test plan limits
     if (flaashEvent.plan_id === "test") {
       updateData.max_guests = 3;
       updateData.photos_per_guest = 20;
     }
+
+    console.log("[webhook] Updating event:", eventId, "with:", updateData);
 
     const { error: updateError } = await supabase
       .from("events")
@@ -62,11 +86,13 @@ export async function POST(req: NextRequest) {
       .eq("id", eventId);
 
     if (updateError) {
-      console.error("[webhook] DB update failed for event:", eventId, updateError);
+      console.error("[webhook] DB update failed:", eventId, updateError);
       return NextResponse.json({ error: "DB update failed." }, { status: 500 });
     }
 
-    console.log("[webhook] Event activated:", eventId, "plan:", flaashEvent.plan_id);
+    console.log("[webhook] ✅ Event activated:", eventId, "plan:", flaashEvent.plan_id);
+  } else {
+    console.log("[webhook] Unhandled event type:", event.type, "— ignoring");
   }
 
   return NextResponse.json({ received: true });

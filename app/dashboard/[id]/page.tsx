@@ -5,7 +5,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { type Event, STATUS_LABELS, EVENT_TYPE_LABELS } from "@/types";
 import QRCodeCard from "./QRCodeCard";
-import { revealNow, activateEvent } from "./actions";
+import { revealNow, activateEvent, resumePayment, deleteDraftAndNew } from "./actions";
+import DeleteButton from "./DeleteButton";
 import { Suspense } from "react";
 import PaymentBanner from "./PaymentBanner";
 import { getPlan } from "@/lib/utils/pricing";
@@ -163,18 +164,33 @@ export default async function EventDetailPage({ params }: Props) {
           }}
         >
           <p style={{ fontWeight: 700, fontSize: 15, color: "var(--flaash-amber-deep)", marginBottom: 8 }}>
-            Activez votre événement
+            En attente de paiement
           </p>
           <p style={{ fontSize: 14, color: "var(--flaash-ink-soft)", marginBottom: 14 }}>
             Procédez au paiement pour générer le QR code et accueillir vos invités.
           </p>
-          {process.env.NODE_ENV === "development" && (
-            <form action={activateEvent.bind(null, ev.id)} style={{ marginTop: 10 }}>
-              <button type="submit" style={{ fontSize: 12, fontWeight: 600, color: "var(--flaash-amber-deep)", background: "none", border: "1.5px dashed var(--flaash-amber-deep)", borderRadius: "var(--radius-pill)", padding: "8px 16px", cursor: "pointer", letterSpacing: "0.06em" }}>
-                ⚡ ACTIVER SANS PAIEMENT (dev)
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {/* Reprendre le paiement */}
+            <form action={resumePayment.bind(null, ev.id)}>
+              <button type="submit" className="btn-pill btn-amber" style={{ fontSize: 14 }}>
+                Reprendre le paiement →
               </button>
             </form>
-          )}
+            {/* Modifier = delete draft + /dashboard/new */}
+            <form action={deleteDraftAndNew.bind(null, ev.id)}>
+              <button type="submit" style={{ background: "none", border: "none", fontSize: 13, color: "var(--fg-3)", cursor: "pointer", fontWeight: 600, padding: 0 }}>
+                ← Modifier l&apos;événement
+              </button>
+            </form>
+            {/* Dev bypass */}
+            {process.env.NODE_ENV === "development" && (
+              <form action={activateEvent.bind(null, ev.id)}>
+                <button type="submit" style={{ fontSize: 12, fontWeight: 600, color: "var(--flaash-amber-deep)", background: "none", border: "1.5px dashed var(--flaash-amber-deep)", borderRadius: "var(--radius-pill)", padding: "8px 16px", cursor: "pointer", letterSpacing: "0.06em" }}>
+                  ⚡ ACTIVER SANS PAIEMENT (dev)
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       )}
 
@@ -268,6 +284,13 @@ export default async function EventDetailPage({ params }: Props) {
         </form>
       )}
 
+      {/* Tolerance notice: guests exceeded plan limit */}
+      {ev.plan_id && ev.max_guests > (getPlan(ev.plan_id)?.maxGuests ?? Infinity) && (
+        <div style={{ background: "var(--flaash-forest-soft)", border: "1px solid var(--flaash-forest)", borderRadius: "var(--radius-sm)", padding: "12px 16px", marginBottom: 12, fontSize: 13, color: "var(--flaash-forest)" }}>
+          Votre événement a accueilli plus d&apos;invités que prévu — nous avons accordé cette tolérance gratuitement.
+        </div>
+      )}
+
       {/* Download ZIP — available once there are photos */}
       {(ev.status === "active" || ev.status === "revealed") && (photoCount ?? 0) > 0 && (
         <a
@@ -293,6 +316,10 @@ export default async function EventDetailPage({ params }: Props) {
           ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({photoCount})
         </a>
       )}
+      {/* Delete event */}
+      <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid var(--border)" }}>
+        <DeleteButton eventId={ev.id} />
+      </div>
     </div>
   );
 }

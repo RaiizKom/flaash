@@ -68,9 +68,9 @@ function Stepper({
 
 // ── Plan card ─────────────────────────────────────────────────────────────────
 function PlanCard({
-  plan, selected, compatible, incompatibleMsg, onSelect,
+  plan, selected, isRecommended, compatible, incompatibleMsg, onSelect,
 }: {
-  plan: Plan; selected: boolean; compatible: boolean;
+  plan: Plan; selected: boolean; isRecommended: boolean; compatible: boolean;
   incompatibleMsg?: string; onSelect: () => void;
 }) {
   return (
@@ -80,12 +80,12 @@ function PlanCard({
       style={{
         width: "100%", textAlign: "left", padding: "16px",
         borderRadius: "var(--radius-sm)",
-        border: `2px solid ${plan.recommended ? "var(--flaash-amber)" : selected ? "var(--flaash-ink)" : "var(--border)"}`,
-        background: selected ? (plan.recommended ? "rgba(245,166,35,0.06)" : "var(--flaash-cream-deep)") : "transparent",
+        border: `2px solid ${isRecommended ? "var(--flaash-amber)" : selected ? "var(--flaash-ink)" : "var(--border)"}`,
+        background: selected ? (isRecommended ? "rgba(245,166,35,0.06)" : "var(--flaash-cream-deep)") : "transparent",
         cursor: "pointer", position: "relative", transition: "all var(--t-fast)",
       }}
     >
-      {plan.recommended && (
+      {isRecommended && (
         <span style={{ position: "absolute", top: -11, left: 12, background: "var(--flaash-amber)", color: "var(--flaash-ink)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", padding: "2px 8px", borderRadius: 100 }}>
           RECOMMANDÉ
         </span>
@@ -115,6 +115,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
   const [title, setTitle]           = useState(TITLE_PREFIXES.wedding);
   const [maxGuests, setMaxGuests]   = useState(75);
   const [photosPerGuest, setPhotosPerGuest] = useState(8);
+  const [revealMode, setRevealMode] = useState<"fixed" | "manual">("fixed");
   const [revealAt, setRevealAt]     = useState("");
   const [allowLibrary, setAllowLibrary] = useState(false);
   const [step1Error, setStep1Error] = useState<string | null>(null);
@@ -130,12 +131,9 @@ export default function CreateEventForm({ error }: { error?: string }) {
   }
 
   function handleContinue() {
-    if (maxGuests > 275) {
-      setStep1Error("Le plan Premium couvre jusqu'à 275 invités maximum.");
-      return;
-    }
     setStep1Error(null);
     const plan = getPlanForGuests(maxGuests);
+    // pre-select plan (or premium if >250 → shown as quote page)
     setSelectedPlanId(plan?.id ?? "premium");
     setStep(2);
   }
@@ -144,21 +142,17 @@ export default function CreateEventForm({ error }: { error?: string }) {
     setStep(1);
   }
 
-  // Plan compatibility check
+  // Plan compatibility — strict, no tolerance
   const selectedPlan = getPlan(selectedPlanId)!;
-  const isCompatible = maxGuests <= selectedPlan.maxGuests * 1.1;
-  const suggestedPlan = isCompatible ? null : getPlanForGuests(maxGuests);
-
-  // Days until reveal (client-side)
-  const daysUntilReveal = revealAt
-    ? Math.ceil((new Date(revealAt).getTime() - Date.now()) / 86400000)
-    : null;
+  const autoSelectedPlan = getPlanForGuests(maxGuests); // for recommended badge
+  const canSubmit = selectedPlanId === "test" || maxGuests <= selectedPlan.maxGuests;
+  const suggestedPlan = canSubmit ? null : getPlanForGuests(maxGuests);
 
   const DISPLAY_ORDER = ["premium", "classic", "essential", "test"];
   const displayedPlans = DISPLAY_ORDER.map((id) => PLANS.find((p) => p.id === id)!);
 
   async function handleSubmit() {
-    if (isPending || !isCompatible) return;
+    if (isPending || !canSubmit) return;
     setIsPending(true);
     setSubmitError(null);
 
@@ -168,7 +162,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
     fd.set("max_guests",       String(maxGuests));
     fd.set("photos_per_guest", String(photosPerGuest));
     fd.set("plan_id",          selectedPlanId);
-    if (revealAt) fd.set("reveal_at", revealAt);
+    if (revealMode === "fixed" && revealAt) fd.set("reveal_at", revealAt);
     if (allowLibrary) fd.set("allow_library_upload", "on");
 
     const result = await createEvent(fd);
@@ -239,14 +233,26 @@ export default function CreateEventForm({ error }: { error?: string }) {
         <Stepper id="max_guests" label="Nombre d'invités" value={maxGuests} min={1} max={250} step={5} onChange={setMaxGuests} />
         <Stepper id="photos_per_guest" label="Photos par invité" value={photosPerGuest} min={1} max={20} step={1} onChange={setPhotosPerGuest} />
 
-        {/* Reveal date */}
+        {/* Reveal mode */}
         <div className="f-input-wrap">
-          <label className="f-label" htmlFor="reveal_at">Date de révélation</label>
-          <p style={{ fontSize: 12, color: "var(--fg-3)", marginBottom: 8 }}>
-            Optionnelle — révèle automatiquement la galerie, ou révélez manuellement depuis le dashboard.
-          </p>
-          <input id="reveal_at" name="reveal_at" type="datetime-local" value={revealAt}
-            onChange={(e) => setRevealAt(e.target.value)} className="f-input-box" />
+          <label className="f-label">Révélation de la galerie</label>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+            {(["fixed", "manual"] as const).map((mode) => (
+              <label key={mode} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", borderRadius: "var(--radius-sm)", border: `1.5px solid ${revealMode === mode ? "var(--flaash-ink)" : "var(--border)"}`, background: revealMode === mode ? "var(--flaash-cream-deep)" : "transparent", cursor: "pointer", transition: "all var(--t-fast)" }}>
+                <input type="radio" checked={revealMode === mode} onChange={() => setRevealMode(mode)} style={{ marginTop: 2, accentColor: "var(--flaash-ink)", flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{mode === "fixed" ? "Date fixée" : "Révélation manuelle"}</div>
+                  <div style={{ fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>
+                    {mode === "fixed" ? "La galerie se révèle automatiquement à la date choisie." : "Vous révélez la galerie manuellement depuis votre dashboard."}
+                  </div>
+                </div>
+              </label>
+            ))}
+          </div>
+          {revealMode === "fixed" && (
+            <input id="reveal_at" name="reveal_at" type="datetime-local" value={revealAt}
+              onChange={(e) => setRevealAt(e.target.value)} className="f-input-box" style={{ marginTop: 10 }} />
+          )}
         </div>
 
         {/* Library upload */}
@@ -297,67 +303,95 @@ export default function CreateEventForm({ error }: { error?: string }) {
         </div>
       </div>
 
-      {/* Urgency banner */}
-      {daysUntilReveal !== null && daysUntilReveal > 0 && (
+      {/* Urgency — simple, no day count */}
+      {revealMode === "fixed" && revealAt && (
         <div style={{ background: "var(--flaash-amber-soft)", borderRadius: "var(--radius-sm)", padding: "12px 16px", fontSize: 13, color: "var(--flaash-amber-deep)", fontWeight: 600 }}>
-          Votre événement est dans {daysUntilReveal} jour{daysUntilReveal > 1 ? "s" : ""} — sécurisez-le maintenant.
+          Sécurisez votre événement maintenant.
         </div>
       )}
 
-      {/* Plan selector */}
-      <div className="f-input-wrap">
-        <label className="f-label" style={{ marginBottom: 12 }}>Choisissez votre plan</label>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {displayedPlans.map((plan) => {
-            const compatible = maxGuests <= plan.maxGuests * 1.1;
-            const incompatibleMsg = !compatible && suggestedPlan
-              ? `Votre liste dépasse ce plan — ${suggestedPlan.label} vous convient mieux`
-              : undefined;
-            return (
-              <PlanCard
-                key={plan.id}
-                plan={plan}
-                selected={selectedPlanId === plan.id}
-                compatible={compatible || selectedPlanId !== plan.id}
-                incompatibleMsg={incompatibleMsg}
-                onSelect={() => setSelectedPlanId(plan.id)}
-              />
-            );
-          })}
+      {/* +250 → devis */}
+      {maxGuests > 250 ? (
+        <div style={{ background: "var(--surface-2)", border: "1.5px solid var(--border)", borderRadius: "var(--radius-md)", padding: "20px", textAlign: "center" }}>
+          <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>Vous avez plus de 250 invités ?</p>
+          <p style={{ fontSize: 14, color: "var(--fg-3)", marginBottom: 16 }}>Contactez-nous pour un devis sur mesure.</p>
+          <a href="mailto:hello@flaash.ch" className="btn-pill btn-ink" style={{ fontSize: 13 }}>
+            Demander un devis →
+          </a>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Plan selector */}
+          <div className="f-input-wrap">
+            <label className="f-label" style={{ marginBottom: 12 }}>Choisissez votre plan</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {displayedPlans.map((plan) => {
+                const isTest = plan.id === "test";
+                // strict compatibility (no tolerance)
+                const compatible = isTest ? true : maxGuests <= plan.maxGuests;
+                const isRecommended = plan.id === autoSelectedPlan?.id;
+                let incompatibleMsg: string | undefined;
+                if (isTest && maxGuests > 3) {
+                  incompatibleMsg = "Le plan Test ne couvre que 3 appareils — vos paramètres seront ajustés automatiquement.";
+                } else if (!compatible && suggestedPlan) {
+                  incompatibleMsg = `Votre liste dépasse ce plan — ${suggestedPlan.label} vous convient mieux`;
+                }
+                return (
+                  <PlanCard
+                    key={plan.id}
+                    plan={plan}
+                    selected={selectedPlanId === plan.id}
+                    isRecommended={isRecommended}
+                    compatible={compatible || selectedPlanId !== plan.id}
+                    incompatibleMsg={incompatibleMsg}
+                    onSelect={() => setSelectedPlanId(plan.id)}
+                  />
+                );
+              })}
+            </div>
+          </div>
 
-      {/* Compatibility error */}
-      {!isCompatible && (
-        <p style={{ fontSize: 13, color: "#dc2626", fontWeight: 600 }}>
-          Le plan sélectionné ne couvre pas {maxGuests} invités. Choisissez {suggestedPlan?.label ?? "un plan supérieur"}.
-        </p>
+          {/* Test plan note */}
+          {selectedPlanId === "test" && (
+            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: "12px 16px", fontSize: 13, color: "var(--fg-3)" }}>
+              Le plan Test est limité à 3 appareils et 20 photos — idéal pour tester l&apos;expérience avant votre événement.
+            </div>
+          )}
+
+          {/* Compatibility error */}
+          {!canSubmit && (
+            <p style={{ fontSize: 13, color: "#dc2626", fontWeight: 600 }}>
+              Le plan sélectionné ne couvre pas {maxGuests} invités. Choisissez {suggestedPlan?.label ?? "un plan supérieur"}.
+            </p>
+          )}
+
+          {/* Submit error */}
+          {submitError && (
+            <p style={{ fontSize: 13, color: "#dc2626", fontWeight: 600 }}>{submitError}</p>
+          )}
+
+          {/* Actions */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingBottom: 8 }}>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isPending || !canSubmit}
+              className="btn-pill btn-amber"
+              style={{ opacity: (isPending || !canSubmit) ? 0.6 : 1 }}
+            >
+              {isPending
+                ? "CRÉATION…"
+                : selectedPlan.price === 0
+                  ? "CRÉER GRATUITEMENT →"
+                  : `PAYER ${selectedPlan.price} CHF →`}
+            </button>
+          </div>
+        </>
       )}
 
-      {/* Submit error */}
-      {submitError && (
-        <p style={{ fontSize: 13, color: "#dc2626", fontWeight: 600 }}>{submitError}</p>
-      )}
-
-      {/* Actions */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingBottom: 8 }}>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isPending || !isCompatible}
-          className="btn-pill btn-amber"
-          style={{ opacity: (isPending || !isCompatible) ? 0.6 : 1 }}
-        >
-          {isPending
-            ? "CRÉATION…"
-            : selectedPlan.price === 0
-              ? "CRÉER GRATUITEMENT →"
-              : `PAYER ${selectedPlan.price} CHF →`}
-        </button>
-        <button type="button" onClick={handleBack} style={{ background: "none", border: "none", fontSize: 13, color: "var(--fg-3)", cursor: "pointer", fontWeight: 600 }}>
-          ← Modifier
-        </button>
-      </div>
+      <button type="button" onClick={handleBack} style={{ background: "none", border: "none", fontSize: 13, color: "var(--fg-3)", cursor: "pointer", fontWeight: 600, textAlign: "left" }}>
+        ← Modifier
+      </button>
     </div>
   );
 }
