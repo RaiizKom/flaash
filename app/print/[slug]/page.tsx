@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
+import dynamic from "next/dynamic";
 import { createAdminClient } from "@/lib/supabase/admin";
-import PrintCard from "./PrintCard";
+
+// ssr: false → composant rendu uniquement côté client
+// Garantit que le DOM est complet avant html-to-image
+const PrintCard = dynamic(() => import("./PrintCard"), { ssr: false });
 
 interface Props {
   params: Promise<{ slug: string }>;
