@@ -23,6 +23,7 @@ export interface Event {
   allow_library_upload: boolean;
   price_chf: number;
   stripe_payment_id: string | null;
+  plan_id: string | null;
   created_at: string;
   expires_at: string | null;
 }
