@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { QRCodeSVG, QRCodeCanvas } from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
+import QRCode from "qrcode";
 
 const CARD_W = 1260;
 const CARD_H = 1785;
@@ -71,15 +72,27 @@ function wrapText(
 }
 
 export default function PrintCard({ title, eventUrl, slug }: Props) {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const displayUrl = eventUrl.replace(/^https?:\/\//, "");
 
+  async function loadQrImage(): Promise<HTMLImageElement> {
+    const dataUrl = await QRCode.toDataURL(eventUrl, {
+      width: 640,
+      margin: 1,
+      color: { dark: "#1A1A1A", light: "#ffffff" },
+    });
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => res(img);
+      img.onerror = rej;
+      img.src = dataUrl;
+    });
+  }
+
   async function handleDownload() {
-    const canvas   = canvasRef.current;
-    const qrCanvas = qrCanvasRef.current;
-    if (!canvas || !qrCanvas || isGenerating) return;
+    const canvas = canvasRef.current;
+    if (!canvas || isGenerating) return;
     setIsGenerating(true);
 
     try {
@@ -88,7 +101,10 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       // Extra wait to ensure font rendering is settled
       await new Promise(r => setTimeout(r, 200));
 
-      const logoImg = await loadSvgImage(LOGO_SVG);
+      const [logoImg, qrImg] = await Promise.all([
+        loadSvgImage(LOGO_SVG),
+        loadQrImage(),
+      ]);
       const ctx = canvas.getContext("2d")!;
       ctx.clearRect(0, 0, CARD_W, CARD_H);
 
@@ -129,7 +145,7 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       ctx.fill();
       ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
 
-      ctx.drawImage(qrCanvas, qrCardX + qrPad, qrCardY + qrPad, qrSize, qrSize);
+      ctx.drawImage(qrImg, qrCardX + qrPad, qrCardY + qrPad, qrSize, qrSize);
 
       // ── Title ─────────────────────────────────────────────────────────────
       ctx.font      = '800 66px "Playfair Display", Georgia, serif';
@@ -195,17 +211,8 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
         html, body { margin: 0; padding: 0; background: ${BG}; }
       `}</style>
 
-      {/* Hidden draw targets — never visible */}
+      {/* Hidden draw canvas */}
       <canvas ref={canvasRef} width={CARD_W} height={CARD_H} style={{ display: "none" }} />
-      <QRCodeCanvas
-        ref={qrCanvasRef}
-        value={eventUrl}
-        size={640}
-        bgColor="#ffffff"
-        fgColor="#1A1A1A"
-        level="M"
-        style={{ display: "none" }}
-      />
 
       {/* Screen button */}
       <div className="no-print" style={{ display: "flex", justifyContent: "flex-end", padding: "14px 20px" }}>
