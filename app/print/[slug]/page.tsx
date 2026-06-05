@@ -22,5 +22,5 @@ export default async function PrintPage({ params }: Props) {
   const appUrl = rawUrl.replace(/^NEXT_PUBLIC_APP_URL=/, "").replace(/\/$/, "");
   const eventUrl = `${appUrl}/e/${event.slug}`;
 
-  return <PrintCard title={event.title} eventUrl={eventUrl} />;
+  return <PrintCard title={event.title} eventUrl={eventUrl} slug={event.slug} />;
 }

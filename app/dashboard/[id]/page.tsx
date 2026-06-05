@@ -242,7 +242,7 @@ export default async function EventDetailPage({ params }: Props) {
                 gap: 6,
               }}
             >
-              🖨 Imprimer le QR code
+              ⬇ Carte QR code
             </Link>
           </div>
         </div>

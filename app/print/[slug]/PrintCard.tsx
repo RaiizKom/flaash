@@ -1,13 +1,37 @@
 "use client";
 
+import { useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import { QRCodeSVG } from "qrcode.react";
 
 interface Props {
   title: string;
   eventUrl: string;
+  slug: string;
 }
 
-export default function PrintCard({ title, eventUrl }: Props) {
+export default function PrintCard({ title, eventUrl, slug }: Props) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  async function handleDownload() {
+    if (!cardRef.current || isGenerating) return;
+    setIsGenerating(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 3,
+        cacheBust: true,
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `flaash-${slug}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
   const displayUrl = eventUrl.replace(/^https?:\/\//, "");
 
   return (
@@ -192,15 +216,20 @@ export default function PrintCard({ title, eventUrl }: Props) {
         }
       `}</style>
 
-      {/* Screen-only print button */}
+      {/* Screen-only download button */}
       <div className="screen-bar no-print">
-        <button className="btn-print" onClick={() => window.print()}>
-          🖨 Imprimer
+        <button
+          className="btn-print"
+          onClick={handleDownload}
+          disabled={isGenerating}
+          style={{ opacity: isGenerating ? 0.7 : 1 }}
+        >
+          {isGenerating ? "⏳ Génération en cours…" : "⬇ Télécharger la carte"}
         </button>
       </div>
 
       {/* Card */}
-      <div className="print-card">
+      <div className="print-card" ref={cardRef}>
         {/* Header */}
         <header className="print-header">
           {/* eslint-disable-next-line @next/next/no-img-element */}
