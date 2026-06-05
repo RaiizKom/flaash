@@ -10,17 +10,47 @@ interface Props {
   slug: string;
 }
 
+// Inlined — html-to-image can't load external <img src="/...svg">
+function LogoLockup() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 350" width={97} height={72} role="img" aria-label="Flaash" style={{ display: "block" }}>
+      <g transform="translate(155 6)">
+        <path d="M86 8 L24 92 L66 92 L52 152 L132 60 L86 60 Z" fill="#E07B2E" stroke="#1A1A1A" strokeWidth={8} strokeLinejoin="round" />
+      </g>
+      <text x="235" y="335" textAnchor="middle" fontFamily="'Playfair Display', Georgia, serif" fontWeight={900} fontSize={150} letterSpacing={-6} fill="#1A1A1A">
+        Fl<tspan fontStyle="italic" fontWeight={800}>aa</tspan>sh
+      </text>
+    </svg>
+  );
+}
+
+function BoltWatermark() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width={120} height={120} aria-hidden="true"
+      style={{ position: "absolute", bottom: -16, right: -10, opacity: 0.04, transform: "rotate(-12deg)", pointerEvents: "none", userSelect: "none", zIndex: 0 }}>
+      <path d="M86 8 L24 92 L66 92 L52 152 L132 60 L86 60 Z" fill="#E07B2E" stroke="#1A1A1A" strokeWidth={8} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const BG = "#F5F0E8";
+
 export default function PrintCard({ title, eventUrl, slug }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const displayUrl = eventUrl.replace(/^https?:\/\//, "");
 
   async function handleDownload() {
     if (!cardRef.current || isGenerating) return;
     setIsGenerating(true);
     try {
+      // toPng twice: first call "warms up" font/image loading, second produces clean output
+      await toPng(cardRef.current, { pixelRatio: 1, backgroundColor: BG });
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 3,
         cacheBust: true,
+        backgroundColor: BG,
+        style: { backgroundColor: BG },
       });
       const a = document.createElement("a");
       a.href = dataUrl;
@@ -32,256 +62,116 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       setIsGenerating(false);
     }
   }
-  const displayUrl = eventUrl.replace(/^https?:\/\//, "");
 
   return (
     <>
       <style>{`
-        *, *::before, *::after { box-sizing: border-box; }
-
-        html, body {
-          margin: 0;
-          padding: 0;
-          height: auto;
-          overflow: hidden;
-          background: #F5F0E8;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          font-family: 'Inter', system-ui, sans-serif;
-        }
-
-        @page {
-          size: A6 portrait;
-          margin: 10mm;
-        }
-
-        @media print {
-          .no-print { display: none !important; }
-          html, body { overflow: hidden; }
-        }
-
-        /* ── Screen bar ── */
-        .screen-bar {
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          padding: 14px 20px;
-        }
-
-        .btn-print {
-          background: #1A1A1A;
-          color: #FAF7F2;
-          border: none;
-          border-radius: 999px;
-          padding: 10px 22px;
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: 0.06em;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-        }
-
-        /* ── Card ── */
-        .print-card {
-          width: 100%;
-          max-width: 400px;
-          margin: 0 auto;
-          background: #F5F0E8;
-          border-radius: 20px;
-          padding: 28px 24px 32px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          text-align: center;
-          position: relative;
-          overflow: hidden;
-        }
-
-        /* inner border */
-        .print-card::before {
-          content: '';
-          position: absolute;
-          inset: 10px;
-          border: 1px solid rgba(0,0,0,0.07);
-          border-radius: 12px;
-          pointer-events: none;
-        }
-
-        /* ── Header ── */
-        .print-header {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          position: relative;
-          z-index: 1;
-        }
-
-        .print-eyebrow {
-          font-size: 9.5px;
-          font-weight: 600;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: #9A8F82;
-          margin: 0;
-        }
-
-        /* ── QR ── */
-        .print-qr {
-          background: #fff;
-          border-radius: 16px;
-          padding: 20px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
-          position: relative;
-          z-index: 1;
-          display: inline-flex;
-        }
-
-        /* ── Typography ── */
-        .print-title {
-          font-family: 'Playfair Display', Georgia, serif;
-          font-size: 26px;
-          font-weight: 800;
-          color: #1A1A1A;
-          line-height: 1.2;
-          margin: 0;
-          letter-spacing: -0.01em;
-          position: relative;
-          z-index: 1;
-        }
-
-        .print-subtitle {
-          font-family: 'Caveat', cursive, Georgia, serif;
-          font-style: italic;
-          font-size: 17px;
-          color: #7A7060;
-          margin: -8px 0 0;
-          line-height: 1.4;
-          position: relative;
-          z-index: 1;
-        }
-
-        /* ── Footer ── */
-        .print-footer {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          position: relative;
-          z-index: 1;
-          width: 100%;
-        }
-
-        .print-url {
-          font-size: 10.5px;
-          color: #9A8F82;
-          margin: 0;
-          word-break: break-all;
-        }
-
-        .print-brand {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 8.5px;
-          font-weight: 700;
-          letter-spacing: 0.28em;
-          text-transform: uppercase;
-          color: #B5ADA3;
-        }
-
-        .print-brand-line {
-          width: 24px;
-          height: 1px;
-          background: #C8C0B6;
-          display: inline-block;
-          flex-shrink: 0;
-        }
-
-        /* ── Watermark ── */
-        .print-watermark {
-          position: absolute;
-          bottom: -16px;
-          right: -10px;
-          width: 120px;
-          height: 120px;
-          opacity: 0.04;
-          pointer-events: none;
-          user-select: none;
-          transform: rotate(-12deg);
-          z-index: 0;
-        }
+        @media print { .no-print { display: none !important; } }
+        @page { size: A6 portrait; margin: 10mm; }
+        html, body { margin: 0; padding: 0; background: ${BG}; overflow: hidden; }
       `}</style>
 
-      {/* Screen-only download button */}
-      <div className="screen-bar no-print">
+      {/* Screen-only button */}
+      <div className="no-print" style={{ display: "flex", justifyContent: "flex-end", padding: "14px 20px" }}>
         <button
-          className="btn-print"
           onClick={handleDownload}
           disabled={isGenerating}
-          style={{ opacity: isGenerating ? 0.7 : 1 }}
+          style={{
+            background: "#1A1A1A", color: "#FAF7F2", border: "none", borderRadius: 999,
+            padding: "10px 22px", fontSize: 13, fontWeight: 700, letterSpacing: "0.06em",
+            cursor: isGenerating ? "default" : "pointer", opacity: isGenerating ? 0.7 : 1,
+            display: "inline-flex", alignItems: "center", gap: 7,
+          }}
         >
           {isGenerating ? "⏳ Génération en cours…" : "⬇ Télécharger la carte"}
         </button>
       </div>
 
-      {/* Card */}
-      <div className="print-card" ref={cardRef}>
+      {/* Card — ref target for html-to-image */}
+      <div
+        ref={cardRef}
+        style={{
+          width: 400,
+          margin: "0 auto",
+          background: BG,
+          borderRadius: 20,
+          padding: "28px 24px 32px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 20,
+          textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
+          fontFamily: "'Inter', system-ui, sans-serif",
+        }}
+      >
+        {/* Inner border — real div, not ::before */}
+        <div style={{
+          position: "absolute", inset: 10,
+          border: "1px solid rgba(0,0,0,0.07)",
+          borderRadius: 12,
+          pointerEvents: "none",
+          zIndex: 1,
+        }} />
+
         {/* Header */}
-        <header className="print-header">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/flaash-lockup-vertical-ink.svg"
-            alt="Flaash"
-            width={97}
-            height={72}
-            style={{ display: "block" }}
-          />
-          <p className="print-eyebrow">Galerie partagée de la soirée</p>
-        </header>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative", zIndex: 2 }}>
+          <LogoLockup />
+          <p style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: "#9A8F82", margin: 0 }}>
+            Galerie partagée de la soirée
+          </p>
+        </div>
 
         {/* QR */}
-        <div className="print-qr">
+        <div style={{
+          background: "#fff", borderRadius: 16, padding: 20,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)",
+          display: "inline-flex", position: "relative", zIndex: 2,
+        }}>
           <QRCodeSVG
             value={eventUrl}
             size={240}
             bgColor="#ffffff"
             fgColor="#1A1A1A"
             level="M"
-            imageSettings={{
-              src: "/flaash-favicon.svg",
-              height: 44,
-              width: 44,
-              excavate: true,
-            }}
           />
         </div>
 
         {/* Title */}
-        <h1 className="print-title">{title}</h1>
-        <p className="print-subtitle">Scannez &amp; capturez l&apos;instant.</p>
+        <h1 style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: 26, fontWeight: 800, color: "#1A1A1A",
+          lineHeight: 1.2, margin: 0, letterSpacing: "-0.01em",
+          position: "relative", zIndex: 2,
+        }}>
+          {title}
+        </h1>
+
+        {/* Subtitle */}
+        <p style={{
+          fontFamily: "'Caveat', cursive, Georgia, serif",
+          fontStyle: "italic", fontSize: 17, color: "#7A7060",
+          margin: "-8px 0 0", lineHeight: 1.4,
+          position: "relative", zIndex: 2,
+        }}>
+          Scannez &amp; capturez l&apos;instant.
+        </p>
 
         {/* Footer */}
-        <footer className="print-footer">
-          <p className="print-url">{displayUrl}</p>
-          <div className="print-brand">
-            <span className="print-brand-line" />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative", zIndex: 2, width: "100%" }}>
+          <p style={{ fontSize: 10.5, color: "#9A8F82", margin: 0, wordBreak: "break-all" }}>
+            {displayUrl}
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 8.5, fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase", color: "#B5ADA3" }}>
+            <span style={{ width: 24, height: 1, background: "#C8C0B6", display: "inline-block", flexShrink: 0 }} />
             Flaash
-            <span className="print-brand-line" />
+            <span style={{ width: 24, height: 1, background: "#C8C0B6", display: "inline-block", flexShrink: 0 }} />
           </div>
-        </footer>
+        </div>
 
-        {/* Watermark */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/flaash-bolt.svg"
-          alt=""
-          className="print-watermark"
-          aria-hidden="true"
-        />
+        {/* Watermark — inlined SVG */}
+        <BoltWatermark />
       </div>
     </>
   );
