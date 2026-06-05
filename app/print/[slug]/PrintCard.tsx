@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toPng } from "html-to-image";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -50,32 +50,40 @@ function LogoLockup() {
 
 const BG = "#F5F0E8";
 
+const CARD_ID = "flaash-print-card";
+
 export default function PrintCard({ title, eventUrl, slug }: Props) {
-  const cardRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const displayUrl = eventUrl.replace(/^https?:\/\//, "");
 
+  function getCard(): HTMLElement | null {
+    return document.getElementById(CARD_ID);
+  }
+
   async function handleDebug() {
-    if (!cardRef.current) return;
-    console.log("cardRef:", cardRef.current);
-    console.log("innerHTML:", cardRef.current.innerHTML);
-    console.log("children count:", cardRef.current.children.length);
-    const dataUrl = await toPng(cardRef.current, { pixelRatio: 1, backgroundColor: BG });
+    const el = getCard();
+    if (!el) { console.error("Card element not found"); return; }
+    console.log("card element:", el);
+    console.log("innerHTML length:", el.innerHTML.length);
+    console.log("children count:", el.children.length);
+    console.log("boundingRect:", el.getBoundingClientRect());
+    const dataUrl = await toPng(el, { pixelRatio: 1, backgroundColor: BG });
     setDebugInfo(dataUrl);
     console.log("debug dataUrl (first 200):", dataUrl.slice(0, 200));
   }
 
   async function handleDownload() {
-    if (!cardRef.current || isGenerating) return;
+    const el = getCard();
+    if (!el || isGenerating) return;
     setIsGenerating(true);
     try {
       // Warm-up pass: lets html-to-image resolve fonts + images
-      await toPng(cardRef.current, { pixelRatio: 1, backgroundColor: BG });
+      await toPng(el, { pixelRatio: 1, backgroundColor: BG });
       // Wait for fonts to paint after warm-up
       await new Promise((resolve) => setTimeout(resolve, 500));
       // Final high-res capture
-      const dataUrl = await toPng(cardRef.current, {
+      const dataUrl = await toPng(el, {
         pixelRatio: 3,
         cacheBust: true,
         backgroundColor: BG,
@@ -135,9 +143,9 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
         </div>
       )}
 
-      {/* ─── Card — the capture target ─────────────────────────────────── */}
+      {/* ─── Card — capture target identified by id, not ref ─────────── */}
       <div
-        ref={cardRef}
+        id={CARD_ID}
         style={{
           width: 420,
           minHeight: 595,
