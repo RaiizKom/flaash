@@ -18,6 +18,8 @@ export default function PrintView({ title, eventUrl }: Props) {
         html, body {
           margin: 0;
           padding: 0;
+          height: auto;
+          overflow: hidden;
           background: #E8E2D9;
           font-family: var(--font-inter, 'Inter', system-ui, sans-serif);
           -webkit-print-color-adjust: exact;
@@ -27,12 +29,14 @@ export default function PrintView({ title, eventUrl }: Props) {
         /* ── Screen layout ── */
         .print-wrap {
           min-height: 100dvh;
+          max-height: 100dvh;
+          overflow: hidden;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: flex-start;
-          padding: 24px 16px 80px;
-          gap: 24px;
+          padding: 24px 16px 24px;
+          gap: 16px;
         }
 
         /* ── Card ── */
@@ -72,18 +76,13 @@ export default function PrintView({ title, eventUrl }: Props) {
         }
 
         .print-logo {
-          display: flex;
-          align-items: center;
-          gap: 8px;
           font-family: var(--font-playfair, 'Playfair Display', Georgia, serif);
-          font-size: 26px;
+          font-size: 28px;
           font-weight: 800;
+          font-style: normal;
           color: #1A1A1A;
           letter-spacing: -0.02em;
-        }
-
-        .print-logo-bolt {
-          font-size: 22px;
+          margin: 0;
         }
 
         .print-eyebrow {
@@ -230,8 +229,8 @@ export default function PrintView({ title, eventUrl }: Props) {
         }
 
         @page {
-          size: A6;
-          margin: 0;
+          size: A6 portrait;
+          margin: 10mm;
         }
       `}</style>
 
@@ -248,10 +247,7 @@ export default function PrintView({ title, eventUrl }: Props) {
         <div className="print-card">
           {/* Header */}
           <header className="print-header">
-            <div className="print-logo">
-              <span className="print-logo-bolt">⚡</span>
-              Fl<em>aa</em>sh
-            </div>
+            <p className="print-logo">Flaash</p>
             <p className="print-eyebrow">Galerie partagée de la soirée</p>
           </header>
 
