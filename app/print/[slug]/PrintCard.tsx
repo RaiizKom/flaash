@@ -44,8 +44,9 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
     if (!cardRef.current || isGenerating) return;
     setIsGenerating(true);
     try {
-      // toPng twice: first call "warms up" font/image loading, second produces clean output
+      // Warm up: fonts + QR must be fully painted before capture
       await toPng(cardRef.current, { pixelRatio: 1, backgroundColor: BG });
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 3,
         cacheBust: true,
@@ -91,7 +92,8 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       <div
         ref={cardRef}
         style={{
-          width: 400,
+          width: 420,
+          minHeight: 595,
           margin: "0 auto",
           background: BG,
           borderRadius: 20,
@@ -132,7 +134,7 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
           <QRCodeSVG
             value={eventUrl}
             size={240}
-            bgColor="#ffffff"
+            bgColor={BG}
             fgColor="#1A1A1A"
             level="M"
           />
