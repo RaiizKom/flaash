@@ -6,6 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { type Event, STATUS_LABELS, EVENT_TYPE_LABELS } from "@/types";
 import QRCodeCard from "./QRCodeCard";
 import { revealNow, activateEvent } from "./actions";
+import { Suspense } from "react";
+import PaymentBanner from "./PaymentBanner";
+import { getPlan } from "@/lib/utils/pricing";
 
 interface Props {
   params: { id: string };
@@ -59,6 +62,11 @@ export default async function EventDetailPage({ params }: Props) {
 
   return (
     <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>
+      {/* Payment success banner — Suspense required because PaymentBanner uses useSearchParams() */}
+      <Suspense fallback={null}>
+        <PaymentBanner status={ev.status} />
+      </Suspense>
+
       {/* Back */}
       <Link
         href="/dashboard"
@@ -87,6 +95,23 @@ export default async function EventDetailPage({ params }: Props) {
           >
             {STATUS_LABELS[ev.status]}
           </span>
+          {ev.plan_id && (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                padding: "3px 8px",
+                borderRadius: 100,
+                background: "var(--surface-2)",
+                border: "1px solid var(--border)",
+                color: "var(--fg-3)",
+              }}
+            >
+              {getPlan(ev.plan_id)?.label ?? ev.plan_id}
+            </span>
+          )}
         </div>
         <h1 className="f-h1" style={{ marginBottom: 0 }}>
           {ev.title}
@@ -143,11 +168,13 @@ export default async function EventDetailPage({ params }: Props) {
           <p style={{ fontSize: 14, color: "var(--flaash-ink-soft)", marginBottom: 14 }}>
             Procédez au paiement pour générer le QR code et accueillir vos invités.
           </p>
-          <form action={activateEvent.bind(null, ev.id)}>
-            <button type="submit" className="btn-pill btn-amber" style={{ fontSize: 14 }}>
-              ⚡ ACTIVER L&apos;ÉVÉNEMENT →
-            </button>
-          </form>
+          {process.env.NODE_ENV === "development" && (
+            <form action={activateEvent.bind(null, ev.id)} style={{ marginTop: 10 }}>
+              <button type="submit" style={{ fontSize: 12, fontWeight: 600, color: "var(--flaash-amber-deep)", background: "none", border: "1.5px dashed var(--flaash-amber-deep)", borderRadius: "var(--radius-pill)", padding: "8px 16px", cursor: "pointer", letterSpacing: "0.06em" }}>
+                ⚡ ACTIVER SANS PAIEMENT (dev)
+              </button>
+            </form>
+          )}
         </div>
       )}
 
