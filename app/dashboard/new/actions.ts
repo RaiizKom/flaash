@@ -3,10 +3,15 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils/slug";
-import { calculatePrice } from "@/lib/utils/pricing";
+import { getPlan } from "@/lib/utils/pricing";
 import { type EventType } from "@/types";
 
-export async function createEvent(formData: FormData) {
+type CreateEventResult =
+  | { eventId: string; requiresPayment: false }
+  | { eventId: string; requiresPayment: true }
+  | { error: string };
+
+export async function createEvent(formData: FormData): Promise<CreateEventResult> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -16,23 +21,32 @@ export async function createEvent(formData: FormData) {
 
   const title           = (formData.get("title") as string).trim();
   const event_type      = formData.get("event_type") as EventType;
-  const max_guests      = parseInt(formData.get("max_guests") as string, 10);
-  const photos_per_guest = parseInt(formData.get("photos_per_guest") as string, 10);
+  const plan_id         = formData.get("plan_id") as string;
   const reveal_at_raw   = formData.get("reveal_at") as string | null;
   const allow_library   = formData.get("allow_library_upload") === "on";
 
-  const price_chf = calculatePrice(max_guests, photos_per_guest);
-  const reveal_at = reveal_at_raw || null;
+  const plan = getPlan(plan_id);
+  if (!plan) return { error: "Plan invalide." };
 
-  // Ensure unique slug (retry once on collision)
+  // Server-side enforcement for Test plan
+  const max_guests      = plan_id === "test"
+    ? 3
+    : parseInt(formData.get("max_guests") as string, 10);
+  const photos_per_guest = plan_id === "test"
+    ? 20
+    : parseInt(formData.get("photos_per_guest") as string, 10);
+
+  const price_chf  = plan.price;
+  const reveal_at  = reveal_at_raw || null;
+  const status     = plan_id === "test" ? "active" : "draft";
+
   let slug = generateSlug(title);
   const { data: existing } = await supabase
     .from("events")
     .select("id")
     .eq("slug", slug)
     .maybeSingle();
-
-  if (existing) slug = generateSlug(title); // second attempt gives new random suffix
+  if (existing) slug = generateSlug(title);
 
   const { data: event, error } = await supabase
     .from("events")
@@ -41,19 +55,21 @@ export async function createEvent(formData: FormData) {
       title,
       event_type,
       slug,
-      status: "draft",
+      status,
       max_guests,
       photos_per_guest,
       reveal_at,
       allow_library_upload: allow_library,
       price_chf,
+      plan_id,
     })
     .select()
     .single();
 
-  if (error) {
-    redirect(`/dashboard/new?error=${encodeURIComponent(error.message)}`);
-  }
+  if (error) return { error: error.message };
 
-  redirect(`/dashboard/${event.id}`);
+  return {
+    eventId: event.id,
+    requiresPayment: plan_id !== "test",
+  };
 }
