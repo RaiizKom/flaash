@@ -8,27 +8,21 @@ const CARD_W = 1260;
 const CARD_H = 1785;
 const BG    = "#F5F0E8";
 
-// Embedded SVG — drawn directly to canvas without fetch/CORS
-const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 350">
-  <g transform="translate(155 6)">
-    <path d="M86 8 L24 92 L66 92 L52 152 L132 60 L86 60 Z"
-      fill="#E07B2E" stroke="#1A1A1A" stroke-width="8" stroke-linejoin="round"/>
-  </g>
-  <text x="235" y="335" text-anchor="middle"
-    font-family="'Playfair Display', Georgia, serif"
-    font-weight="900" font-size="150" letter-spacing="-6" fill="#1A1A1A">
-    Fl<tspan font-style="italic" font-weight="800">aa</tspan>sh
-  </text>
-</svg>`;
-
 interface Props { title: string; eventUrl: string; slug: string; }
 
-function loadSvgImage(svg: string): Promise<HTMLImageElement> {
+function loadDataUrlImage(dataUrl: string): Promise<HTMLImageElement> {
   return new Promise((res, rej) => {
     const img = new Image();
-    img.onload = () => res(img);
+    img.onload = async () => {
+      try {
+        await img.decode?.();
+      } catch {
+        // onload already confirmed the image is usable; decode is an extra Safari guard.
+      }
+      res(img);
+    };
     img.onerror = rej;
-    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    img.src = dataUrl;
   });
 }
 
@@ -71,6 +65,79 @@ function wrapText(
   return curY;
 }
 
+function drawLogoText(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number
+) {
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+
+  const segments = [
+    { text: "Fl", font: '900 82px "Playfair Display", Georgia, serif' },
+    { text: "aa", font: 'italic 800 82px "Playfair Display", Georgia, serif' },
+    { text: "sh", font: '900 82px "Playfair Display", Georgia, serif' },
+  ].map((segment) => {
+    ctx.font = segment.font;
+    const metrics = ctx.measureText(segment.text);
+    return {
+      ...segment,
+      advance: metrics.width,
+      left: metrics.actualBoundingBoxLeft ?? 0,
+      right: metrics.actualBoundingBoxRight ?? metrics.width,
+    };
+  });
+
+  const safetyPadding = 8;
+  let advanceX = 0;
+  let visualLeft = Number.POSITIVE_INFINITY;
+  let visualRight = Number.NEGATIVE_INFINITY;
+
+  for (const segment of segments) {
+    visualLeft = Math.min(visualLeft, advanceX - segment.left);
+    visualRight = Math.max(visualRight, advanceX + segment.right);
+    advanceX += segment.advance;
+  }
+
+  const visualWidth = visualRight - visualLeft + safetyPadding * 2;
+  let curX = x - visualWidth / 2 - visualLeft + safetyPadding;
+  ctx.fillStyle = "#1A1A1A";
+
+  for (const segment of segments) {
+    ctx.font = segment.font;
+    ctx.fillText(segment.text, curX, y);
+    curX += segment.advance;
+  }
+
+  ctx.textAlign = "center";
+}
+
+function drawFlaashLogo(ctx: CanvasRenderingContext2D, x: number, y: number, h: number) {
+  const scale = h / 350;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = "#E07B2E";
+  ctx.strokeStyle = "#1A1A1A";
+  ctx.lineWidth = 8;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(241, 14);
+  ctx.lineTo(179, 98);
+  ctx.lineTo(221, 98);
+  ctx.lineTo(207, 158);
+  ctx.lineTo(287, 66);
+  ctx.lineTo(241, 66);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  drawLogoText(ctx, 235, 335);
+  ctx.restore();
+}
+
 export default function PrintCard({ title, eventUrl, slug }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -82,12 +149,7 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       margin: 1,
       color: { dark: "#1A1A1A", light: "#ffffff" },
     });
-    return new Promise((res, rej) => {
-      const img = new Image();
-      img.onload = () => res(img);
-      img.onerror = rej;
-      img.src = dataUrl;
-    });
+    return loadDataUrlImage(dataUrl);
   }
 
   async function handleDownload() {
@@ -101,10 +163,7 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       // Extra wait to ensure font rendering is settled
       await new Promise(r => setTimeout(r, 200));
 
-      const [logoImg, qrImg] = await Promise.all([
-        loadSvgImage(LOGO_SVG),
-        loadQrImage(),
-      ]);
+      const qrImg = await loadQrImage();
       const ctx = canvas.getContext("2d")!;
       ctx.clearRect(0, 0, CARD_W, CARD_H);
 
@@ -118,10 +177,10 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       roundRect(ctx, 20, 20, CARD_W - 40, CARD_H - 40, 24);
       ctx.stroke();
 
-      // ── Logo (SVG, viewBox 470×350) ───────────────────────────────────────
+      // ── Logo ──────────────────────────────────────────────────────────────
       const logoH = 190;
       const logoW = (470 / 350) * logoH;
-      ctx.drawImage(logoImg, (CARD_W - logoW) / 2, 80, logoW, logoH);
+      drawFlaashLogo(ctx, (CARD_W - logoW) / 2, 80, logoH);
 
       // ── Eyebrow ──────────────────────────────────────────────────────────
       ctx.font      = '600 26px "Inter", system-ui, sans-serif';
@@ -184,17 +243,13 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       ctx.stroke();
 
       // ── Download ─────────────────────────────────────────────────────────
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const a   = document.createElement("a");
-        a.href     = url;
-        a.download = `flaash-${slug}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, "image/png");
+      const url = canvas.toDataURL("image/png");
+      const a   = document.createElement("a");
+      a.href     = url;
+      a.download = `flaash-${slug}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
     } catch (err) {
       console.error("[PrintCard] Canvas error:", err);
@@ -212,7 +267,12 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       `}</style>
 
       {/* Hidden draw canvas */}
-      <canvas ref={canvasRef} width={CARD_W} height={CARD_H} style={{ display: "none" }} />
+      <canvas
+        ref={canvasRef}
+        width={CARD_W}
+        height={CARD_H}
+        style={{ position: "fixed", left: -9999, top: 0, width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
+      />
 
       {/* Screen button */}
       <div className="no-print" style={{ display: "flex", justifyContent: "flex-end", padding: "14px 20px" }}>
