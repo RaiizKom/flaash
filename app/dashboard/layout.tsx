@@ -45,10 +45,10 @@ export default async function DashboardLayout({
           <Image
             src="/flaash-wordmark-ink.svg"
             alt="Flaash"
-            width={120}
+            width={150}
             height={45}
             priority
-            style={{ display: "block", width: 120, height: "auto", maxWidth: 120 }}
+            style={{ display: "block", width: 150, height: "auto", maxWidth: 150 }}
           />
         </Link>
 
