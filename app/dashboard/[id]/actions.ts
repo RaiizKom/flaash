@@ -111,7 +111,7 @@ export async function resumePayment(eventId: string) {
   if (!plan || plan.price === 0) redirect(`/dashboard/${eventId}`);
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-  const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.app";
+  const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.ch";
   const appUrl = rawUrl.replace(/^NEXT_PUBLIC_APP_URL=/, "").replace(/\/$/, "");
 
   const session = await stripe.checkout.sessions.create({

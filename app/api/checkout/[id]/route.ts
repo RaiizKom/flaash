@@ -43,7 +43,7 @@ export async function POST(
     return NextResponse.json({ error: "Plan invalide." }, { status: 400 });
   }
 
-  const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.app";
+  const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.ch";
   const appUrl = rawUrl.replace(/^NEXT_PUBLIC_APP_URL=/, "").replace(/\/$/, "");
 
   const session = await stripe.checkout.sessions.create({

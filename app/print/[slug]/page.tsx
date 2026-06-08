@@ -22,7 +22,7 @@ export default async function PrintPage({ params }: Props) {
 
   if (!event) notFound();
 
-  const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.app";
+  const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.ch";
   const appUrl = rawUrl.replace(/^NEXT_PUBLIC_APP_URL=/, "").replace(/\/$/, "");
   const eventUrl = `${appUrl}/e/${event.slug}`;
 

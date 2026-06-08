@@ -56,7 +56,7 @@ export default async function EventDetailPage({ params }: Props) {
   ]);
 
   // BUG 4 fix — use NEXT_PUBLIC_APP_URL for the full guest link
-  const appUrl   = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl   = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.ch";
   const eventUrl = `${appUrl}/e/${ev.slug}`;
 
   const statusColors = STATUS_COLORS[ev.status] ?? STATUS_COLORS.draft;

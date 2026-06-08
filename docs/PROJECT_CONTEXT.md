@@ -15,6 +15,12 @@ Les invités scannent un QR code, prennent des photos depuis leur navigateur mob
 - Segment premium
 - Clients : mariages, anniversaires, événements privés, agences événementielles
 
+## Domaine canonique
+- Domaine principal officiel : `https://flaash.ch`
+- Domaines redirigés vers le canonique : `flaash.app`, `www.flaash.app`, `www.flaash.ch`
+- Variable publique à configurer en production Vercel : `NEXT_PUBLIC_APP_URL=https://flaash.ch`
+- Email officiel : `hello@flaash.ch`
+
 ## Stack technique
 - Next.js 14, App Router, TypeScript
 - Supabase : Postgres, Auth, Realtime, région EU
