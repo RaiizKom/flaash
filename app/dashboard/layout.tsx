@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic';
 
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -46,25 +45,27 @@ export default async function DashboardLayout({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            flex: "0 1 132px",
+            flex: "0 0 auto",
             minWidth: 0,
             overflow: "visible",
+            textDecoration: "none",
           }}
+          aria-label="Flaash dashboard"
         >
-          <Image
-            src="/flaash-wordmark-ink.svg"
-            alt="Flaash"
-            width={150}
-            height={45}
-            priority
+          <span
             style={{
-              display: "block",
-              width: "clamp(112px, 30vw, 142px)",
-              height: "auto",
-              maxWidth: "100%",
-              objectFit: "contain",
+              fontFamily: "var(--font-display)",
+              fontWeight: 900,
+              fontSize: "clamp(32px, 9vw, 42px)",
+              lineHeight: 0.95,
+              letterSpacing: "-0.04em",
+              color: "var(--flaash-ink)",
+              whiteSpace: "nowrap",
+              paddingRight: 4,
             }}
-          />
+          >
+            Fl<em style={{ fontWeight: 800 }}>aa</em>sh
+          </span>
         </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>

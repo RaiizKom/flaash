@@ -232,9 +232,14 @@ export default async function EventDetailPage({ params }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               style={{
+                width: "100%",
+                padding: "14px 18px",
+                borderRadius: "var(--radius-pill)",
+                border: "1.5px solid rgba(250,247,242,0.3)",
+                background: "rgba(250,247,242,0.1)",
                 fontSize: 13,
-                fontWeight: 600,
-                color: "rgba(250,247,242,0.7)",
+                fontWeight: 700,
+                color: "var(--flaash-cream)",
                 textDecoration: "none",
                 letterSpacing: "0.05em",
                 display: "flex",
@@ -244,7 +249,7 @@ export default async function EventDetailPage({ params }: Props) {
                 textAlign: "center",
               }}
             >
-              <span>Carte QR à imprimer</span>
+              <span>Carte QR à imprimer →</span>
               <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: 0, color: "rgba(250,247,242,0.52)" }}>
                 Générez une carte prête à partager avec vos invités.
               </span>

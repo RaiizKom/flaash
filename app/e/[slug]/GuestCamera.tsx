@@ -168,20 +168,13 @@ export default function GuestCamera({ event }: { event: Event }) {
 
   // ── Upload ────────────────────────────────────────────────────────────────
 
-  async function handleFileChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-    options: { mirrorSelfie?: boolean } = {}
-  ) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !session || isUploading) return;
     e.target.value = "";
 
     setIsUploading(true);
-    let uploadFile = file;
-    if (options.mirrorSelfie) {
-      uploadFile = await mirrorImageFileHorizontally(file);
-    }
-    const previewUrl = URL.createObjectURL(uploadFile);
+    const previewUrl = URL.createObjectURL(file);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30_000);
@@ -189,7 +182,7 @@ export default function GuestCamera({ event }: { event: Event }) {
     try {
       const fd = new FormData();
       fd.append("token", session.token);
-      fd.append("file", uploadFile);
+      fd.append("file", file);
 
       let res: Response;
       try {
@@ -745,7 +738,7 @@ export default function GuestCamera({ event }: { event: Event }) {
         accept="image/*"
         capture="user"
         style={{ display: "none" }}
-        onChange={(e) => handleFileChange(e, { mirrorSelfie: true })}
+        onChange={handleFileChange}
       />
 
       <div style={{ marginTop: uploadedPhotos.length > 0 ? 22 : 0 }}>
@@ -860,37 +853,6 @@ function CameraIcon() {
       <circle cx="12" cy="13" r="4" />
     </svg>
   );
-}
-
-async function mirrorImageFileHorizontally(file: File): Promise<File> {
-  try {
-    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
-    const maxSide = 2560;
-    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
-    const width = Math.round(bitmap.width * scale);
-    const height = Math.round(bitmap.height * scale);
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return file;
-
-    ctx.translate(width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(bitmap, 0, 0, width, height);
-    bitmap.close();
-
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg", 0.92)
-    );
-    if (!blob) return file;
-
-    const name = file.name.replace(/\.[^.]+$/, "") || "selfie";
-    return new File([blob], `${name}-selfie.jpg`, { type: "image/jpeg" });
-  } catch (err) {
-    console.warn("[camera] Selfie mirror failed, uploading original image.", err);
-    return file;
-  }
 }
 
 const centered: React.CSSProperties = {
