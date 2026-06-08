@@ -21,6 +21,13 @@ const TITLE_PLACEHOLDERS: Record<EventType, string> = {
   corporate: "Team Building", other: "Mon événement",
 };
 
+function placeCursorAtEnd(input: HTMLInputElement) {
+  requestAnimationFrame(() => {
+    const end = input.value.length;
+    input.setSelectionRange(end, end);
+  });
+}
+
 // ── Stepper ───────────────────────────────────────────────────────────────────
 function Stepper({
   id, label, value, min, max, step = 1, onChange,
@@ -225,7 +232,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
           <input id="title" name="title" type="text" required value={title}
             placeholder={TITLE_PLACEHOLDERS[eventType]}
             onChange={(e) => setTitle(e.target.value)}
-            onFocus={(e) => e.target.select()}
+            onFocus={(e) => placeCursorAtEnd(e.currentTarget)}
             className="f-input" style={{ fontSize: 20 }} />
         </div>
 

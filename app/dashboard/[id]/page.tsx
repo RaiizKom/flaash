@@ -239,10 +239,15 @@ export default async function EventDetailPage({ params }: Props) {
                 letterSpacing: "0.05em",
                 display: "flex",
                 alignItems: "center",
+                flexDirection: "column",
                 gap: 6,
+                textAlign: "center",
               }}
             >
-              ⬇ Carte QR code
+              <span>Carte QR à imprimer</span>
+              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: 0, color: "rgba(250,247,242,0.52)" }}>
+                Générez une carte prête à partager avec vos invités.
+              </span>
             </Link>
           </div>
         </div>

@@ -67,6 +67,7 @@ export default function GuestCamera({ event }: { event: Event }) {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null); // thumbnailUrl
   const fileRef = useRef<HTMLInputElement>(null);
+  const selfieRef = useRef<HTMLInputElement>(null);
   const storageKey = `flaash_guest_${event.slug}`;
 
   const showToast = useCallback((msg: string, ok = true) => {
@@ -167,13 +168,20 @@ export default function GuestCamera({ event }: { event: Event }) {
 
   // ── Upload ────────────────────────────────────────────────────────────────
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(
+    e: React.ChangeEvent<HTMLInputElement>,
+    options: { mirrorSelfie?: boolean } = {}
+  ) {
     const file = e.target.files?.[0];
     if (!file || !session || isUploading) return;
     e.target.value = "";
 
     setIsUploading(true);
-    const previewUrl = URL.createObjectURL(file);
+    let uploadFile = file;
+    if (options.mirrorSelfie) {
+      uploadFile = await mirrorImageFileHorizontally(file);
+    }
+    const previewUrl = URL.createObjectURL(uploadFile);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30_000);
@@ -181,7 +189,7 @@ export default function GuestCamera({ event }: { event: Event }) {
     try {
       const fd = new FormData();
       fd.append("token", session.token);
-      fd.append("file", file);
+      fd.append("file", uploadFile);
 
       let res: Response;
       try {
@@ -647,6 +655,26 @@ export default function GuestCamera({ event }: { event: Event }) {
           {isUploading ? "Envoi en cours…" : "PRENDRE UNE PHOTO"}
         </p>
 
+        <button
+          type="button"
+          onClick={() => selfieRef.current?.click()}
+          disabled={isUploading}
+          style={{
+            border: "1.5px solid var(--border)",
+            borderRadius: "var(--radius-pill)",
+            background: "var(--surface-2)",
+            color: "var(--fg-2)",
+            cursor: isUploading ? "default" : "pointer",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            padding: "10px 18px",
+            textTransform: "uppercase",
+          }}
+        >
+          Selfie
+        </button>
+
       </div>
 
       {/* ── Carrousel photos prises ─────────────────────────────────────── */}
@@ -710,6 +738,14 @@ export default function GuestCamera({ event }: { event: Event }) {
         {...(event.allow_library_upload ? {} : { capture: "environment" as const })}
         style={{ display: "none" }}
         onChange={handleFileChange}
+      />
+      <input
+        ref={selfieRef}
+        type="file"
+        accept="image/*"
+        capture="user"
+        style={{ display: "none" }}
+        onChange={(e) => handleFileChange(e, { mirrorSelfie: true })}
       />
 
       <div style={{ marginTop: uploadedPhotos.length > 0 ? 22 : 0 }}>
@@ -824,6 +860,37 @@ function CameraIcon() {
       <circle cx="12" cy="13" r="4" />
     </svg>
   );
+}
+
+async function mirrorImageFileHorizontally(file: File): Promise<File> {
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const maxSide = 2560;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+
+    ctx.translate(width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", 0.92)
+    );
+    if (!blob) return file;
+
+    const name = file.name.replace(/\.[^.]+$/, "") || "selfie";
+    return new File([blob], `${name}-selfie.jpg`, { type: "image/jpeg" });
+  } catch (err) {
+    console.warn("[camera] Selfie mirror failed, uploading original image.", err);
+    return file;
+  }
 }
 
 const centered: React.CSSProperties = {

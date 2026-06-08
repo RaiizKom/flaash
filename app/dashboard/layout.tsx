@@ -41,22 +41,37 @@ export default async function DashboardLayout({
           zIndex: 30,
         }}
       >
-        <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center" }}>
+        <Link
+          href="/dashboard"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            flex: "0 1 132px",
+            minWidth: 0,
+            overflow: "visible",
+          }}
+        >
           <Image
             src="/flaash-wordmark-ink.svg"
             alt="Flaash"
             width={150}
             height={45}
             priority
-            style={{ display: "block", width: 150, height: "auto", maxWidth: 150 }}
+            style={{
+              display: "block",
+              width: "clamp(112px, 30vw, 142px)",
+              height: "auto",
+              maxWidth: "100%",
+              objectFit: "contain",
+            }}
           />
         </Link>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           <Link
             href="/dashboard/new"
             className="btn-pill btn-amber"
-            style={{ padding: "12px 20px", fontSize: 13, width: "auto" }}
+            style={{ padding: "12px 16px", fontSize: 13, width: "auto" }}
           >
             + CRÉER
           </Link>
