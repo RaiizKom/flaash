@@ -37,7 +37,7 @@ Contraintes :
 1. Inspecter les fichiers concernés.
 2. Résumer la cause probable.
 3. Appliquer le correctif minimal.
-4. Lancer `npm run lint`, `npm run typecheck`, `npm run build` si disponibles.
+4. Lancer `npm run quality`.
 5. Donner les tests manuels à effectuer.
 ```
 
@@ -77,37 +77,24 @@ Contraintes :
 Commence par proposer le plan et les fichiers concernés avant de coder.
 ```
 
-## Bug QR PNG actuel
+## Tâche sur `/print/[slug]`
 ```markdown
 Tu travailles sur Flaash.
 
-Objectif : corriger le bug de téléchargement PNG sur `/print/[slug]`.
+Objectif : modifier prudemment la page `/print/[slug]`.
 
 Contexte :
-La page affiche correctement la carte QR avec le logo, le QR code et le titre. En revanche, le PNG téléchargé est vide ou ne contient que le fond crème.
-
-Tentatives déjà échouées :
-- html-to-image avec backgroundColor
-- SVGs inlinés comme composants React
-- ssr:false avec dynamic import
-- document.getElementById au lieu de ref
-- fonts chargées dans layout isolé
-
-Approche souhaitée :
-Ne plus capturer le DOM. Générer le PNG via canvas natif contrôlé :
-- fond crème dessiné dans le canvas
-- QR généré en data URL
-- logo SVG chargé puis dessiné dans le canvas
-- textes dessinés directement dans le canvas
+La page `/print/[slug]` et le téléchargement PNG de la carte QR sont validés en local et sur Vercel.
+Ne pas présenter le bug QR PNG comme actif.
 
 Contraintes :
 - La page `/print/[slug]` doit rester visuellement identique à l’écran.
-- Le PNG doit contenir fond, logo, QR code, titre et textes.
+- Si le PNG est concerné, conserver l’approche canvas natif contrôlé.
 - Ne pas changer le pricing, Stripe, Supabase ou R2.
 - Ne pas ajouter de dépendance production sans confirmation.
 
 Validation :
-- Tester téléchargement PNG desktop Chrome.
-- Donner les étapes de test Safari iPhone.
-- Lancer `npm run lint`, `npm run typecheck`, `npm run build` si disponibles.
+- Tester desktop Chrome.
+- Donner les étapes de test Safari iPhone si pertinent.
+- Lancer `npm run quality`.
 ```

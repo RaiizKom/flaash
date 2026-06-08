@@ -3,6 +3,11 @@
 ## Objectif
 Utiliser les outils IA sans gaspiller les crédits et sans laisser les agents casser le produit.
 
+## Dossier officiel
+Travailler uniquement dans `/Users/pedrolopes05/flaash`.
+
+Ne pas utiliser l’ancien dossier `/Users/pedrolopes05/Desktop/flaash`, supprimé.
+
 ## Répartition des rôles
 
 ### ChatGPT
@@ -55,9 +60,20 @@ Parcours prioritaires :
 4. Demander à ChatGPT un diagnostic et un prompt agent.
 5. Lancer Codex avec le prompt.
 6. Faire relire le diff par Codex ou ChatGPT.
-7. Lancer lint/typecheck/build.
+7. Lancer `npm run quality`.
 8. Tester manuellement le parcours.
 9. Commit uniquement si tout est validé.
+
+## Vérification standard
+`npm run quality` existe et passe. Il lance :
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+
+## État validé à ne pas retraiter comme bug actif
+La page `/print/[slug]` et le téléchargement PNG de la carte QR sont validés en local et sur Vercel.
+
+Dernier commit validé sur `origin/main` : `fix: stabilize QR card PNG export`.
 
 ## Règle d’or
 Un agent ne doit jamais “continuer le MVP” tout seul. Il doit résoudre une tâche précise avec des critères de validation précis.

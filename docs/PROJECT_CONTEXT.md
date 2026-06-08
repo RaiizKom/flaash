@@ -1,5 +1,10 @@
 # Project context — Flaash
 
+## Dossier officiel
+Le seul dossier officiel du projet est `/Users/pedrolopes05/flaash`.
+
+L’ancien dossier `/Users/pedrolopes05/Desktop/flaash` a été supprimé et ne doit plus être utilisé.
+
 ## Concept
 Flaash est une web app d’appareil photo jetable digital pour événements premium, principalement mariages, anniversaires et événements privés.
 
@@ -47,18 +52,22 @@ Les invités scannent un QR code, prennent des photos depuis leur navigateur mob
 - Reveal manuel
 - Modes de reveal date fixée / manuel
 - Page impression QR isolée sur `/print/[slug]`
+- Téléchargement PNG de la carte QR sur `/print/[slug]`, corrigé, testé en local et validé sur Vercel
 - Logo SVG Flaash dans `/public/`
 - Badge `plan_id` dashboard organisateur
 - Bouton dev bypass masqué en production
 
-## Bug actif prioritaire
-La page `/print/[slug]` affiche correctement la carte QR, mais le PNG téléchargé est vide ou ne contient que le fond crème.
+## État de validation récent
+Le bug de téléchargement PNG de la carte QR sur `/print/[slug]` n’est plus actif.
 
-Tentatives échouées :
-- `html-to-image` avec `backgroundColor`
-- SVGs inlinés comme composants React
-- `ssr: false` avec dynamic import
-- `document.getElementById` au lieu de ref
-- Fonts chargées dans layout isolé
+Dernier commit validé sur `origin/main` : `fix: stabilize QR card PNG export`.
 
-Approche recommandée : rendu canvas natif contrôlé avec génération QR en data URL, chargement du logo SVG, dessin manuel du fond, du QR, du logo et des textes.
+`npm run quality` existe et passe. Il lance `lint`, `typecheck` et `build`.
+
+## Prochaines priorités MVP
+1. Pages légales / privacy
+2. Message privacy visible sur `/e/[slug]`
+3. Emails transactionnels Resend
+4. QA mobile complète
+5. Landing page marketing
+6. Mode démo permanent

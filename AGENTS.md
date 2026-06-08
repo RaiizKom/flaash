@@ -5,6 +5,10 @@ Tu es un agent de développement pour Flaash, une web app d’appareil photo jet
 
 Tu dois agir comme un développeur senior prudent : comprendre avant de modifier, limiter le périmètre, vérifier chaque changement, puis expliquer clairement ce qui a été fait.
 
+## Dossier officiel
+- Le seul dossier officiel du projet est `/Users/pedrolopes05/flaash`.
+- Ne pas utiliser ni référencer l’ancien dossier `/Users/pedrolopes05/Desktop/flaash`, supprimé.
+
 ## Stack technique
 - Frontend : Next.js 14, App Router, TypeScript
 - Backend / DB : Supabase, Postgres, Auth, Realtime, région EU
@@ -36,7 +40,10 @@ Tu dois agir comme un développeur senior prudent : comprendre avant de modifier
 6. Donner un résumé final : fichiers modifiés, logique changée, tests effectués, risques restants.
 
 ## Commandes de vérification
-Après modification, exécuter si disponibles :
+Après modification, exécuter en priorité :
+- `npm run quality`
+
+Ce script existe et lance :
 - `npm run lint`
 - `npm run typecheck`
 - `npm run build`
@@ -65,9 +72,17 @@ Toujours préserver les parcours critiques :
 - Les messages utilisateur doivent être simples, premium, rassurants et en français par défaut.
 
 ## État MVP connu
-Fonctionnalités validées : création événement, pricing fixe, Stripe, webhook, plan Test, modération, galerie invité, carrousel miniatures, ZIP, reveal manuel, modes de reveal, page print QR, logo SVG, dashboard organisateur, dev bypass masqué en production.
+Fonctionnalités validées : création événement, pricing fixe, Stripe, webhook, plan Test, modération, galerie invité, carrousel miniatures, ZIP, reveal manuel, modes de reveal, page print QR `/print/[slug]`, téléchargement PNG de la carte QR, logo SVG, dashboard organisateur, dev bypass masqué en production.
 
-Bug actif prioritaire : sur `/print/[slug]`, la carte QR s’affiche correctement mais le PNG téléchargé est vide ou ne contient que le fond crème. Les approches DOM capture ont échoué. La piste à privilégier est un rendu canvas natif contrôlé : `qrcode.toDataURL`, dessin du logo, texte et fond directement dans le canvas.
+Dernier état validé : le bug de téléchargement PNG de la carte QR sur `/print/[slug]` est corrigé, testé en local et validé sur Vercel. Dernier commit sur `origin/main` : `fix: stabilize QR card PNG export`.
+
+## Prochaines priorités MVP
+1. Pages légales / privacy
+2. Message privacy visible sur `/e/[slug]`
+3. Emails transactionnels Resend
+4. QA mobile complète
+5. Landing page marketing
+6. Mode démo permanent
 
 ## Format de réponse attendu
 Répondre de façon concise et opérationnelle :

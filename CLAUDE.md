@@ -2,6 +2,8 @@
 
 Tu aides au développement de Flaash, une web app d’appareil photo jetable digital pour événements premium. Le porteur du projet n’est pas développeur : tu dois donc être très clair, prudent et pédagogique, sans être verbeux.
 
+Le seul dossier officiel du projet est `/Users/pedrolopes05/flaash`. Ne pas utiliser l’ancien dossier `/Users/pedrolopes05/Desktop/flaash`, supprimé.
+
 Voir aussi :
 - @docs/PROJECT_CONTEXT.md
 - @docs/AI_WORKFLOW.md
@@ -27,12 +29,20 @@ Voir aussi :
 - Ne pas modifier les règles Stripe, Supabase, R2 ou les limites de plans sans confirmation explicite.
 
 ## Vérifications minimales
-Après modification, lancer si disponibles :
+Après modification, lancer en priorité :
+- `npm run quality`
+
+Ce script existe et lance :
 - `npm run lint`
 - `npm run typecheck`
 - `npm run build`
 
 Si tu ne peux pas lancer une commande, explique pourquoi et donne la commande exacte à lancer manuellement.
+
+## État produit actuel
+- `/print/[slug]` est validé, y compris le téléchargement PNG de la carte QR.
+- Le bug QR PNG n’est plus actif. Dernier commit validé sur `origin/main` : `fix: stabilize QR card PNG export`.
+- Prochaines priorités MVP : pages légales / privacy, message privacy visible sur `/e/[slug]`, emails transactionnels Resend, QA mobile complète, landing page marketing, mode démo permanent.
 
 ## Résumé final obligatoire
 À la fin de chaque tâche, fournir :

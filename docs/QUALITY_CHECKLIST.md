@@ -14,7 +14,10 @@
 - Ne pas désactiver une vérification pour faire passer le build.
 
 ## Après le codage
-Lancer si disponibles :
+Lancer en priorité :
+- `npm run quality`
+
+Ce script existe et lance :
 - `npm run lint`
 - `npm run typecheck`
 - `npm run build`
@@ -40,3 +43,8 @@ Le bug est résolu seulement si :
 - le problème initial ne se reproduit plus
 - aucun parcours adjacent n’est cassé
 - les vérifications passent ou les échecs sont expliqués
+
+## État validé
+- Le projet officiel est `/Users/pedrolopes05/flaash`.
+- `/print/[slug]` est validé, y compris le téléchargement PNG de la carte QR.
+- Le bug QR PNG ne doit plus être traité comme un bug actif.
