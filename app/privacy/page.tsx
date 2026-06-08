@@ -66,13 +66,30 @@ const sections = [
   },
 ];
 
+function LegalNav() {
+  return (
+    <nav
+      aria-label="Navigation légale"
+      style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 24 }}
+    >
+      <Link href="/" className="btn-text" style={{ padding: 0 }}>
+        Retour à l&apos;accueil
+      </Link>
+      <Link href="/privacy" className="btn-text" style={{ padding: 0, color: "var(--fg-3)" }}>
+        Confidentialité
+      </Link>
+      <Link href="/mentions-legales" className="btn-text" style={{ padding: 0 }}>
+        Mentions légales
+      </Link>
+    </nav>
+  );
+}
+
 export default function PrivacyPage() {
   return (
     <main className="flaash-shell" style={{ background: "var(--flaash-cream)", minHeight: "100dvh" }}>
       <section style={{ padding: "44px 28px 28px" }}>
-        <Link href="/" className="btn-text" style={{ paddingLeft: 0 }}>
-          Retour
-        </Link>
+        <LegalNav />
         <p className="f-eyebrow" style={{ marginTop: 28 }}>Confidentialité</p>
         <h1 className="f-h1" style={{ margin: "10px 0 18px" }}>
           Politique de confidentialité
@@ -120,6 +137,8 @@ export default function PrivacyPage() {
             </a>
           </p>
         </article>
+
+        <LegalNav />
       </section>
     </main>
   );

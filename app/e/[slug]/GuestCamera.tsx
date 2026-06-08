@@ -39,6 +39,8 @@ function PrivacyNote() {
       l&apos;organisateur ou à Flaash.{" "}
       <Link
         href="/privacy"
+        target="_blank"
+        rel="noreferrer"
         style={{
           color: "var(--flaash-amber-deep)",
           fontWeight: 700,
