@@ -30,7 +30,7 @@ Les invités scannent un QR code, prennent des photos depuis leur navigateur mob
 - Sharp pour le traitement d’images
 - qrcode.react pour les QR codes
 - next-intl installé mais pas encore implémenté
-- Resend prévu mais pas encore implémenté
+- Resend pour les emails transactionnels organisateur
 
 ## Pricing
 - Test : gratuit, 3 appareils, 20 photos, 7 jours, watermark, pas ZIP
@@ -59,6 +59,7 @@ Les invités scannent un QR code, prennent des photos depuis leur navigateur mob
 - Modes de reveal date fixée / manuel
 - Page impression QR isolée sur `/print/[slug]`
 - Téléchargement PNG de la carte QR sur `/print/[slug]`, corrigé, testé en local et validé sur Vercel
+- Premier email transactionnel organisateur quand l'événement est prêt : paiement Stripe réussi ou plan Test actif
 - Logo SVG Flaash dans `/public/`
 - Badge `plan_id` dashboard organisateur
 - Bouton dev bypass masqué en production

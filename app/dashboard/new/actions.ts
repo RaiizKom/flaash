@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils/slug";
 import { getPlan } from "@/lib/utils/pricing";
+import { sendOrganizerEventReadyEmail } from "@/lib/email/transactional";
 import { type EventType } from "@/types";
 
 type CreateEventResult =
@@ -67,6 +68,15 @@ export async function createEvent(formData: FormData): Promise<CreateEventResult
     .single();
 
   if (error) return { error: error.message };
+
+  if (plan_id === "test") {
+    await sendOrganizerEventReadyEmail({
+      to: user.email,
+      title: event.title,
+      slug: event.slug,
+      eventId: event.id,
+    });
+  }
 
   return {
     eventId: event.id,

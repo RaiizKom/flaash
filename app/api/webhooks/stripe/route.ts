@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendOrganizerEventReadyEmail } from "@/lib/email/transactional";
 
 export const runtime = "nodejs";
 
@@ -13,8 +14,7 @@ export async function POST(req: NextRequest) {
 
   console.log("[webhook] Received request, body length:", body.length);
   console.log("[webhook] stripe-signature header present:", !!sig);
-  console.log("[webhook] STRIPE_WEBHOOK_SECRET set:", !!process.env.STRIPE_WEBHOOK_SECRET,
-    "prefix:", process.env.STRIPE_WEBHOOK_SECRET?.slice(0, 8));
+  console.log("[webhook] STRIPE_WEBHOOK_SECRET set:", !!process.env.STRIPE_WEBHOOK_SECRET);
 
   if (!sig) {
     console.error("[webhook] Missing stripe-signature header");
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     // Read plan from DB
     const { data: flaashEvent, error: fetchError } = await supabase
       .from("events")
-      .select("plan_id, status")
+      .select("id, title, slug, owner_id, plan_id, status")
       .eq("id", eventId)
       .single();
 
@@ -91,6 +91,21 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("[webhook] ✅ Event activated:", eventId, "plan:", flaashEvent.plan_id);
+
+    const { data: owner, error: ownerError } = await supabase.auth.admin.getUserById(
+      flaashEvent.owner_id
+    );
+
+    if (ownerError || !owner.user.email) {
+      console.warn("[webhook] Organizer email unavailable, skipping ready email:", eventId);
+    } else {
+      await sendOrganizerEventReadyEmail({
+        to: owner.user.email,
+        title: flaashEvent.title,
+        slug: flaashEvent.slug,
+        eventId: flaashEvent.id,
+      });
+    }
   } else {
     console.log("[webhook] Unhandled event type:", event.type, "— ignoring");
   }
