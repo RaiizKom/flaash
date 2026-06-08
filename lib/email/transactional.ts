@@ -37,7 +37,8 @@ function buildEventReadyEmail(input: OrganizerEventReadyEmailInput) {
   const text = [
     "Bonjour,",
     "",
-    `Votre événement "${input.title}" est prêt.`,
+    "Votre événement est prêt.",
+    `Événement : ${input.title}`,
     "",
     `Espace organisateur : ${dashboardUrl}`,
     `Lien invité à partager : ${guestUrl}`,
@@ -56,11 +57,18 @@ function buildEventReadyEmail(input: OrganizerEventReadyEmailInput) {
         <p style="margin:0 0 18px;color:#9A8F82;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;">Flaash</p>
         <h1 style="font-family:Georgia,serif;font-size:30px;line-height:1.15;margin:0 0 18px;color:#1A1A1A;">Votre événement est prêt</h1>
         <p style="font-size:16px;line-height:1.6;margin:0 0 18px;">Bonjour,</p>
-        <p style="font-size:16px;line-height:1.6;margin:0 0 24px;">Votre événement <strong>${safeTitle}</strong> est prêt.</p>
+        <p style="font-size:16px;line-height:1.6;margin:0 0 8px;">Votre événement est prêt.</p>
+        <p style="font-size:15px;line-height:1.6;margin:0 0 24px;color:#6E6862;">Événement : <strong style="color:#1A1A1A;">${safeTitle}</strong></p>
         <div style="display:grid;gap:12px;margin:0 0 24px;">
           <a href="${dashboardUrl}" style="display:block;padding:14px 18px;border-radius:999px;background:#1E3D2F;color:#FAF7F2;text-decoration:none;text-align:center;font-weight:700;">Ouvrir l'espace organisateur</a>
           <a href="${guestUrl}" style="display:block;padding:14px 18px;border-radius:999px;background:#F0EBE3;color:#1A1A1A;text-decoration:none;text-align:center;font-weight:700;">Lien invité à partager</a>
           <a href="${printUrl}" style="display:block;padding:14px 18px;border-radius:999px;background:#F0EBE3;color:#1A1A1A;text-decoration:none;text-align:center;font-weight:700;">Carte QR à imprimer</a>
+        </div>
+        <div style="border-top:1px solid #E6DFD2;border-bottom:1px solid #E6DFD2;padding:16px 0;margin:0 0 24px;">
+          <p style="font-size:12px;line-height:1.5;color:#9A8F82;margin:0 0 8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">Liens copiables</p>
+          <p style="font-size:12px;line-height:1.6;color:#6E6862;margin:0 0 6px;">Organisateur : <span style="color:#1A1A1A;">${dashboardUrl}</span></p>
+          <p style="font-size:12px;line-height:1.6;color:#6E6862;margin:0 0 6px;">Invités : <span style="color:#1A1A1A;">${guestUrl}</span></p>
+          <p style="font-size:12px;line-height:1.6;color:#6E6862;margin:0;">Carte QR : <span style="color:#1A1A1A;">${printUrl}</span></p>
         </div>
         <p style="font-size:14px;line-height:1.6;color:#6E6862;margin:0 0 18px;">Les photos sont conservées jusqu'à 90 jours, sauf suppression anticipée demandée par l'organisateur.</p>
         <p style="font-size:14px;line-height:1.6;color:#6E6862;margin:0;">Support : <a href="mailto:hello@flaash.ch" style="color:#B85F1E;font-weight:700;">hello@flaash.ch</a></p>
