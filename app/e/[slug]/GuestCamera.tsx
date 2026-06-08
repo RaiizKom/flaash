@@ -24,6 +24,33 @@ interface UploadedPhoto {
   thumbnailUrl: string;
 }
 
+function PrivacyNote() {
+  return (
+    <p
+      style={{
+        color: "var(--fg-3)",
+        fontSize: 12,
+        lineHeight: 1.55,
+        margin: 0,
+        textAlign: "center",
+      }}
+    >
+      Tes photos restent liées à cet événement. Tu peux demander leur suppression à
+      l&apos;organisateur ou à Flaash.{" "}
+      <Link
+        href="/privacy"
+        style={{
+          color: "var(--flaash-amber-deep)",
+          fontWeight: 700,
+          textDecoration: "none",
+        }}
+      >
+        Confidentialité
+      </Link>
+    </p>
+  );
+}
+
 export default function GuestCamera({ event }: { event: Event }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [session, setSession] = useState<GuestSession | null>(null);
@@ -314,6 +341,8 @@ export default function GuestCamera({ event }: { event: Event }) {
           >
             {isJoining ? "Inscription…" : "REJOINDRE →"}
           </button>
+
+          <PrivacyNote />
         </form>
       </div>
     );
@@ -680,6 +709,10 @@ export default function GuestCamera({ event }: { event: Event }) {
         style={{ display: "none" }}
         onChange={handleFileChange}
       />
+
+      <div style={{ marginTop: uploadedPhotos.length > 0 ? 22 : 0 }}>
+        <PrivacyNote />
+      </div>
 
       {/* Lightbox plein écran pour les miniatures */}
       {lightboxPhoto && (
