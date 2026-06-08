@@ -174,6 +174,37 @@ export default function LandingPage() {
         <p style={{ fontSize: 12, color: "var(--flaash-forest-soft)", margin: 0 }}>
           © 2025 Flaash — Capture l'instant.
         </p>
+        <nav
+          aria-label="Liens légaux"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 16,
+            flexWrap: "wrap",
+            marginTop: 14,
+          }}
+        >
+          <Link
+            href="/privacy"
+            style={{
+              color: "var(--flaash-forest-soft)",
+              fontSize: 12,
+              textDecoration: "none",
+            }}
+          >
+            Confidentialité
+          </Link>
+          <Link
+            href="/mentions-legales"
+            style={{
+              color: "var(--flaash-forest-soft)",
+              fontSize: 12,
+              textDecoration: "none",
+            }}
+          >
+            Mentions légales
+          </Link>
+        </nav>
       </footer>
     </div>
   );
