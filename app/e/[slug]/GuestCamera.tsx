@@ -67,7 +67,6 @@ export default function GuestCamera({ event }: { event: Event }) {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null); // thumbnailUrl
   const fileRef = useRef<HTMLInputElement>(null);
-  const selfieRef = useRef<HTMLInputElement>(null);
   const storageKey = `flaash_guest_${event.slug}`;
 
   const showToast = useCallback((msg: string, ok = true) => {
@@ -648,26 +647,6 @@ export default function GuestCamera({ event }: { event: Event }) {
           {isUploading ? "Envoi en cours…" : "PRENDRE UNE PHOTO"}
         </p>
 
-        <button
-          type="button"
-          onClick={() => selfieRef.current?.click()}
-          disabled={isUploading}
-          style={{
-            border: "1.5px solid var(--border)",
-            borderRadius: "var(--radius-pill)",
-            background: "var(--surface-2)",
-            color: "var(--fg-2)",
-            cursor: isUploading ? "default" : "pointer",
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            padding: "10px 18px",
-            textTransform: "uppercase",
-          }}
-        >
-          Selfie
-        </button>
-
       </div>
 
       {/* ── Carrousel photos prises ─────────────────────────────────────── */}
@@ -729,14 +708,6 @@ export default function GuestCamera({ event }: { event: Event }) {
         type="file"
         accept="image/*"
         {...(event.allow_library_upload ? {} : { capture: "environment" as const })}
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
-      <input
-        ref={selfieRef}
-        type="file"
-        accept="image/*"
-        capture="user"
         style={{ display: "none" }}
         onChange={handleFileChange}
       />
