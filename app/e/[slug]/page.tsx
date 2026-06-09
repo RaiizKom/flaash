@@ -24,14 +24,29 @@ export default async function EventGuestPage({ params }: Props) {
 
   if (!event) notFound();
 
-  if (event.status === "draft") {
+  let effectiveEvent = event;
+  if (isTimedRevealDue(event.status, event.reveal_at)) {
+    const { data: revealedEvent } = await supabase
+      .from("events")
+      .update({ status: "revealed" })
+      .eq("id", event.id)
+      .eq("status", "active")
+      .select(
+        "id, title, slug, status, photos_per_guest, allow_library_upload, max_guests, event_type, reveal_at"
+      )
+      .single();
+
+    effectiveEvent = revealedEvent ?? { ...event, status: "revealed" };
+  }
+
+  if (effectiveEvent.status === "draft") {
     return (
       <div className="flaash-shell" style={shellCenter}>
         <p className="f-script" style={{ color: "var(--flaash-amber)", marginBottom: 12 }}>
           bientôt —
         </p>
         <h1 className="f-h2" style={{ textAlign: "center" }}>
-          {event.title}
+          {effectiveEvent.title}
         </h1>
         <p style={{ color: "var(--fg-3)", marginTop: 16, fontSize: 14, textAlign: "center" }}>
           Cet événement n&apos;est pas encore ouvert.
@@ -40,14 +55,14 @@ export default async function EventGuestPage({ params }: Props) {
     );
   }
 
-  if (event.status === "closed") {
+  if (effectiveEvent.status === "closed") {
     return (
       <div className="flaash-shell" style={shellCenter}>
         <p className="f-script" style={{ color: "var(--fg-3)", marginBottom: 12 }}>
           terminé —
         </p>
         <h1 className="f-h2" style={{ textAlign: "center" }}>
-          {event.title}
+          {effectiveEvent.title}
         </h1>
         <p style={{ color: "var(--fg-3)", marginTop: 16, fontSize: 14, textAlign: "center" }}>
           Cet événement est maintenant fermé.
@@ -56,7 +71,7 @@ export default async function EventGuestPage({ params }: Props) {
     );
   }
 
-  if (event.status === "revealed") {
+  if (effectiveEvent.status === "revealed") {
     return (
       <div
         style={{
@@ -115,7 +130,7 @@ export default async function EventGuestPage({ params }: Props) {
               marginBottom: 40,
             }}
           >
-            {event.title}
+            {effectiveEvent.title}
           </p>
 
           {/* CTA */}
@@ -138,9 +153,13 @@ export default async function EventGuestPage({ params }: Props) {
 
   return (
     <div className="flaash-shell">
-      <GuestCamera event={event as Event} />
+      <GuestCamera event={effectiveEvent as Event} />
     </div>
   );
+}
+
+function isTimedRevealDue(status: string, revealAt: string | null) {
+  return status === "active" && !!revealAt && new Date(revealAt).getTime() <= Date.now();
 }
 
 const shellCenter: React.CSSProperties = {

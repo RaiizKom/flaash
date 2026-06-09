@@ -40,7 +40,19 @@ export default async function EventDetailPage({ params }: Props) {
 
   if (!event) notFound();
 
-  const ev = event as Event;
+  let ev = event as Event;
+  if (ev.status === "active" && ev.reveal_at && new Date(ev.reveal_at).getTime() <= Date.now()) {
+    const { data: revealedEvent } = await supabase
+      .from("events")
+      .update({ status: "revealed" })
+      .eq("id", id)
+      .eq("owner_id", user.id)
+      .eq("status", "active")
+      .select("*")
+      .single();
+
+    ev = (revealedEvent as Event | null) ?? { ...ev, status: "revealed" };
+  }
 
   const [{ count: photoCount }, { count: guestCount }] = await Promise.all([
     supabase

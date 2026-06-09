@@ -14,13 +14,26 @@ export default async function GalleryPage({ params }: Props) {
 
   const { data: event } = await supabase
     .from("events")
-    .select("id, title, status")
+    .select("id, title, status, reveal_at")
     .eq("slug", slug)
     .single();
 
   if (!event) notFound();
 
-  if (event.status !== "revealed" && event.status !== "active") {
+  let effectiveEvent = event;
+  if (isTimedRevealDue(event.status, event.reveal_at)) {
+    const { data: revealedEvent } = await supabase
+      .from("events")
+      .update({ status: "revealed" })
+      .eq("id", event.id)
+      .eq("status", "active")
+      .select("id, title, status, reveal_at")
+      .single();
+
+    effectiveEvent = revealedEvent ?? { ...event, status: "revealed" };
+  }
+
+  if (effectiveEvent.status !== "revealed") {
     return (
       <div
         style={{
@@ -39,7 +52,9 @@ export default async function GalleryPage({ params }: Props) {
           bientôt —
         </p>
         <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 14 }}>
-          La galerie n&apos;est pas encore disponible.
+          {effectiveEvent.status === "active" && effectiveEvent.reveal_at
+            ? `La galerie sera révélée le ${formatRevealAt(effectiveEvent.reveal_at)}.`
+            : "La galerie n'est pas encore disponible."}
         </p>
       </div>
     );
@@ -48,7 +63,7 @@ export default async function GalleryPage({ params }: Props) {
   const { data: rows } = await supabase
     .from("photos")
     .select("id, storage_url, thumbnail_url, taken_at, guest_id, guests(first_name)")
-    .eq("event_id", event.id)
+    .eq("event_id", effectiveEvent.id)
     .eq("is_deleted", false)
     .order("taken_at", { ascending: true });
 
@@ -80,7 +95,7 @@ export default async function GalleryPage({ params }: Props) {
             la galerie —
           </p>
           <h1 className="f-h2" style={{ color: "var(--flaash-cream)", marginBottom: 0 }}>
-            {event.title}
+            {effectiveEvent.title}
           </h1>
           <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 13, marginTop: 8 }}>
             {photos.length} photo{photos.length !== 1 ? "s" : ""}
@@ -88,12 +103,23 @@ export default async function GalleryPage({ params }: Props) {
         </div>
 
         <GalleryClient
-          eventId={event.id}
+          eventId={effectiveEvent.id}
           eventSlug={slug}
-          eventTitle={event.title}
+          eventTitle={effectiveEvent.title}
           photos={photos}
         />
       </div>
     </div>
   );
+}
+
+function isTimedRevealDue(status: string, revealAt: string | null) {
+  return status === "active" && !!revealAt && new Date(revealAt).getTime() <= Date.now();
+}
+
+function formatRevealAt(revealAt: string) {
+  return new Date(revealAt).toLocaleString("fr-CH", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
 }

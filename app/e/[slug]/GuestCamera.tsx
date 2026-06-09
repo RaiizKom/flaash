@@ -53,6 +53,30 @@ function PrivacyNote() {
   );
 }
 
+function RevealScheduleNote({
+  revealAt,
+  variant = "light",
+}: {
+  revealAt: string | null;
+  variant?: "light" | "dark";
+}) {
+  if (!isFutureReveal(revealAt)) return null;
+
+  return (
+    <p
+      style={{
+        color: variant === "dark" ? "rgba(250,247,242,0.58)" : "var(--fg-3)",
+        fontSize: 13,
+        lineHeight: 1.5,
+        margin: 0,
+        textAlign: "center",
+      }}
+    >
+      La galerie sera révélée le {formatRevealAt(revealAt)}.
+    </p>
+  );
+}
+
 export default function GuestCamera({ event }: { event: Event }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [session, setSession] = useState<GuestSession | null>(null);
@@ -129,6 +153,18 @@ export default function GuestCamera({ event }: { event: Event }) {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [event.id]);
+
+  useEffect(() => {
+    const revealAt = event.reveal_at;
+    if (!isFutureReveal(revealAt) || event.status !== "active") return;
+
+    const delay = new Date(revealAt).getTime() - Date.now();
+    const timeout = window.setTimeout(() => {
+      setPhase("revealed");
+    }, Math.min(delay, 2_147_483_647));
+
+    return () => window.clearTimeout(timeout);
+  }, [event.reveal_at, event.status]);
 
   // ── Join ──────────────────────────────────────────────────────────────────
 
@@ -302,6 +338,9 @@ export default function GuestCamera({ event }: { event: Event }) {
           >
             Capture l&apos;instant, partage le souvenir.
           </p>
+          <div style={{ marginTop: 14 }}>
+            <RevealScheduleNote revealAt={event.reveal_at} />
+          </div>
         </div>
 
         {/* Join form */}
@@ -393,9 +432,7 @@ export default function GuestCamera({ event }: { event: Event }) {
         <p style={{ color: "rgba(250,247,242,0.65)", fontSize: 14, maxWidth: 280, marginBottom: 20 }}>
           Tu as utilisé toutes tes photos pour cet événement.
         </p>
-        <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 13 }}>
-          La galerie sera révélée bientôt.
-        </p>
+        <RevealScheduleNote revealAt={event.reveal_at} variant="dark" />
 
         {lastThumb && (
           <div
@@ -495,6 +532,9 @@ export default function GuestCamera({ event }: { event: Event }) {
             Bonjour, {session.firstName} 👋
           </p>
         )}
+        <div style={{ marginTop: 10 }}>
+          <RevealScheduleNote revealAt={event.reveal_at} />
+        </div>
       </div>
 
       {/* Quota card */}
@@ -824,6 +864,17 @@ function CameraIcon() {
       <circle cx="12" cy="13" r="4" />
     </svg>
   );
+}
+
+function isFutureReveal(revealAt: string | null): revealAt is string {
+  return !!revealAt && new Date(revealAt).getTime() > Date.now();
+}
+
+function formatRevealAt(revealAt: string) {
+  return new Date(revealAt).toLocaleString("fr-CH", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
 }
 
 const centered: React.CSSProperties = {
