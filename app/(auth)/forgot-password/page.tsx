@@ -1,43 +1,30 @@
 import Link from "next/link";
-import { login } from "../actions";
-import PasswordField from "../PasswordField";
+import { requestPasswordReset } from "../actions";
 
 interface Props {
-  searchParams: { error?: string; next?: string; success?: string };
+  searchParams: { error?: string; success?: string };
 }
 
-export default async function LoginPage({ searchParams }: Props) {
-  const { error, next, success } = searchParams;
+export default async function ForgotPasswordPage({ searchParams }: Props) {
+  const { error, success } = searchParams;
 
   return (
     <div className="flex flex-col flex-1" style={{ background: "var(--flaash-ink)" }}>
-      {/* Amber top stripe */}
       <div style={{ height: 6, background: "var(--flaash-amber)" }} />
 
-      <div
-        className="flex flex-col flex-1 px-6 pb-10"
-        style={{ paddingTop: 56 }}
-      >
-        {/* Logo */}
+      <div className="flex flex-col flex-1 px-6 pb-10" style={{ paddingTop: 56 }}>
         <div style={{ marginBottom: 48 }}>
           <div
             className="f-display"
-            style={{
-              color: "var(--flaash-cream)",
-              fontSize: "clamp(48px,14vw,72px)",
-            }}
+            style={{ color: "var(--flaash-cream)", fontSize: "clamp(48px,14vw,72px)" }}
           >
             Fl<em>aa</em>sh
           </div>
-          <p
-            className="f-script"
-            style={{ color: "var(--flaash-amber)", marginTop: 8 }}
-          >
-            on garde la lumière allumée.
+          <p className="f-script" style={{ color: "var(--flaash-amber)", marginTop: 8 }}>
+            on retrouve l'accès.
           </p>
         </div>
 
-        {/* Card */}
         <div
           style={{
             background: "var(--flaash-cream)",
@@ -51,9 +38,9 @@ export default async function LoginPage({ searchParams }: Props) {
         >
           <div>
             <p className="f-eyebrow" style={{ marginBottom: 6 }}>
-              Organisateur
+              Sécurité
             </p>
-            <h1 className="f-h2">Connexion</h1>
+            <h1 className="f-h2">Mot de passe oublié</h1>
           </div>
 
           {error && (
@@ -72,7 +59,7 @@ export default async function LoginPage({ searchParams }: Props) {
             </div>
           )}
 
-          {success === "password-updated" && (
+          {success === "reset-sent" && (
             <div
               style={{
                 background: "rgba(45,92,74,0.1)",
@@ -84,13 +71,12 @@ export default async function LoginPage({ searchParams }: Props) {
                 fontWeight: 500,
               }}
             >
-              Votre mot de passe a été mis à jour. Vous pouvez vous connecter.
+              Si un compte existe pour cette adresse, un lien de réinitialisation
+              vient d'être envoyé.
             </div>
           )}
 
-          <form action={login} className="flex flex-col gap-5">
-            <input type="hidden" name="next" value={next ?? "/dashboard"} />
-
+          <form action={requestPasswordReset} className="flex flex-col gap-5">
             <div className="f-input-wrap">
               <label className="f-label" htmlFor="email">
                 Adresse e-mail
@@ -106,46 +92,16 @@ export default async function LoginPage({ searchParams }: Props) {
               />
             </div>
 
-            <PasswordField
-              id="password"
-              name="password"
-              label="Mot de passe"
-              autoComplete="current-password"
-              placeholder="••••••••"
-            />
-
-            <Link
-              href="/forgot-password"
-              style={{
-                alignSelf: "flex-end",
-                color: "var(--flaash-amber-deep)",
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
-            >
-              Mot de passe oublié ?
-            </Link>
-
             <div style={{ marginTop: 8 }}>
               <button type="submit" className="btn-pill btn-ink">
-                SE CONNECTER
+                RECEVOIR LE LIEN
               </button>
             </div>
           </form>
 
-          <div
-            style={{
-              borderTop: "1px solid var(--border)",
-              paddingTop: 20,
-              textAlign: "center",
-            }}
-          >
-            <span style={{ fontSize: 14, color: "var(--fg-3)" }}>
-              Pas encore de compte ?{" "}
-            </span>
+          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 20, textAlign: "center" }}>
             <Link
-              href="/register"
+              href="/login"
               style={{
                 fontSize: 14,
                 fontWeight: 600,
@@ -153,7 +109,7 @@ export default async function LoginPage({ searchParams }: Props) {
                 textDecoration: "none",
               }}
             >
-              Créer un compte
+              Retour à la connexion
             </Link>
           </div>
         </div>

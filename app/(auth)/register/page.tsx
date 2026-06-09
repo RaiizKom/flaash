@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { register } from "../actions";
+import PasswordField from "../PasswordField";
 
 interface Props {
   searchParams: { error?: string; success?: string };
@@ -8,7 +9,7 @@ interface Props {
 export default async function RegisterPage({ searchParams }: Props) {
   const { error, success } = searchParams;
 
-  if (success === "check-email") {
+  if (success === "account-created") {
     return (
       <div
         className="flex flex-col flex-1 items-center justify-center px-6"
@@ -24,21 +25,21 @@ export default async function RegisterPage({ searchParams }: Props) {
           }}
         >
           <p className="f-eyebrow" style={{ marginBottom: 12 }}>
-            Vérification
+            Compte créé
           </p>
           <h1 className="f-h2" style={{ marginBottom: 12 }}>
-            Vérifiez votre e-mail
+            Votre compte est prêt
           </h1>
           <p style={{ color: "var(--fg-2)", fontSize: 15, lineHeight: 1.5 }}>
-            Un lien de confirmation vous a été envoyé. Cliquez dessus pour
-            activer votre compte.
+            Votre compte a été créé. Vous pouvez maintenant vous connecter à
+            votre espace organisateur.
           </p>
           <p className="f-script" style={{ color: "var(--flaash-forest)", marginTop: 20 }}>
             merci d'avoir rejoint Flaash.
           </p>
           <div style={{ marginTop: 28 }}>
             <Link href="/login" className="btn-pill btn-ink">
-              RETOUR À LA CONNEXION
+              SE CONNECTER
             </Link>
           </div>
         </div>
@@ -118,19 +119,14 @@ export default async function RegisterPage({ searchParams }: Props) {
               />
             </div>
 
-            <div className="f-input-wrap">
-              <label className="f-label" htmlFor="password">
-                Mot de passe
-              </label>
-              <input
+            <div>
+              <PasswordField
                 id="password"
                 name="password"
-                type="password"
+                label="Mot de passe"
                 autoComplete="new-password"
-                required
                 minLength={8}
                 placeholder="8 caractères minimum"
-                className="f-input-box"
               />
               <span style={{ fontSize: 12, color: "var(--fg-3)" }}>
                 Au moins 8 caractères.

@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.ch";
+
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
@@ -35,7 +37,7 @@ export async function register(formData: FormData) {
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${appUrl}/auth/callback`,
     },
   });
 
@@ -43,7 +45,7 @@ export async function register(formData: FormData) {
     redirect(`/register?error=${encodeURIComponent(error.message)}`);
   }
 
-  redirect("/register?success=check-email");
+  redirect("/register?success=account-created");
 }
 
 export async function logout() {
@@ -51,4 +53,36 @@ export async function logout() {
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/login");
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = await createClient();
+  const email = formData.get("email") as string;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${appUrl}/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    redirect(`/forgot-password?error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect("/forgot-password?success=reset-sent");
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient();
+  const password = formData.get("password") as string;
+
+  if (!password || password.length < 8) {
+    redirect("/reset-password?error=Le mot de passe doit contenir au moins 8 caractères.");
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    redirect(`/reset-password?error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect("/login?success=password-updated");
 }
