@@ -4,12 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.ch";
+const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://flaash.ch").replace(/\/$/, "");
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
-  const email    = formData.get("email") as string;
+  const email    = normalizeEmail(formData.get("email"));
   const password = formData.get("password") as string;
   const next     = (formData.get("next") as string) || "/dashboard";
 
@@ -30,8 +31,12 @@ export async function login(formData: FormData) {
 export async function register(formData: FormData) {
   const supabase = await createClient();
 
-  const email    = formData.get("email") as string;
+  const email    = normalizeEmail(formData.get("email"));
   const password = formData.get("password") as string;
+
+  if (!isValidEmail(email)) {
+    redirect("/register?error=Veuillez saisir une adresse e-mail valide.");
+  }
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -57,7 +62,11 @@ export async function logout() {
 
 export async function requestPasswordReset(formData: FormData) {
   const supabase = await createClient();
-  const email = formData.get("email") as string;
+  const email = normalizeEmail(formData.get("email"));
+
+  if (!isValidEmail(email)) {
+    redirect("/forgot-password?error=Veuillez saisir une adresse e-mail valide.");
+  }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${appUrl}/auth/callback?next=/reset-password`,
@@ -85,4 +94,12 @@ export async function updatePassword(formData: FormData) {
   }
 
   redirect("/login?success=password-updated");
+}
+
+function normalizeEmail(value: FormDataEntryValue | null) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function isValidEmail(value: string) {
+  return emailPattern.test(value);
 }

@@ -113,6 +113,8 @@ export default async function RegisterPage({ searchParams }: Props) {
                 name="email"
                 type="email"
                 autoComplete="email"
+                inputMode="email"
+                pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
                 required
                 placeholder="vous@exemple.com"
                 className="f-input-box"
