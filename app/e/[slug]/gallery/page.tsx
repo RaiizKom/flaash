@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import GalleryClient, { type GalleryPhoto } from "./GalleryClient";
 
@@ -108,6 +109,38 @@ export default async function GalleryPage({ params }: Props) {
           eventTitle={effectiveEvent.title}
           photos={photos}
         />
+
+        <nav
+          aria-label="Liens légaux"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 18,
+            marginTop: 44,
+            fontSize: 12,
+          }}
+        >
+          <Link
+            href="/privacy"
+            style={{
+              color: "rgba(250,247,242,0.45)",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Confidentialité
+          </Link>
+          <Link
+            href="/mentions-legales"
+            style={{
+              color: "rgba(250,247,242,0.45)",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Mentions légales
+          </Link>
+        </nav>
       </div>
     </div>
   );
