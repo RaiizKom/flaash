@@ -269,7 +269,7 @@ export default async function EventDetailPage({ params }: Props) {
             [
               "Révélation",
               ev.reveal_at
-                ? new Date(ev.reveal_at).toLocaleString("fr-CH")
+                ? `Prévue le ${new Date(ev.reveal_at).toLocaleString("fr-CH")}`
                 : "Manuelle",
             ],
             // BUG 4 fix — use eventUrl (built from NEXT_PUBLIC_APP_URL)

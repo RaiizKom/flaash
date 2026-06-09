@@ -23,6 +23,7 @@ export async function createEvent(formData: FormData): Promise<CreateEventResult
   const title           = (formData.get("title") as string).trim();
   const event_type      = formData.get("event_type") as EventType;
   const plan_id         = formData.get("plan_id") as string;
+  const reveal_mode     = formData.get("reveal_mode") as "fixed" | "manual" | null;
   const reveal_at_raw   = formData.get("reveal_at") as string | null;
   const allow_library   = formData.get("allow_library_upload") === "on";
 
@@ -38,7 +39,15 @@ export async function createEvent(formData: FormData): Promise<CreateEventResult
     : parseInt(formData.get("photos_per_guest") as string, 10);
 
   const price_chf  = plan.price;
-  const reveal_at  = reveal_at_raw || null;
+  let reveal_at: string | null = null;
+  if (reveal_mode === "fixed") {
+    if (!reveal_at_raw) return { error: "Choisissez une date de révélation." };
+    const parsedRevealAt = new Date(reveal_at_raw);
+    if (Number.isNaN(parsedRevealAt.getTime())) {
+      return { error: "Date de révélation invalide." };
+    }
+    reveal_at = parsedRevealAt.toISOString();
+  }
   const status     = plan_id === "test" ? "active" : "draft";
 
   let slug = generateSlug(title);

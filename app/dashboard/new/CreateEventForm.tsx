@@ -139,6 +139,10 @@ export default function CreateEventForm({ error }: { error?: string }) {
 
   function handleContinue() {
     setStep1Error(null);
+    if (revealMode === "fixed" && !revealAt) {
+      setStep1Error("Choisissez une date de révélation ou passez en révélation manuelle.");
+      return;
+    }
     const plan = getPlanForGuests(maxGuests);
     // pre-select plan (or premium if >250 → shown as quote page)
     setSelectedPlanId(plan?.id ?? "premium");
@@ -169,7 +173,15 @@ export default function CreateEventForm({ error }: { error?: string }) {
     fd.set("max_guests",       String(maxGuests));
     fd.set("photos_per_guest", String(photosPerGuest));
     fd.set("plan_id",          selectedPlanId);
-    if (revealMode === "fixed" && revealAt) fd.set("reveal_at", revealAt);
+    fd.set("reveal_mode",      revealMode);
+    if (revealMode === "fixed") {
+      if (!revealAt) {
+        setSubmitError("Choisissez une date de révélation ou passez en révélation manuelle.");
+        setIsPending(false);
+        return;
+      }
+      fd.set("reveal_at", new Date(revealAt).toISOString());
+    }
     if (allowLibrary) fd.set("allow_library_upload", "on");
 
     const result = await createEvent(fd);
@@ -258,7 +270,7 @@ export default function CreateEventForm({ error }: { error?: string }) {
           </div>
           {revealMode === "fixed" && (
             <input id="reveal_at" name="reveal_at" type="datetime-local" value={revealAt}
-              onChange={(e) => setRevealAt(e.target.value)} className="f-input-box" style={{ marginTop: 10 }} />
+              onChange={(e) => setRevealAt(e.target.value)} required className="f-input-box" style={{ marginTop: 10 }} />
           )}
         </div>
 
@@ -300,7 +312,12 @@ export default function CreateEventForm({ error }: { error?: string }) {
             [EVENT_TYPE_LABELS[eventType], title],
             ["Invités", `${maxGuests}`],
             ["Photos / invité", `${photosPerGuest}`],
-            ["Révélation", revealAt ? new Date(revealAt).toLocaleString("fr-CH") : "Manuelle"],
+            [
+              "Révélation",
+              revealMode === "fixed" && revealAt
+                ? `Prévue le ${new Date(revealAt).toLocaleString("fr-CH")}`
+                : "Manuelle",
+            ],
           ].map(([k, v]) => (
             <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
               <span style={{ color: "var(--fg-3)" }}>{k}</span>
