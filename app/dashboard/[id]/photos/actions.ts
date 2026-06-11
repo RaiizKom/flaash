@@ -47,3 +47,27 @@ export async function restorePhoto(photoId: string, eventId: string) {
 
   revalidatePath(`/dashboard/${eventId}/photos`);
 }
+
+export async function blockGuest(eventId: string, guestId: string) {
+  const supabase = await verifyOwner(eventId);
+
+  await supabase
+    .from("guests")
+    .update({ is_blocked: true })
+    .eq("id", guestId)
+    .eq("event_id", eventId);
+
+  revalidatePath(`/dashboard/${eventId}/photos`);
+}
+
+export async function unblockGuest(eventId: string, guestId: string) {
+  const supabase = await verifyOwner(eventId);
+
+  await supabase
+    .from("guests")
+    .update({ is_blocked: false })
+    .eq("id", guestId)
+    .eq("event_id", eventId);
+
+  revalidatePath(`/dashboard/${eventId}/photos`);
+}

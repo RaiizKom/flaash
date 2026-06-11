@@ -31,7 +31,7 @@ export default async function PhotosPage({ params }: Props) {
 
   const { data: rows } = await supabase
     .from("photos")
-    .select("id, storage_url, thumbnail_url, taken_at, is_deleted, guests(first_name)")
+    .select("id, storage_url, thumbnail_url, taken_at, is_deleted, guest_id, guests(id, first_name, is_blocked)")
     .eq("event_id", id)
     .order("taken_at", { ascending: false });
 
@@ -41,17 +41,22 @@ export default async function PhotosPage({ params }: Props) {
     thumbnail_url: string;
     taken_at: string;
     is_deleted: boolean;
-    guests: { first_name: string } | { first_name: string }[] | null;
-  }) => ({
-    id:            p.id,
-    storage_url:   p.storage_url,
-    thumbnail_url: p.thumbnail_url,
-    taken_at:      p.taken_at,
-    is_deleted:    p.is_deleted,
-    guestName:     p.guests
-      ? (Array.isArray(p.guests) ? p.guests[0]?.first_name : p.guests.first_name) ?? null
-      : null,
-  }));
+    guest_id: string | null;
+    guests: { id: string; first_name: string; is_blocked: boolean } | { id: string; first_name: string; is_blocked: boolean }[] | null;
+  }) => {
+    const guest = p.guests ? (Array.isArray(p.guests) ? p.guests[0] : p.guests) : null;
+
+    return {
+      id:            p.id,
+      storage_url:   p.storage_url,
+      thumbnail_url: p.thumbnail_url,
+      taken_at:      p.taken_at,
+      is_deleted:    p.is_deleted,
+      guestId:       guest?.id ?? p.guest_id ?? null,
+      guestName:     guest?.first_name ?? null,
+      guestBlocked:  guest?.is_blocked ?? false,
+    };
+  });
 
   const activePhotos  = allPhotos.filter((p) => !p.is_deleted);
   const deletedPhotos = allPhotos.filter((p) =>  p.is_deleted);

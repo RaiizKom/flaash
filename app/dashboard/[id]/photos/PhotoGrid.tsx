@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { deletePhoto, restorePhoto } from "./actions";
+import { useTransition } from "react";
+import { blockGuest, deletePhoto, restorePhoto, unblockGuest } from "./actions";
 
 export interface PhotoItem {
   id: string;
@@ -9,7 +10,9 @@ export interface PhotoItem {
   thumbnail_url: string;
   taken_at: string;
   is_deleted: boolean;
+  guestId: string | null;
   guestName: string | null;
+  guestBlocked: boolean;
 }
 
 interface Props {
@@ -20,6 +23,8 @@ interface Props {
 
 export default function PhotoGrid({ eventId, activePhotos, deletedPhotos }: Props) {
   const [idx, setIdx] = useState<number | null>(null);
+  const [pendingGuestId, setPendingGuestId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const touchX = useRef(0);
   const total = activePhotos.length;
   const current = idx !== null ? activePhotos[idx] : null;
@@ -50,6 +55,31 @@ export default function PhotoGrid({ eventId, activePhotos, deletedPhotos }: Prop
     return new Date(iso).toLocaleDateString("fr-CH", {
       day: "numeric", month: "long", year: "numeric",
       hour: "2-digit", minute: "2-digit",
+    });
+  }
+
+  function handleGuestBlockToggle(photo: PhotoItem) {
+    if (!photo.guestId || pendingGuestId) return;
+
+    const confirmed = window.confirm(
+      photo.guestBlocked
+        ? "Débloquer cet invité ? Il pourra à nouveau envoyer des photos si l'événement l'autorise."
+        : "Bloquer cet invité ? Il ne pourra plus envoyer de nouvelles photos avec cette session. Les photos déjà envoyées resteront visibles."
+    );
+
+    if (!confirmed) return;
+
+    setPendingGuestId(photo.guestId);
+    startTransition(async () => {
+      try {
+        if (photo.guestBlocked) {
+          await unblockGuest(eventId, photo.guestId!);
+        } else {
+          await blockGuest(eventId, photo.guestId!);
+        }
+      } finally {
+        setPendingGuestId(null);
+      }
     });
   }
 
@@ -282,9 +312,54 @@ export default function PhotoGrid({ eventId, activePhotos, deletedPhotos }: Prop
                 {current.guestName}
               </p>
             )}
+            {current.guestBlocked && (
+              <p
+                style={{
+                  color: "#fca5a5",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: "0.06em",
+                  marginBottom: 6,
+                  textTransform: "uppercase",
+                }}
+              >
+                Invité bloqué
+              </p>
+            )}
             <p style={{ color: "rgba(250,247,242,0.4)", fontSize: 12 }}>
               {fmtDate(current.taken_at)}
             </p>
+            {current.guestId && (
+              <button
+                type="button"
+                onClick={() => handleGuestBlockToggle(current)}
+                disabled={isPending && pendingGuestId === current.guestId}
+                style={{
+                  marginTop: 14,
+                  padding: "10px 16px",
+                  borderRadius: "var(--radius-pill)",
+                  border: current.guestBlocked
+                    ? "1px solid rgba(250,247,242,0.22)"
+                    : "1px solid rgba(248,113,113,0.36)",
+                  background: current.guestBlocked
+                    ? "rgba(250,247,242,0.08)"
+                    : "rgba(127,29,29,0.42)",
+                  color: "var(--flaash-cream)",
+                  cursor: isPending && pendingGuestId === current.guestId ? "default" : "pointer",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  opacity: isPending && pendingGuestId === current.guestId ? 0.65 : 1,
+                  textTransform: "uppercase",
+                }}
+              >
+                {isPending && pendingGuestId === current.guestId
+                  ? "Mise à jour..."
+                  : current.guestBlocked
+                    ? "Débloquer cet invité"
+                    : "Bloquer cet invité"}
+              </button>
+            )}
           </div>
         </div>
       )}
