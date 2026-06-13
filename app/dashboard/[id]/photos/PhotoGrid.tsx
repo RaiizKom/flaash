@@ -125,6 +125,33 @@ export default function PhotoGrid({ eventId, activePhotos, deletedPhotos }: Prop
                 />
               </button>
 
+              {photo.guestName && (
+                <span
+                  style={{
+                    position: "absolute",
+                    left: 8,
+                    bottom: 8,
+                    zIndex: 2,
+                    maxWidth: "calc(100% - 16px)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    borderRadius: "var(--radius-pill)",
+                    background: "rgba(10,8,5,0.62)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
+                    color: "var(--flaash-cream)",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: "0.04em",
+                    lineHeight: 1,
+                    padding: "6px 9px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {photo.guestName}
+                </span>
+              )}
+
               {/* Delete */}
               <form
                 action={deletePhoto.bind(null, photo.id, eventId)}
@@ -174,6 +201,32 @@ export default function PhotoGrid({ eventId, activePhotos, deletedPhotos }: Prop
                   alt=""
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                 />
+                {photo.guestName && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: 8,
+                      bottom: 8,
+                      zIndex: 2,
+                      maxWidth: "calc(100% - 92px)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      borderRadius: "var(--radius-pill)",
+                      background: "rgba(10,8,5,0.62)",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
+                      color: "var(--flaash-cream)",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: "0.04em",
+                      lineHeight: 1,
+                      padding: "6px 9px",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {photo.guestName}
+                  </span>
+                )}
                 <form
                   action={restorePhoto.bind(null, photo.id, eventId)}
                   style={{ position: "absolute", bottom: 4, right: 4 }}
