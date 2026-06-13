@@ -33,12 +33,6 @@ export default function QRCodeCard({ url, title }: Props) {
           bgColor="#FAF7F2"
           fgColor="#1A1A1A"
           level="M"
-          imageSettings={{
-            src: "/favicon.svg",
-            height: 40,
-            width: 40,
-            excavate: true,
-          }}
         />
       </div>
 
