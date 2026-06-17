@@ -24,6 +24,10 @@ interface UploadedPhoto {
   thumbnailUrl: string;
 }
 
+interface MyPhotoResponse {
+  photos?: UploadedPhoto[];
+}
+
 function PrivacyNote() {
   return (
     <p
@@ -219,17 +223,12 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
             setSession(s);
             setPhase(s.photosTaken >= event.photos_per_guest ? "quota-full" : "camera");
           }
-          // Fetch this guest's existing photos via Supabase anon client
-          const supabase = createClient();
-          const { data: rows } = await supabase
-            .from("photos")
-            .select("id, thumbnail_url")
-            .eq("event_id", event.id)
-            .eq("guest_id", s.guestId)
-            .eq("is_deleted", false)
-            .order("taken_at", { ascending: true });
-          if (mounted && rows) {
-            setUploadedPhotos(rows.map((r) => ({ id: r.id, thumbnailUrl: r.thumbnail_url })));
+          const res = await fetch("/api/guests/my-photos", {
+            headers: { Authorization: `Bearer ${s.token}` },
+          });
+          if (mounted && res.ok) {
+            const data = (await res.json()) as MyPhotoResponse;
+            setUploadedPhotos(data.photos ?? []);
           }
           return;
         }
