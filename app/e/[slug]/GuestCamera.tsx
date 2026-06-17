@@ -862,7 +862,7 @@ export default function GuestCamera({ event }: { event: Event }) {
           >
             <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Supprimer cette photo ?</p>
             <p style={{ color: "var(--fg-3)", fontSize: 14, lineHeight: 1.45, marginBottom: 24 }}>
-              Cette action est irréversible. La pose restera utilisée sur ta pellicule.
+              Cette photo sera supprimée, mais elle comptera toujours dans ta pellicule.
             </p>
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: "12px", borderRadius: "var(--radius-pill)", border: "1.5px solid var(--border)", background: "transparent", cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
