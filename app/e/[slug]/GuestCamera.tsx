@@ -310,6 +310,24 @@ export default function GuestCamera({ event }: { event: Event }) {
           padding: "0 24px 40px",
         }}
       >
+        {event.cover_url && (
+          <div style={{ paddingTop: 24 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={event.cover_url}
+              alt=""
+              style={{
+                width: "100%",
+                aspectRatio: "16 / 10",
+                objectFit: "cover",
+                borderRadius: "var(--radius-xl)",
+                display: "block",
+                boxShadow: "var(--shadow-md)",
+              }}
+            />
+          </div>
+        )}
+
         {/* Hero */}
         <div
           style={{
@@ -317,7 +335,7 @@ export default function GuestCamera({ event }: { event: Event }) {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            paddingTop: 64,
+            paddingTop: event.cover_url ? 30 : 64,
             paddingBottom: 32,
           }}
         >

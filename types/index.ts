@@ -21,6 +21,7 @@ export interface Event {
   photos_per_guest: number;
   reveal_at: string | null;
   allow_library_upload: boolean;
+  cover_url: string | null;
   price_chf: number;
   stripe_payment_id: string | null;
   plan_id: string | null;

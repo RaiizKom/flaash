@@ -17,7 +17,7 @@ export default async function EventGuestPage({ params }: Props) {
   const { data: event } = await supabase
     .from("events")
     .select(
-      "id, title, slug, status, photos_per_guest, allow_library_upload, max_guests, event_type, reveal_at"
+      "id, title, slug, status, photos_per_guest, allow_library_upload, max_guests, event_type, reveal_at, cover_url"
     )
     .eq("slug", slug)
     .single();
@@ -32,7 +32,7 @@ export default async function EventGuestPage({ params }: Props) {
       .eq("id", event.id)
       .eq("status", "active")
       .select(
-        "id, title, slug, status, photos_per_guest, allow_library_upload, max_guests, event_type, reveal_at"
+        "id, title, slug, status, photos_per_guest, allow_library_upload, max_guests, event_type, reveal_at, cover_url"
       )
       .single();
 
@@ -95,6 +95,24 @@ export default async function EventGuestPage({ params }: Props) {
             textAlign: "center",
           }}
         >
+          {effectiveEvent.cover_url && (
+            <div style={{ width: "100%", maxWidth: 360, marginBottom: 28 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={effectiveEvent.cover_url}
+                alt=""
+                style={{
+                  width: "100%",
+                  aspectRatio: "16 / 10",
+                  objectFit: "cover",
+                  borderRadius: "var(--radius-xl)",
+                  display: "block",
+                  boxShadow: "0 18px 45px rgba(0,0,0,0.28)",
+                }}
+              />
+            </div>
+          )}
+
           {/* Script subtitle */}
           <p
             className="f-script"

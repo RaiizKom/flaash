@@ -10,6 +10,7 @@ import DeleteButton from "./DeleteButton";
 import { Suspense } from "react";
 import PaymentBanner from "./PaymentBanner";
 import { getPlan } from "@/lib/utils/pricing";
+import CoverUploadCard from "./CoverUploadCard";
 
 interface Props {
   params: { id: string };
@@ -307,6 +308,8 @@ export default async function EventDetailPage({ params }: Props) {
           </div>
         </div>
       )}
+
+      <CoverUploadCard eventId={ev.id} initialCoverUrl={ev.cover_url} />
 
       {/* Details card */}
       <div className="f-card" style={{ padding: "18px 20px", marginBottom: 20 }}>
