@@ -53,26 +53,40 @@ function PrivacyNote() {
   );
 }
 
-function RevealScheduleNote({
+function GalleryStatusNote({
+  status,
   revealAt,
   variant = "light",
 }: {
+  status: Event["status"];
   revealAt: string | null;
   variant?: "light" | "dark";
 }) {
-  if (!isFutureReveal(revealAt)) return null;
+  const isDark = variant === "dark";
+  const statusText =
+    status === "revealed"
+      ? "Galerie disponible"
+      : isFutureReveal(revealAt)
+        ? `Galerie révélée le ${formatRevealAt(revealAt)}`
+        : "Galerie disponible après révélation";
 
   return (
     <p
       style={{
-        color: variant === "dark" ? "rgba(250,247,242,0.58)" : "var(--fg-3)",
-        fontSize: 13,
-        lineHeight: 1.5,
+        alignSelf: isDark ? "center" : "flex-start",
+        background: isDark ? "rgba(250,247,242,0.1)" : "var(--surface-2)",
+        border: isDark ? "1px solid rgba(250,247,242,0.14)" : "1px solid var(--border)",
+        borderRadius: "var(--radius-pill)",
+        color: isDark ? "rgba(250,247,242,0.72)" : "var(--fg-3)",
+        display: "inline-flex",
+        fontSize: 12,
+        fontWeight: 700,
+        lineHeight: 1.25,
         margin: 0,
-        textAlign: "center",
+        padding: "8px 11px",
       }}
     >
-      La galerie sera révélée le {formatRevealAt(revealAt)}.
+      {statusText}
     </p>
   );
 }
@@ -339,7 +353,7 @@ export default function GuestCamera({ event }: { event: Event }) {
             Capture l&apos;instant, partage le souvenir.
           </p>
           <div style={{ marginTop: 14 }}>
-            <RevealScheduleNote revealAt={event.reveal_at} />
+            <GalleryStatusNote status={event.status} revealAt={event.reveal_at} />
           </div>
         </div>
 
@@ -432,7 +446,7 @@ export default function GuestCamera({ event }: { event: Event }) {
         <p style={{ color: "rgba(250,247,242,0.65)", fontSize: 14, maxWidth: 280, marginBottom: 20 }}>
           {taken} / {event.photos_per_guest} photos capturées. Toutes les poses ont été utilisées.
         </p>
-        <RevealScheduleNote revealAt={event.reveal_at} variant="dark" />
+        <GalleryStatusNote status={event.status} revealAt={event.reveal_at} variant="dark" />
 
         {lastThumb && (
           <div
@@ -519,28 +533,31 @@ export default function GuestCamera({ event }: { event: Event }) {
         minHeight: "100dvh",
         display: "flex",
         flexDirection: "column",
-        padding: "28px 24px 48px",
+        padding: "24px 20px 40px",
       }}
     >
-      {/* Header */}
-      <div style={{ marginBottom: 8 }}>
-        <p className="f-eyebrow" style={{ marginBottom: 4 }}>
-          {event.title}
+      {/* Event hub header */}
+      <div style={{ marginBottom: 14 }}>
+        <p className="f-eyebrow" style={{ marginBottom: 6 }}>
+          Flaash event
         </p>
+        <h1 className="f-h1" style={{ fontSize: "clamp(34px,10vw,48px)", lineHeight: 1.02, marginBottom: 8 }}>
+          {event.title}
+        </h1>
         {session?.firstName && (
-          <p style={{ fontSize: 13, color: "var(--fg-3)", fontWeight: 500 }}>
-            Bonjour, {session.firstName} 👋
+          <p style={{ fontSize: 13, color: "var(--fg-3)", fontWeight: 600, marginBottom: 12 }}>
+            Connecté en tant que {session.firstName}
           </p>
         )}
-        <div style={{ marginTop: 10 }}>
-          <RevealScheduleNote revealAt={event.reveal_at} />
+        <div>
+          <GalleryStatusNote status={event.status} revealAt={event.reveal_at} />
         </div>
       </div>
 
       {/* Quota card */}
       <div
         className="f-card"
-        style={{ padding: "18px 18px 16px", marginBottom: 32, marginTop: 12 }}
+        style={{ padding: "16px 17px 14px", marginBottom: 24 }}
       >
         <div
           style={{
@@ -548,7 +565,7 @@ export default function GuestCamera({ event }: { event: Event }) {
             alignItems: "flex-start",
             justifyContent: "space-between",
             gap: 14,
-            marginBottom: 14,
+            marginBottom: 12,
           }}
         >
           <div style={{ minWidth: 0 }}>
@@ -628,9 +645,19 @@ export default function GuestCamera({ event }: { event: Event }) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 24,
+          gap: 14,
+          minHeight: 230,
         }}
       >
+        <div style={{ textAlign: "center" }}>
+          <p className="f-eyebrow" style={{ marginBottom: 5 }}>
+            Appareil photo
+          </p>
+          <p style={{ color: "var(--fg-3)", fontSize: 13, fontWeight: 600, margin: 0 }}>
+            Capture une pose pour l&apos;événement.
+          </p>
+        </div>
+
         {/* Last photo preview */}
         {lastThumb && (
           <div
@@ -703,19 +730,30 @@ export default function GuestCamera({ event }: { event: Event }) {
             letterSpacing: "0.16em",
             textTransform: "uppercase",
             color: "var(--fg-3)",
+            margin: 0,
           }}
         >
           {isUploading ? "Envoi en cours…" : "PRENDRE UNE PHOTO"}
         </p>
+        {event.allow_library_upload && (
+          <p style={{ color: "var(--fg-3)", fontSize: 12, lineHeight: 1.4, margin: 0, maxWidth: 240, textAlign: "center" }}>
+            Tu peux aussi choisir une image de ta photothèque.
+          </p>
+        )}
 
       </div>
 
       {/* ── Carrousel photos prises ─────────────────────────────────────── */}
       {uploadedPhotos.length > 0 && (
-        <div style={{ marginTop: 24 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "var(--fg-3)", textTransform: "uppercase", marginBottom: 10 }}>
-            Mes photos ({uploadedPhotos.length})
-          </p>
+        <div className="f-card" style={{ marginTop: 22, padding: "14px 14px 12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 10 }}>
+            <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: "var(--fg-3)", textTransform: "uppercase", margin: 0 }}>
+              Mes photos
+            </p>
+            <span style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 700 }}>
+              {uploadedPhotos.length}
+            </span>
+          </div>
           <div
             style={{
               display: "flex",
@@ -727,7 +765,7 @@ export default function GuestCamera({ event }: { event: Event }) {
             {uploadedPhotos.map((photo) => (
               <div
                 key={photo.id}
-                style={{ position: "relative", flexShrink: 0, width: 80, height: 80, borderRadius: "var(--radius-sm)", overflow: "hidden", background: "var(--surface-2)" }}
+                style={{ position: "relative", flexShrink: 0, width: 74, height: 74, borderRadius: "var(--radius-sm)", overflow: "hidden", background: "var(--surface-2)" }}
               >
                 <button
                   type="button"
