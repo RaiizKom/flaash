@@ -540,54 +540,63 @@ export default function GuestCamera({ event }: { event: Event }) {
       {/* Quota card */}
       <div
         className="f-card"
-        style={{ padding: "18px 20px 16px", marginBottom: 32, marginTop: 12 }}
+        style={{ padding: "18px 18px 16px", marginBottom: 32, marginTop: 12 }}
       >
         <div
           style={{
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "space-between",
-            gap: 16,
-            marginBottom: 16,
+            gap: 14,
+            marginBottom: 14,
           }}
         >
           <div style={{ minWidth: 0 }}>
             <p className="f-eyebrow" style={{ marginBottom: 6 }}>
               Pellicule
             </p>
-            <p style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 600, lineHeight: 1.4 }}>
+            <p
+              style={{
+                color: "var(--flaash-ink)",
+                fontFamily: "var(--font-display)",
+                fontSize: 24,
+                fontWeight: 800,
+                lineHeight: 1,
+                marginBottom: 6,
+              }}
+            >
+              {taken} / {total} photos
+            </p>
+            <p
+              style={{
+                color: remaining === 0 ? "var(--fg-3)" : "var(--flaash-forest)",
+                fontSize: 12,
+                fontWeight: 700,
+                lineHeight: 1.35,
+              }}
+            >
               {remaining === 0
-                ? "Toutes les poses ont été utilisées."
+                ? "Toutes les poses ont été utilisées"
                 : `${remaining} pose${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`}
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexShrink: 0 }}>
-            <span
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 800,
-                fontSize: 34,
-                lineHeight: 1,
-                color: remaining === 0 ? "var(--fg-3)" : "var(--flaash-ink)",
-              }}
-            >
-              {taken}
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 600,
-                fontSize: 16,
-                color: "var(--fg-3)",
-              }}
-            >
-              / {total}
-            </span>
-            <span style={{ fontSize: 12, color: "var(--fg-3)", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-              photos
-            </span>
-          </div>
+          <p
+            style={{
+              background: remaining === 0 ? "var(--flaash-cream-line)" : "rgba(199,132,59,0.14)",
+              borderRadius: "var(--radius-pill)",
+              color: remaining === 0 ? "var(--fg-3)" : "var(--flaash-amber-deep)",
+              flexShrink: 0,
+              fontSize: 11,
+              fontWeight: 800,
+              letterSpacing: "0.08em",
+              lineHeight: 1,
+              padding: "8px 10px",
+              textTransform: "uppercase",
+            }}
+          >
+            {remaining === 0 ? "Terminée" : "En cours"}
+          </p>
         </div>
 
         {/* Progress bar */}
