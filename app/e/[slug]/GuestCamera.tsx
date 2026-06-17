@@ -552,6 +552,23 @@ export default function GuestCamera({ event }: { event: Event }) {
     >
       {/* Event hub header */}
       <div style={{ marginBottom: 14 }}>
+        {event.cover_url && (
+          <div style={{ marginBottom: 14 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={event.cover_url}
+              alt=""
+              style={{
+                width: "100%",
+                aspectRatio: "16 / 7",
+                objectFit: "cover",
+                borderRadius: "var(--radius-lg)",
+                display: "block",
+                boxShadow: "var(--shadow-sm)",
+              }}
+            />
+          </div>
+        )}
         <p className="f-eyebrow" style={{ marginBottom: 6 }}>
           Flaash event
         </p>

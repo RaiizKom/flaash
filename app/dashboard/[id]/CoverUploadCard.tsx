@@ -54,6 +54,9 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
           </span>
         )}
       </div>
+      <p style={{ color: "var(--fg-3)", fontSize: 13, lineHeight: 1.45, marginBottom: 14 }}>
+        Conseil : utilise une image horizontale. Les bords peuvent être légèrement recadrés selon l&apos;écran.
+      </p>
 
       {coverUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -62,7 +65,7 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
           alt="Photo de couverture"
           style={{
             width: "100%",
-            aspectRatio: "16 / 9",
+            aspectRatio: "16 / 10",
             objectFit: "cover",
             borderRadius: "var(--radius-md)",
             display: "block",
