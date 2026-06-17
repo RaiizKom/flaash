@@ -286,10 +286,6 @@ export default function GuestCamera({ event }: { event: Event }) {
     });
     if (res.ok) {
       setUploadedPhotos((prev) => prev.filter((p) => p.id !== photoId));
-      const newCount = Math.max(0, (session?.photosTaken ?? 1) - 1);
-      const updated: GuestSession = { ...session!, photosTaken: newCount };
-      localStorage.setItem(storageKey, JSON.stringify(updated));
-      setSession(updated);
     }
     setDeleteConfirm(null);
   }
@@ -865,7 +861,9 @@ export default function GuestCamera({ event }: { event: Event }) {
             onClick={(e) => e.stopPropagation()}
           >
             <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Supprimer cette photo ?</p>
-            <p style={{ color: "var(--fg-3)", fontSize: 14, marginBottom: 24 }}>Cette action est irréversible.</p>
+            <p style={{ color: "var(--fg-3)", fontSize: 14, lineHeight: 1.45, marginBottom: 24 }}>
+              Cette action est irréversible. La pose restera utilisée sur ta pellicule.
+            </p>
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: "12px", borderRadius: "var(--radius-pill)", border: "1.5px solid var(--border)", background: "transparent", cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
                 Annuler
