@@ -123,6 +123,55 @@ export default async function EventDetailPage({ params }: Props) {
   const eventUrl = `${appUrl}/e/${ev.slug}`;
 
   const statusColors = STATUS_COLORS[ev.status] ?? STATUS_COLORS.draft;
+  const photoTotal = photoCount ?? 0;
+  const activeGuestTotal = guestCount ?? 0;
+  const blockedGuestTotal = guests.filter((guest) => guest.is_blocked).length;
+  const guestSlotsLeft = Math.max(0, ev.max_guests - activeGuestTotal);
+  const photoCapacity = Math.max(0, ev.max_guests * ev.photos_per_guest);
+  const photoProgress = photoCapacity > 0 ? Math.min(100, Math.round((photoTotal / photoCapacity) * 100)) : 0;
+  const guestProgress = ev.max_guests > 0 ? Math.min(100, Math.round((activeGuestTotal / ev.max_guests) * 100)) : 0;
+  const canManageLiveEvent = ev.status === "active" || ev.status === "revealed";
+  const statCards = [
+    {
+      label: "Photos reçues",
+      value: `${photoTotal}`,
+      detail:
+        photoTotal > 0
+          ? `${photoProgress}% de la capacité utilisée`
+          : canManageLiveEvent
+            ? "En attente des premières photos"
+            : "Disponible après activation",
+      action: photoTotal > 0 ? "Modérer les photos" : "Voir la modération",
+      href: canManageLiveEvent ? `/dashboard/${ev.id}/photos` : null,
+      progress: photoProgress,
+      tone: "forest",
+    },
+    {
+      label: "Invités actifs",
+      value: `${activeGuestTotal} / ${ev.max_guests}`,
+      detail:
+        guestSlotsLeft === 0
+          ? "Capacité invités atteinte"
+          : `${guestSlotsLeft} place${guestSlotsLeft > 1 ? "s" : ""} disponible${guestSlotsLeft > 1 ? "s" : ""}${
+              blockedGuestTotal > 0
+                ? ` · ${blockedGuestTotal} bloqué${blockedGuestTotal > 1 ? "s" : ""}`
+                : ""
+            }`,
+      action: "Voir les invités",
+      href: "#guests",
+      progress: guestProgress,
+      tone: "amber",
+    },
+    {
+      label: "Photos max / invité",
+      value: `${ev.photos_per_guest}`,
+      detail: "Limite de poses par invité",
+      action: "Défini pour cet événement",
+      href: null,
+      progress: 100,
+      tone: "ink",
+    },
+  ];
 
   return (
     <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>
@@ -186,38 +235,103 @@ export default async function EventDetailPage({ params }: Props) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          gap: 10,
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+          gap: 12,
           marginBottom: 28,
         }}
       >
-        {[
-          { n: photoCount ?? 0, label: "photos" },
-          { n: guestCount ?? 0, label: "invités" },
-          { n: ev.photos_per_guest, label: "max / invité" },
-        ].map(({ n, label }) => (
+        {statCards.map((card) => (
           <div
-            key={label}
+            key={card.label}
             style={{
               background: "var(--surface-2)",
               border: "1px solid var(--border)",
               borderRadius: "var(--radius-md)",
-              padding: "14px 12px",
-              textAlign: "center",
+              padding: "15px 14px",
+              minWidth: 0,
             }}
           >
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 28, lineHeight: 1 }}>
-              {n}
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start", marginBottom: 10 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 10, color: "var(--fg-3)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+                  {card.label}
+                </div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 30, lineHeight: 1, color: "var(--flaash-ink)" }}>
+                  {card.value}
+                </div>
+              </div>
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 9,
+                  height: 9,
+                  borderRadius: "50%",
+                  background:
+                    card.tone === "forest"
+                      ? "var(--flaash-forest)"
+                      : card.tone === "amber"
+                        ? "var(--flaash-amber)"
+                        : "var(--flaash-ink)",
+                  flexShrink: 0,
+                  marginTop: 2,
+                }}
+              />
             </div>
-            <div style={{ fontSize: 11, color: "var(--fg-3)", marginTop: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              {label}
+            <p style={{ color: "var(--fg-3)", fontSize: 12, lineHeight: 1.4, fontWeight: 600, minHeight: 34, marginBottom: 12 }}>
+              {card.detail}
+            </p>
+            <div
+              aria-hidden="true"
+              style={{
+                height: 5,
+                borderRadius: 999,
+                background: "var(--flaash-cream-line)",
+                overflow: "hidden",
+                marginBottom: 12,
+              }}
+            >
+              <div
+                style={{
+                  width: `${card.progress}%`,
+                  height: "100%",
+                  borderRadius: 999,
+                  background:
+                    card.tone === "forest"
+                      ? "var(--flaash-forest)"
+                      : card.tone === "amber"
+                        ? "var(--flaash-amber)"
+                        : "var(--flaash-ink)",
+                }}
+              />
             </div>
+            {card.href ? (
+              <Link
+                href={card.href}
+                target={card.href.startsWith("/print/") ? "_blank" : undefined}
+                rel={card.href.startsWith("/print/") ? "noopener noreferrer" : undefined}
+                style={{
+                  color: "var(--flaash-amber-deep)",
+                  display: "inline-flex",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  letterSpacing: "0.04em",
+                  textDecoration: "none",
+                  textTransform: "uppercase",
+                }}
+              >
+                {card.action} →
+              </Link>
+            ) : (
+              <span style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 700 }}>
+                {card.action}
+              </span>
+            )}
           </div>
         ))}
       </div>
 
       {/* Guests */}
-      <div className="f-card" style={{ padding: "18px 20px", marginBottom: 24 }}>
+      <div id="guests" className="f-card" style={{ padding: "18px 20px", marginBottom: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
           <p className="f-eyebrow">Invités</p>
           <span style={{ fontSize: 12, color: "var(--fg-3)", fontWeight: 600 }}>
