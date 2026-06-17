@@ -59,6 +59,7 @@ export async function blockGuest(eventId: string, guestId: string) {
 
   revalidatePath(`/dashboard/${eventId}/photos`);
   revalidatePath(`/dashboard/${eventId}`);
+  revalidatePath(`/dashboard/${eventId}/guests`);
 }
 
 export async function unblockGuest(eventId: string, guestId: string) {
@@ -72,4 +73,5 @@ export async function unblockGuest(eventId: string, guestId: string) {
 
   revalidatePath(`/dashboard/${eventId}/photos`);
   revalidatePath(`/dashboard/${eventId}`);
+  revalidatePath(`/dashboard/${eventId}/guests`);
 }
