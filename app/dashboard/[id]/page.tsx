@@ -125,51 +125,24 @@ export default async function EventDetailPage({ params }: Props) {
   const statusColors = STATUS_COLORS[ev.status] ?? STATUS_COLORS.draft;
   const photoTotal = photoCount ?? 0;
   const activeGuestTotal = guestCount ?? 0;
-  const blockedGuestTotal = guests.filter((guest) => guest.is_blocked).length;
-  const guestSlotsLeft = Math.max(0, ev.max_guests - activeGuestTotal);
-  const photoCapacity = Math.max(0, ev.max_guests * ev.photos_per_guest);
-  const photoProgress = photoCapacity > 0 ? Math.min(100, Math.round((photoTotal / photoCapacity) * 100)) : 0;
-  const guestProgress = ev.max_guests > 0 ? Math.min(100, Math.round((activeGuestTotal / ev.max_guests) * 100)) : 0;
-  const canManageLiveEvent = ev.status === "active" || ev.status === "revealed";
   const statCards = [
     {
-      label: "Photos reçues",
+      label: "Photos",
       value: `${photoTotal}`,
-      detail:
-        photoTotal > 0
-          ? `${photoProgress}% de la capacité utilisée`
-          : canManageLiveEvent
-            ? "En attente des premières photos"
-            : "Disponible après activation",
-      action: photoTotal > 0 ? "Modérer les photos" : "Voir la modération",
-      href: canManageLiveEvent ? `/dashboard/${ev.id}/photos` : null,
-      progress: photoProgress,
-      tone: "forest",
+      action: "Voir les photos",
+      href: `/dashboard/${ev.id}/photos`,
     },
     {
-      label: "Invités actifs",
+      label: "Invités",
       value: `${activeGuestTotal} / ${ev.max_guests}`,
-      detail:
-        guestSlotsLeft === 0
-          ? "Capacité invités atteinte"
-          : `${guestSlotsLeft} place${guestSlotsLeft > 1 ? "s" : ""} disponible${guestSlotsLeft > 1 ? "s" : ""}${
-              blockedGuestTotal > 0
-                ? ` · ${blockedGuestTotal} bloqué${blockedGuestTotal > 1 ? "s" : ""}`
-                : ""
-            }`,
       action: "Voir les invités",
       href: "#guests",
-      progress: guestProgress,
-      tone: "amber",
     },
     {
       label: "Photos max / invité",
       value: `${ev.photos_per_guest}`,
       detail: "Limite de poses par invité",
-      action: "Défini pour cet événement",
       href: null,
-      progress: 100,
-      tone: "ink",
     },
   ];
 
@@ -236,8 +209,8 @@ export default async function EventDetailPage({ params }: Props) {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-          gap: 12,
-          marginBottom: 28,
+          gap: 10,
+          marginBottom: 22,
         }}
       >
         {statCards.map((card) => (
@@ -247,72 +220,23 @@ export default async function EventDetailPage({ params }: Props) {
               background: "var(--surface-2)",
               border: "1px solid var(--border)",
               borderRadius: "var(--radius-md)",
-              padding: "15px 14px",
+              padding: "12px 13px",
               minWidth: 0,
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start", marginBottom: 10 }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 10, color: "var(--fg-3)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
-                  {card.label}
-                </div>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 30, lineHeight: 1, color: "var(--flaash-ink)" }}>
-                  {card.value}
-                </div>
-              </div>
-              <span
-                aria-hidden="true"
-                style={{
-                  width: 9,
-                  height: 9,
-                  borderRadius: "50%",
-                  background:
-                    card.tone === "forest"
-                      ? "var(--flaash-forest)"
-                      : card.tone === "amber"
-                        ? "var(--flaash-amber)"
-                        : "var(--flaash-ink)",
-                  flexShrink: 0,
-                  marginTop: 2,
-                }}
-              />
+            <div style={{ fontSize: 10, color: "var(--fg-3)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 5 }}>
+              {card.label}
             </div>
-            <p style={{ color: "var(--fg-3)", fontSize: 12, lineHeight: 1.4, fontWeight: 600, minHeight: 34, marginBottom: 12 }}>
-              {card.detail}
-            </p>
-            <div
-              aria-hidden="true"
-              style={{
-                height: 5,
-                borderRadius: 999,
-                background: "var(--flaash-cream-line)",
-                overflow: "hidden",
-                marginBottom: 12,
-              }}
-            >
-              <div
-                style={{
-                  width: `${card.progress}%`,
-                  height: "100%",
-                  borderRadius: 999,
-                  background:
-                    card.tone === "forest"
-                      ? "var(--flaash-forest)"
-                      : card.tone === "amber"
-                        ? "var(--flaash-amber)"
-                        : "var(--flaash-ink)",
-                }}
-              />
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 28, lineHeight: 1, color: "var(--flaash-ink)", marginBottom: 8 }}>
+              {card.value}
             </div>
             {card.href ? (
               <Link
                 href={card.href}
-                target={card.href.startsWith("/print/") ? "_blank" : undefined}
-                rel={card.href.startsWith("/print/") ? "noopener noreferrer" : undefined}
                 style={{
                   color: "var(--flaash-amber-deep)",
                   display: "inline-flex",
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: 800,
                   letterSpacing: "0.04em",
                   textDecoration: "none",
@@ -322,8 +246,8 @@ export default async function EventDetailPage({ params }: Props) {
                 {card.action} →
               </Link>
             ) : (
-              <span style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 700 }}>
-                {card.action}
+              <span style={{ color: "var(--fg-3)", fontSize: 11, fontWeight: 700 }}>
+                {card.detail}
               </span>
             )}
           </div>
@@ -410,10 +334,10 @@ export default async function EventDetailPage({ params }: Props) {
                           background: guest.is_blocked ? "var(--surface-2)" : "rgba(220,38,38,0.08)",
                           color: guest.is_blocked ? "var(--fg-2)" : "var(--flaash-error)",
                           cursor: "pointer",
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: 700,
                           letterSpacing: "0.06em",
-                          padding: "8px 11px",
+                          padding: "7px 9px",
                           textTransform: "uppercase",
                           whiteSpace: "nowrap",
                         }}
