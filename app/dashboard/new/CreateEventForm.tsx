@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createEvent } from "./actions";
 import { type EventType, EVENT_TYPE_LABELS } from "@/types";
 import { PLANS, getPlanForGuests, getPlan, type Plan } from "@/lib/utils/pricing";
@@ -116,6 +116,8 @@ function PlanCard({
 // ── Main form ─────────────────────────────────────────────────────────────────
 export default function CreateEventForm({ error }: { error?: string }) {
   const [step, setStep] = useState<1 | 2>(1);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const coverPreviewUrlRef = useRef<string | null>(null);
 
   // Step 1 state
   const [eventType, setEventType]   = useState<EventType>("wedding");
@@ -125,6 +127,9 @@ export default function CreateEventForm({ error }: { error?: string }) {
   const [revealMode, setRevealMode] = useState<"fixed" | "manual">("fixed");
   const [revealAt, setRevealAt]     = useState("");
   const [allowLibrary, setAllowLibrary] = useState(false);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
+  const [coverError, setCoverError] = useState<string | null>(null);
   const [step1Error, setStep1Error] = useState<string | null>(null);
 
   // Step 2 state
@@ -132,9 +137,75 @@ export default function CreateEventForm({ error }: { error?: string }) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isPending, setIsPending]   = useState(false);
 
+  useEffect(() => {
+    return () => {
+      if (coverPreviewUrlRef.current) {
+        URL.revokeObjectURL(coverPreviewUrlRef.current);
+      }
+    };
+  }, []);
+
   function handleTypeChange(type: EventType) {
     setEventType(type);
     setTitle(TITLE_PREFIXES[type]);
+  }
+
+  function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    setCoverError(null);
+
+    if (!file) return;
+
+    if (file.size > 8_000_000) {
+      setCoverFile(null);
+      if (coverPreviewUrlRef.current) {
+        URL.revokeObjectURL(coverPreviewUrlRef.current);
+        coverPreviewUrlRef.current = null;
+      }
+      setCoverPreviewUrl(null);
+      setCoverError("L'image est trop lourde. Choisis une image de moins de 8 MB.");
+      return;
+    }
+
+    if (coverPreviewUrlRef.current) {
+      URL.revokeObjectURL(coverPreviewUrlRef.current);
+    }
+
+    const nextPreviewUrl = URL.createObjectURL(file);
+    coverPreviewUrlRef.current = nextPreviewUrl;
+    setCoverFile(file);
+    setCoverPreviewUrl(nextPreviewUrl);
+  }
+
+  function removeCover() {
+    if (coverPreviewUrlRef.current) {
+      URL.revokeObjectURL(coverPreviewUrlRef.current);
+      coverPreviewUrlRef.current = null;
+    }
+    setCoverFile(null);
+    setCoverPreviewUrl(null);
+    setCoverError(null);
+  }
+
+  async function uploadCover(eventId: string) {
+    if (!coverFile) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", coverFile);
+
+      const res = await fetch(`/api/events/${eventId}/cover`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        setSubmitError("La photo de couverture n'a pas pu être ajoutée. Tu pourras l'ajouter depuis le dashboard.");
+      }
+    } catch {
+      setSubmitError("La photo de couverture n'a pas pu être ajoutée. Tu pourras l'ajouter depuis le dashboard.");
+    }
   }
 
   function handleContinue() {
@@ -191,6 +262,8 @@ export default function CreateEventForm({ error }: { error?: string }) {
       setIsPending(false);
       return;
     }
+
+    await uploadCover(result.eventId);
 
     if (!result.requiresPayment) {
       window.location.href = `/dashboard/${result.eventId}`;
@@ -285,6 +358,93 @@ export default function CreateEventForm({ error }: { error?: string }) {
             onChange={(e) => setAllowLibrary(e.target.checked)}
             style={{ accentColor: "var(--flaash-ink)", width: 20, height: 20, flexShrink: 0 }} />
         </label>
+
+        {/* Cover photo */}
+        <div className="f-card" style={{ padding: "16px 18px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 8 }}>
+            <p className="f-eyebrow">Photo de couverture</p>
+            <span style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 700 }}>
+              Optionnel
+            </span>
+          </div>
+          <p style={{ color: "var(--fg-3)", fontSize: 13, lineHeight: 1.45, marginBottom: 14 }}>
+            Conseil : utilise une image horizontale. Les bords peuvent être légèrement recadrés selon l&apos;écran.
+          </p>
+
+          {coverPreviewUrl && (
+            <div style={{ marginBottom: 12 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={coverPreviewUrl}
+                alt="Aperçu de la photo de couverture"
+                style={{
+                  width: "100%",
+                  aspectRatio: "16 / 10",
+                  objectFit: "cover",
+                  borderRadius: "var(--radius-md)",
+                  display: "block",
+                  background: "var(--surface-2)",
+                }}
+              />
+            </div>
+          )}
+
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleCoverChange}
+            style={{ display: "none" }}
+          />
+
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              type="button"
+              onClick={() => coverInputRef.current?.click()}
+              style={{
+                flex: 1,
+                borderRadius: "var(--radius-pill)",
+                border: "1.5px solid var(--border)",
+                background: "var(--surface-2)",
+                color: "var(--fg-2)",
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: "0.06em",
+                padding: "11px 14px",
+                textTransform: "uppercase",
+              }}
+            >
+              {coverFile ? "Remplacer l'image" : "Choisir une image"}
+            </button>
+            {coverFile && (
+              <button
+                type="button"
+                onClick={removeCover}
+                style={{
+                  borderRadius: "var(--radius-pill)",
+                  border: "1.5px solid var(--border)",
+                  background: "transparent",
+                  color: "var(--fg-3)",
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  letterSpacing: "0.06em",
+                  padding: "11px 14px",
+                  textTransform: "uppercase",
+                }}
+              >
+                Retirer
+              </button>
+            )}
+          </div>
+
+          {coverError && (
+            <p style={{ color: "#dc2626", fontSize: 13, fontWeight: 600, marginTop: 10 }}>
+              {coverError}
+            </p>
+          )}
+        </div>
 
         {/* Validation error */}
         {step1Error && (
