@@ -190,6 +190,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
   const [toast, setToast] = useState<Toast | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
+  const [collectivePhotoCount, setCollectivePhotoCount] = useState(photoCount);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null); // thumbnailUrl
   const fileRef = useRef<HTMLInputElement>(null);
@@ -201,6 +202,10 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
     setTimeout(() => setToastVisible(false), 2800);
     setTimeout(() => setToast(null), 3200);
   }, []);
+
+  useEffect(() => {
+    setCollectivePhotoCount((count) => Math.max(count, photoCount));
+  }, [photoCount]);
 
   // Restore session from localStorage on mount + fetch existing photos
   useEffect(() => {
@@ -353,6 +358,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
       setLastThumb(previewUrl);
       // Track uploaded photo for carousel
       setUploadedPhotos((prev) => [...prev, { id: data.photoId, thumbnailUrl: data.thumbnailUrl }]);
+      setCollectivePhotoCount((count) => count + 1);
       showToast("Photo enregistrée !");
 
       if (data.remainingShots === 0) {
@@ -501,6 +507,9 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
 
           <PrivacyNote />
         </form>
+        {event.status === "active" && (
+          <HiddenPhotoGrid photoCount={collectivePhotoCount} revealAt={event.reveal_at} />
+        )}
       </div>
     );
   }
@@ -550,7 +559,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
         </p>
         <GalleryStatusNote status={event.status} revealAt={event.reveal_at} variant="dark" />
         {event.status === "active" && (
-          <HiddenPhotoGrid photoCount={photoCount} revealAt={event.reveal_at} variant="dark" />
+          <HiddenPhotoGrid photoCount={collectivePhotoCount} revealAt={event.reveal_at} variant="dark" />
         )}
 
         {lastThumb && (
@@ -866,7 +875,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
       </div>
 
       {event.status === "active" && (
-        <HiddenPhotoGrid photoCount={photoCount} revealAt={event.reveal_at} />
+        <HiddenPhotoGrid photoCount={collectivePhotoCount} revealAt={event.reveal_at} />
       )}
 
       {/* ── Carrousel photos prises ─────────────────────────────────────── */}
