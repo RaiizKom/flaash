@@ -560,7 +560,7 @@ export default function GuestCamera({ event }: { event: Event }) {
               alt=""
               style={{
                 width: "100%",
-                aspectRatio: "16 / 7",
+                aspectRatio: "16 / 10",
                 objectFit: "cover",
                 borderRadius: "var(--radius-lg)",
                 display: "block",
