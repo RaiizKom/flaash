@@ -39,6 +39,16 @@ export default async function EventGuestPage({ params }: Props) {
     effectiveEvent = revealedEvent ?? { ...event, status: "revealed" };
   }
 
+  let photoCount = 0;
+  if (effectiveEvent.status === "active") {
+    const { count } = await supabase
+      .from("photos")
+      .select("*", { count: "exact", head: true })
+      .eq("event_id", effectiveEvent.id)
+      .eq("is_deleted", false);
+    photoCount = count ?? 0;
+  }
+
   if (effectiveEvent.status === "draft") {
     return (
       <div className="flaash-shell" style={shellCenter}>
@@ -171,7 +181,7 @@ export default async function EventGuestPage({ params }: Props) {
 
   return (
     <div className="flaash-shell">
-      <GuestCamera event={effectiveEvent as Event} />
+      <GuestCamera event={effectiveEvent as Event} photoCount={photoCount} />
     </div>
   );
 }

@@ -91,7 +91,95 @@ function GalleryStatusNote({
   );
 }
 
-export default function GuestCamera({ event }: { event: Event }) {
+function HiddenPhotoGrid({
+  photoCount,
+  revealAt,
+  variant = "light",
+}: {
+  photoCount: number;
+  revealAt: string | null;
+  variant?: "light" | "dark";
+}) {
+  if (photoCount <= 0) return null;
+
+  const isDark = variant === "dark";
+  const visibleCount = Math.min(photoCount, 12);
+  const extraCount = photoCount - visibleCount;
+
+  return (
+    <div
+      className={isDark ? undefined : "f-card"}
+      style={{
+        background: isDark ? "rgba(250,247,242,0.08)" : undefined,
+        border: isDark ? "1px solid rgba(250,247,242,0.14)" : undefined,
+        borderRadius: isDark ? "var(--radius-lg)" : undefined,
+        marginTop: isDark ? 28 : 22,
+        maxWidth: isDark ? 320 : undefined,
+        padding: "14px",
+        width: "100%",
+      }}
+    >
+      <p
+        className="f-eyebrow"
+        style={{
+          color: isDark ? "rgba(250,247,242,0.62)" : undefined,
+          marginBottom: 6,
+        }}
+      >
+        Pellicule commune
+      </p>
+      <p
+        style={{
+          color: isDark ? "rgba(250,247,242,0.72)" : "var(--fg-3)",
+          fontSize: 13,
+          fontWeight: 600,
+          lineHeight: 1.45,
+          marginBottom: 12,
+        }}
+      >
+        Les photos sont cachées jusqu&apos;à la révélation.
+        {revealAt ? ` Révélation prévue le ${formatRevealAt(revealAt)}.` : ""}
+      </p>
+      <div
+        aria-hidden="true"
+        style={{
+          display: "grid",
+          gap: 7,
+          gridTemplateColumns: "repeat(4, 1fr)",
+        }}
+      >
+        {Array.from({ length: visibleCount }).map((_, index) => (
+          <div
+            key={index}
+            style={{
+              aspectRatio: "1",
+              background: isDark
+                ? "linear-gradient(135deg, rgba(250,247,242,0.18), rgba(250,247,242,0.06))"
+                : "linear-gradient(135deg, var(--flaash-cream-line), var(--surface-2))",
+              border: isDark ? "1px solid rgba(250,247,242,0.1)" : "1px solid var(--border)",
+              borderRadius: 6,
+              boxShadow: isDark ? "none" : "inset 0 0 0 1px rgba(255,255,255,0.32)",
+            }}
+          />
+        ))}
+      </div>
+      {extraCount > 0 && (
+        <p
+          style={{
+            color: isDark ? "rgba(250,247,242,0.56)" : "var(--fg-3)",
+            fontSize: 12,
+            fontWeight: 700,
+            marginTop: 10,
+          }}
+        >
+          + {extraCount} autre{extraCount > 1 ? "s" : ""} souvenir{extraCount > 1 ? "s" : ""}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default function GuestCamera({ event, photoCount = 0 }: { event: Event; photoCount?: number }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [session, setSession] = useState<GuestSession | null>(null);
   const [firstName, setFirstName] = useState("");
@@ -461,6 +549,9 @@ export default function GuestCamera({ event }: { event: Event }) {
           {taken} / {event.photos_per_guest} photos capturées. Toutes les poses ont été utilisées.
         </p>
         <GalleryStatusNote status={event.status} revealAt={event.reveal_at} variant="dark" />
+        {event.status === "active" && (
+          <HiddenPhotoGrid photoCount={photoCount} revealAt={event.reveal_at} variant="dark" />
+        )}
 
         {lastThumb && (
           <div
@@ -773,6 +864,10 @@ export default function GuestCamera({ event }: { event: Event }) {
         )}
 
       </div>
+
+      {event.status === "active" && (
+        <HiddenPhotoGrid photoCount={photoCount} revealAt={event.reveal_at} />
+      )}
 
       {/* ── Carrousel photos prises ─────────────────────────────────────── */}
       {uploadedPhotos.length > 0 && (
