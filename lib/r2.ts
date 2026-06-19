@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const BUCKET     = process.env.CLOUDFLARE_R2_BUCKET!;
 const PUBLIC_BASE = (process.env.CLOUDFLARE_R2_PUBLIC_URL ?? "").replace(/\/$/, "");
@@ -49,4 +49,11 @@ export async function uploadBuffer(
   }));
 
   return `${PUBLIC_BASE}/${key}`;
+}
+
+export async function deleteObject(key: string): Promise<void> {
+  await s3.send(new DeleteObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+  }));
 }

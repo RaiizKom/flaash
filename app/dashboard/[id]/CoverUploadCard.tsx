@@ -7,10 +7,13 @@ interface Props {
   initialCoverUrl: string | null;
 }
 
+const MAX_COVER_BYTES = 25_000_000;
+
 export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [coverUrl, setCoverUrl] = useState(initialCoverUrl);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -18,8 +21,19 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
     e.target.value = "";
     if (!file || isUploading) return;
 
-    setIsUploading(true);
     setError(null);
+
+    if (!file.type.startsWith("image/")) {
+      setError("Choisis une image valide.");
+      return;
+    }
+
+    if (file.size > MAX_COVER_BYTES) {
+      setError("Image trop lourde. Choisis une photo de moins de 25 MB.");
+      return;
+    }
+
+    setIsUploading(true);
 
     try {
       const formData = new FormData();
@@ -32,7 +46,11 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.error ?? "Erreur lors de l'envoi.");
+        setError(
+          typeof data.error === "string"
+            ? data.error
+            : `Erreur lors de l'envoi (${res.status}).`
+        );
         return;
       }
 
@@ -41,6 +59,40 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
       setError("Erreur réseau. Réessaie.");
     } finally {
       setIsUploading(false);
+    }
+  }
+
+  async function handleDeleteCover() {
+    if (!coverUrl || isDeleting) return;
+
+    const confirmed = window.confirm(
+      "Supprimer la photo de couverture ? Elle ne sera plus affichée sur la page invitée."
+    );
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/events/${eventId}/cover`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(
+          typeof data.error === "string"
+            ? data.error
+            : `Erreur lors de la suppression (${res.status}).`
+        );
+        return;
+      }
+
+      setCoverUrl(null);
+    } catch {
+      setError("Erreur réseau. Réessaie.");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -90,17 +142,17 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        disabled={isUploading}
+        disabled={isUploading || isDeleting}
         style={{
           borderRadius: "var(--radius-pill)",
           border: "1.5px solid var(--border)",
           background: "var(--surface-2)",
           color: "var(--fg-2)",
-          cursor: isUploading ? "default" : "pointer",
+          cursor: isUploading || isDeleting ? "default" : "pointer",
           fontSize: 12,
           fontWeight: 800,
           letterSpacing: "0.06em",
-          opacity: isUploading ? 0.65 : 1,
+          opacity: isUploading || isDeleting ? 0.65 : 1,
           padding: "11px 16px",
           textTransform: "uppercase",
           width: "100%",
@@ -108,6 +160,31 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
       >
         {isUploading ? "Envoi en cours…" : coverUrl ? "Remplacer la photo" : "Ajouter une photo"}
       </button>
+
+      {coverUrl && (
+        <button
+          type="button"
+          onClick={handleDeleteCover}
+          disabled={isUploading || isDeleting}
+          style={{
+            borderRadius: "var(--radius-pill)",
+            border: "1.5px solid var(--border)",
+            background: "transparent",
+            color: "var(--fg-3)",
+            cursor: isUploading || isDeleting ? "default" : "pointer",
+            fontSize: 12,
+            fontWeight: 800,
+            letterSpacing: "0.06em",
+            marginTop: 10,
+            opacity: isUploading || isDeleting ? 0.65 : 1,
+            padding: "11px 16px",
+            textTransform: "uppercase",
+            width: "100%",
+          }}
+        >
+          {isDeleting ? "Suppression…" : "Supprimer la photo"}
+        </button>
+      )}
 
       {error && (
         <p style={{ color: "var(--flaash-error)", fontSize: 13, fontWeight: 600, marginTop: 10 }}>
