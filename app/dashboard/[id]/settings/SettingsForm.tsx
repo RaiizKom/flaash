@@ -23,6 +23,12 @@ function toDatetimeLocal(iso: string | null) {
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
 }
 
+function normalizeNumericInput(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return "";
+  return digits.replace(/^0+/, "") || "0";
+}
+
 export default function SettingsForm({
   event,
   maxPhotosTaken,
@@ -34,7 +40,7 @@ export default function SettingsForm({
   const isRevealed = event.status === "revealed";
   const [title, setTitle] = useState(event.title);
   const [eventType, setEventType] = useState<EventType>(event.event_type);
-  const [photosPerGuest, setPhotosPerGuest] = useState(event.photos_per_guest);
+  const [photosPerGuest, setPhotosPerGuest] = useState(String(event.photos_per_guest));
   const [allowLibraryUpload, setAllowLibraryUpload] = useState(event.allow_library_upload);
   const [revealMode, setRevealMode] = useState<"manual" | "scheduled">(
     event.reveal_at ? "scheduled" : "manual"
@@ -123,24 +129,17 @@ export default function SettingsForm({
               1 - 20
             </span>
           </div>
-          <select
+          <input
             id="photosPerGuest"
             name="photos_per_guest"
             className="f-input"
+            inputMode="numeric"
+            pattern="[0-9]*"
             value={photosPerGuest}
-            onChange={(e) => setPhotosPerGuest(Number(e.target.value))}
+            onChange={(e) => setPhotosPerGuest(normalizeNumericInput(e.target.value))}
+            onFocus={(e) => e.currentTarget.select()}
             disabled={isRevealed}
-          >
-            {Array.from({ length: 20 }, (_, index) => index + 1).map((value) => (
-              <option
-                key={value}
-                value={value}
-                disabled={event.status === "active" && value < maxPhotosTaken}
-              >
-                {value}
-              </option>
-            ))}
-          </select>
+          />
           <p style={{ color: "var(--fg-3)", fontSize: 12, lineHeight: 1.45, marginTop: 8 }}>
             Tu ne peux pas descendre sous le nombre de photos déjà prises par un invité.
             {maxPhotosTaken > 0 ? ` Actuellement : ${maxPhotosTaken}.` : ""}
