@@ -127,8 +127,8 @@ export default async function PhotosPage({ params }: Props) {
               maxWidth: 420,
             }}
           >
-            Sur iPhone, le ZIP s&apos;enregistre dans Fichiers. Après l&apos;avoir ouvert,
-            tu peux sélectionner les photos et les ajouter à ta galerie.
+            Le fichier ZIP sera enregistré dans les fichiers ou téléchargements de ton
+            appareil. Ouvre-le ensuite pour extraire les photos et les ajouter à ta galerie.
           </p>
         </div>
       )}
