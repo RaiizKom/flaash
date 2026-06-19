@@ -96,27 +96,41 @@ export default async function PhotosPage({ params }: Props) {
 
       {/* Download ZIP */}
       {activePhotos.length > 0 && (
-        <a
-          href={`/api/download/${ev.slug}`}
-          download
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "12px 18px",
-            marginBottom: 24,
-            borderRadius: "var(--radius-pill)",
-            border: "1.5px solid var(--border)",
-            background: "var(--surface-2)",
-            color: "var(--fg-2)",
-            fontSize: 13,
-            fontWeight: 600,
-            letterSpacing: "0.06em",
-            textDecoration: "none",
-          }}
-        >
-          ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({activePhotos.length})
-        </a>
+        <div style={{ marginBottom: 24 }}>
+          <a
+            href={`/api/download/${ev.slug}`}
+            download
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "12px 18px",
+              borderRadius: "var(--radius-pill)",
+              border: "1.5px solid var(--border)",
+              background: "var(--surface-2)",
+              color: "var(--fg-2)",
+              fontSize: 13,
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              textDecoration: "none",
+            }}
+          >
+            ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({activePhotos.length})
+          </a>
+          <p
+            style={{
+              color: "var(--fg-3)",
+              fontSize: 12,
+              fontWeight: 500,
+              lineHeight: 1.45,
+              marginTop: 8,
+              maxWidth: 420,
+            }}
+          >
+            Sur iPhone, le ZIP s&apos;enregistre dans Fichiers. Après l&apos;avoir ouvert,
+            tu peux sélectionner les photos et les ajouter à ta galerie.
+          </p>
+        </div>
       )}
 
       {/* Empty state */}
