@@ -574,9 +574,6 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
 
           <PrivacyNote />
         </form>
-        {event.status === "active" && (
-          <HiddenPhotoGrid photoCount={collectivePhotoCount} revealAt={event.reveal_at} />
-        )}
       </div>
     );
   }
@@ -941,10 +938,6 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
 
       </div>
 
-      {event.status === "active" && (
-        <HiddenPhotoGrid photoCount={collectivePhotoCount} revealAt={event.reveal_at} />
-      )}
-
       {/* ── Carrousel photos prises ─────────────────────────────────────── */}
       {uploadedPhotos.length > 0 && (
         <div className="f-card" style={{ marginTop: 22, padding: "14px 14px 12px" }}>
@@ -1001,6 +994,10 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
             ))}
           </div>
         </div>
+      )}
+
+      {event.status === "active" && (
+        <HiddenPhotoGrid photoCount={collectivePhotoCount} revealAt={event.reveal_at} />
       )}
 
       {/* Hidden file input */}
