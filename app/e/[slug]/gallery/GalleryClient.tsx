@@ -215,7 +215,7 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
       {/* Actions bar */}
       {photos.length > 0 && (
         <div style={{ marginBottom: 20 }}>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
             <button
               onClick={handleDownload}
               disabled={isDownloading}
@@ -236,6 +236,24 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
               {isDownloading ? "⏳ PRÉPARATION…" : "⬇ TOUT TÉLÉCHARGER"}
             </button>
           </div>
+          <p
+            style={{
+              background: "rgba(250,247,242,0.07)",
+              border: "1px solid rgba(250,247,242,0.12)",
+              borderRadius: 10,
+              color: "rgba(250,247,242,0.68)",
+              fontSize: 12,
+              fontWeight: 600,
+              lineHeight: 1.5,
+              margin: "10px auto 0",
+              maxWidth: 420,
+              padding: "10px 12px",
+              textAlign: "center",
+            }}
+          >
+            Le fichier ZIP sera enregistré dans les fichiers ou téléchargements de ton
+            appareil. Ouvre-le ensuite pour extraire les photos et les ajouter à ta galerie.
+          </p>
           {downloadError && (
             <p style={{
               marginTop: 8,
