@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { type Event, type EventType, EVENT_TYPE_LABELS, STATUS_LABELS } from "@/types";
 import { updateEventSettings } from "./actions";
@@ -29,6 +30,7 @@ export default function SettingsForm({
   event: Event;
   maxPhotosTaken: number;
 }) {
+  const router = useRouter();
   const isRevealed = event.status === "revealed";
   const [title, setTitle] = useState(event.title);
   const [eventType, setEventType] = useState<EventType>(event.event_type);
@@ -52,13 +54,7 @@ export default function SettingsForm({
     setError(null);
     setSuccess(false);
 
-    const formData = new FormData();
-    formData.set("title", title);
-    formData.set("event_type", eventType);
-    formData.set("photos_per_guest", String(photosPerGuest));
-    formData.set("reveal_mode", revealMode);
-    if (revealMode === "scheduled") formData.set("reveal_at", revealAt);
-    if (allowLibraryUpload) formData.set("allow_library_upload", "on");
+    const formData = new FormData(e.currentTarget);
 
     startTransition(() => {
       void (async () => {
@@ -68,6 +64,7 @@ export default function SettingsForm({
           return;
         }
         setSuccess(true);
+        router.refresh();
       })();
     });
   }
@@ -86,11 +83,16 @@ export default function SettingsForm({
           <label className="f-label" htmlFor="title">Titre</label>
           <input
             id="title"
+            name="title"
             className="f-input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={120}
             required
+            style={{
+              background: "var(--surface-2)",
+              border: "1.5px solid var(--border)",
+            }}
           />
         </div>
 
@@ -98,6 +100,7 @@ export default function SettingsForm({
           <label className="f-label" htmlFor="eventType">Type d&apos;événement</label>
           <select
             id="eventType"
+            name="event_type"
             className="f-input"
             value={eventType}
             onChange={(e) => setEventType(e.target.value as EventType)}
@@ -120,16 +123,24 @@ export default function SettingsForm({
               1 - 20
             </span>
           </div>
-          <input
+          <select
             id="photosPerGuest"
+            name="photos_per_guest"
             className="f-input"
-            type="number"
-            min={1}
-            max={20}
             value={photosPerGuest}
             onChange={(e) => setPhotosPerGuest(Number(e.target.value))}
             disabled={isRevealed}
-          />
+          >
+            {Array.from({ length: 20 }, (_, index) => index + 1).map((value) => (
+              <option
+                key={value}
+                value={value}
+                disabled={event.status === "active" && value < maxPhotosTaken}
+              >
+                {value}
+              </option>
+            ))}
+          </select>
           <p style={{ color: "var(--fg-3)", fontSize: 12, lineHeight: 1.45, marginTop: 8 }}>
             Tu ne peux pas descendre sous le nombre de photos déjà prises par un invité.
             {maxPhotosTaken > 0 ? ` Actuellement : ${maxPhotosTaken}.` : ""}
@@ -147,6 +158,7 @@ export default function SettingsForm({
           }}
         >
           <input
+            name="allow_library_upload"
             type="checkbox"
             checked={allowLibraryUpload}
             onChange={(e) => setAllowLibraryUpload(e.target.checked)}
@@ -167,7 +179,7 @@ export default function SettingsForm({
           <label style={{ alignItems: "center", display: "flex", gap: 10, color: "var(--fg-2)", fontSize: 14, fontWeight: 700 }}>
             <input
               type="radio"
-              name="revealMode"
+              name="reveal_mode"
               value="manual"
               checked={revealMode === "manual"}
               onChange={() => setRevealMode("manual")}
@@ -178,7 +190,7 @@ export default function SettingsForm({
           <label style={{ alignItems: "center", display: "flex", gap: 10, color: "var(--fg-2)", fontSize: 14, fontWeight: 700 }}>
             <input
               type="radio"
-              name="revealMode"
+              name="reveal_mode"
               value="scheduled"
               checked={revealMode === "scheduled"}
               onChange={() => setRevealMode("scheduled")}
@@ -193,6 +205,7 @@ export default function SettingsForm({
             <label className="f-label" htmlFor="revealAt">Date de révélation</label>
             <input
               id="revealAt"
+              name="reveal_at"
               className="f-input"
               type="datetime-local"
               value={revealAt}

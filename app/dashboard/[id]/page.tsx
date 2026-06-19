@@ -152,6 +152,27 @@ export default async function EventDetailPage({ params }: Props) {
         <h1 className="f-h1" style={{ marginBottom: 0 }}>
           {ev.title}
         </h1>
+        <Link
+          href={`/dashboard/${ev.id}/settings`}
+          style={{
+            alignItems: "center",
+            background: "var(--surface-2)",
+            border: "1.5px solid var(--border)",
+            borderRadius: "var(--radius-pill)",
+            color: "var(--fg-2)",
+            display: "inline-flex",
+            fontSize: 12,
+            fontWeight: 800,
+            justifyContent: "center",
+            letterSpacing: "0.06em",
+            marginTop: 14,
+            padding: "11px 16px",
+            textDecoration: "none",
+            textTransform: "uppercase",
+          }}
+        >
+          Modifier les paramètres
+        </Link>
       </div>
 
       {/* Stats row */}
