@@ -6,6 +6,8 @@ import { uploadBuffer } from "@/lib/r2";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
+const MAX_UPLOAD_BYTES = 8_000_000;
+
 export async function POST(req: NextRequest) {
   console.log('[upload] ENV CHECK:', {
     keyId:    process.env.CLOUDFLARE_R2_ACCESS_KEY_ID?.slice(0, 8),
@@ -23,11 +25,29 @@ export async function POST(req: NextRequest) {
   }
 
   const token = formData.get("token") as string | null;
-  const file = formData.get("file") as File | null;
-  console.log("[upload] token present:", !!token, "| file present:", !!file, "| file size:", file?.size);
+  const file = formData.get("file");
+  console.log(
+    "[upload] token present:",
+    !!token,
+    "| file present:",
+    !!file,
+    "| file size:",
+    file instanceof File ? file.size : undefined
+  );
 
-  if (!token || !file) {
+  if (!token || !(file instanceof File)) {
     return NextResponse.json({ error: "Données manquantes." }, { status: 400 });
+  }
+
+  if (!file.type.startsWith("image/")) {
+    return NextResponse.json({ error: "Choisis une image valide." }, { status: 400 });
+  }
+
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json(
+      { error: "Image trop lourde. Choisis une photo de moins de 8 MB." },
+      { status: 413 }
+    );
   }
 
   const supabase = createAdminClient();

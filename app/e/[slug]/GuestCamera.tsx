@@ -28,6 +28,8 @@ interface MyPhotoResponse {
   photos?: UploadedPhoto[];
 }
 
+const MAX_UPLOAD_BYTES = 8_000_000;
+
 function PrivacyNote() {
   return (
     <p
@@ -313,6 +315,16 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
     const file = e.target.files?.[0];
     if (!file || !session || isUploading) return;
     e.target.value = "";
+
+    if (!file.type.startsWith("image/")) {
+      showToast("Choisis une image valide.", false);
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      showToast("Image trop lourde. Choisis une photo de moins de 8 MB.", false);
+      return;
+    }
 
     setIsUploading(true);
     const previewUrl = URL.createObjectURL(file);
