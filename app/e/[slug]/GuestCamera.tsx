@@ -28,7 +28,9 @@ interface MyPhotoResponse {
   photos?: UploadedPhoto[];
 }
 
-const MAX_UPLOAD_BYTES = 8_000_000;
+const MAX_UPLOAD_BYTES = 25_000_000;
+const CLIENT_IMAGE_MAX_DIMENSION = 2048;
+const CLIENT_JPEG_QUALITY = 0.82;
 
 function PrivacyNote() {
   return (
@@ -185,6 +187,48 @@ function HiddenPhotoGrid({
   );
 }
 
+async function compressImageForUpload(file: File): Promise<File> {
+  const image = await loadImage(file);
+  const scale = Math.min(1, CLIENT_IMAGE_MAX_DIMENSION / Math.max(image.width, image.height));
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas indisponible.");
+  ctx.drawImage(image, 0, 0, width, height);
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/jpeg", CLIENT_JPEG_QUALITY);
+  });
+  if (!blob) throw new Error("Compression impossible.");
+
+  const compressedName = file.name.replace(/\.[^.]+$/, "") || "photo";
+  return new File([blob], `${compressedName}.jpg`, {
+    type: "image/jpeg",
+    lastModified: Date.now(),
+  });
+}
+
+function loadImage(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Image illisible."));
+    };
+    image.src = url;
+  });
+}
+
 export default function GuestCamera({ event, photoCount = 0 }: { event: Event; photoCount?: number }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [session, setSession] = useState<GuestSession | null>(null);
@@ -322,20 +366,32 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
     }
 
     if (file.size > MAX_UPLOAD_BYTES) {
-      showToast("Image trop lourde. Choisis une photo de moins de 8 MB.", false);
+      showToast("Image trop lourde. Choisis une photo de moins de 25 MB.", false);
       return;
     }
 
     setIsUploading(true);
     const previewUrl = URL.createObjectURL(file);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30_000);
-
     try {
+      let uploadFile = file;
+      try {
+        uploadFile = await compressImageForUpload(file);
+      } catch {
+        uploadFile = file;
+      }
+
+      if (uploadFile.size > MAX_UPLOAD_BYTES) {
+        showToast("Image trop lourde. Choisis une photo de moins de 25 MB.", false);
+        return;
+      }
+
       const fd = new FormData();
       fd.append("token", session.token);
-      fd.append("file", file);
+      fd.append("file", uploadFile);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30_000);
 
       let res: Response;
       try {

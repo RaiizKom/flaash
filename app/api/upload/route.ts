@@ -6,7 +6,7 @@ import { uploadBuffer } from "@/lib/r2";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const MAX_UPLOAD_BYTES = 8_000_000;
+const MAX_UPLOAD_BYTES = 25_000_000;
 
 export async function POST(req: NextRequest) {
   console.log('[upload] ENV CHECK:', {
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
   if (file.size > MAX_UPLOAD_BYTES) {
     return NextResponse.json(
-      { error: "Image trop lourde. Choisis une photo de moins de 8 MB." },
+      { error: "Image trop lourde. Choisis une photo de moins de 25 MB." },
       { status: 413 }
     );
   }
