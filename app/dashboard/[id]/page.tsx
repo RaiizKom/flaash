@@ -313,7 +313,23 @@ export default async function EventDetailPage({ params }: Props) {
 
       {/* Details card */}
       <div className="f-card" style={{ padding: "18px 20px", marginBottom: 20 }}>
-        <p className="f-eyebrow" style={{ marginBottom: 14 }}>Détails</p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
+          <p className="f-eyebrow">Détails</p>
+          <Link
+            href={`/dashboard/${ev.id}/settings`}
+            style={{
+              color: "var(--flaash-amber-deep)",
+              fontSize: 11,
+              fontWeight: 800,
+              letterSpacing: "0.04em",
+              textDecoration: "none",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Paramètres →
+          </Link>
+        </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {[
             ["Invités maximum", `${ev.max_guests}`],
