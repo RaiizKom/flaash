@@ -373,28 +373,43 @@ export default async function EventDetailPage({ params }: Props) {
 
       {/* Download ZIP — available once there are photos */}
       {(ev.status === "active" || ev.status === "revealed") && (photoCount ?? 0) > 0 && (
-        <a
-          href={`/api/download/${ev.slug}`}
-          download
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            padding: "14px 20px",
-            borderRadius: "var(--radius-pill)",
-            border: "1.5px solid var(--border)",
-            background: "var(--surface-2)",
-            color: "var(--fg-2)",
-            fontSize: 13,
-            fontWeight: 600,
-            letterSpacing: "0.06em",
-            textDecoration: "none",
-            textAlign: "center",
-          }}
-        >
-          ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({photoCount})
-        </a>
+        <div>
+          <a
+            href={`/api/download/${ev.slug}`}
+            download
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              padding: "14px 20px",
+              borderRadius: "var(--radius-pill)",
+              border: "1.5px solid var(--border)",
+              background: "var(--surface-2)",
+              color: "var(--fg-2)",
+              fontSize: 13,
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              textDecoration: "none",
+              textAlign: "center",
+            }}
+          >
+            ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({photoCount})
+          </a>
+          <p
+            style={{
+              color: "var(--fg-3)",
+              fontSize: 12,
+              fontWeight: 500,
+              lineHeight: 1.45,
+              marginTop: 8,
+              textAlign: "center",
+            }}
+          >
+            Le fichier ZIP sera enregistré dans les fichiers ou téléchargements de ton
+            appareil. Ouvre-le ensuite pour extraire les photos et les ajouter à ta galerie.
+          </p>
+        </div>
       )}
       {/* Delete event */}
       <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid var(--border)" }}>
