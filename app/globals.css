@@ -1,21 +1,28 @@
 /* ── Google Fonts — must precede @import "tailwindcss" ── */
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap");
 
 @import "tailwindcss";
 
 /* ── Flaash design tokens ── */
 :root {
-  /* Brand palette */
-  --flaash-cream:        #FAF7F2;
-  --flaash-cream-deep:   #F0EBE3;
-  --flaash-cream-line:   #E6DFD2;
+  /* Analog Social Premium palette */
+  --flaash-paper:        #FAF7F2;
+  --flaash-warm-paper:   #EFE8DA;
   --flaash-ink:          #1A1A1A;
-  --flaash-ink-soft:     #3D3A36;
-  --flaash-ink-mute:     #6E6862;
+  --flaash-shutter-red:  #FF332D;
   --flaash-amber:        #E07B2E;
+  --flaash-forest:       #1E3D2F;
+  --flaash-muted:        #756F68;
+  --flaash-white:        #FFFFFF;
+
+  /* Legacy palette aliases — retained until existing screens migrate */
+  --flaash-cream:        var(--flaash-paper);
+  --flaash-cream-deep:   var(--flaash-warm-paper);
+  --flaash-cream-line:   #E6DFD2;
+  --flaash-ink-soft:     #3D3A36;
+  --flaash-ink-mute:     var(--flaash-muted);
   --flaash-amber-deep:   #B85F1E;
   --flaash-amber-soft:   #F4D6B7;
-  --flaash-forest:       #1E3D2F;
   --flaash-forest-deep:  #14291F;
   --flaash-forest-soft:  #C9D8CE;
   --flaash-error:        #B5321B;
@@ -23,15 +30,31 @@
   --flaash-error-soft:   #F5D0C8;
 
   /* Semantic */
-  --bg:          var(--flaash-cream);
-  --surface-2:   var(--flaash-cream-deep);
-  --border:      var(--flaash-cream-line);
-  --fg:          var(--flaash-ink);
+  --background:          var(--flaash-paper);
+  --foreground:          var(--flaash-ink);
+  --surface:             var(--flaash-white);
+  --surface-warm:        var(--flaash-warm-paper);
+  --primary-action:      var(--flaash-shutter-red);
+  --primary-action-text: var(--flaash-ink);
+  --secondary-action:    var(--flaash-ink);
+  --accent-warm:         var(--flaash-amber);
+  --accent-trust:        var(--flaash-forest);
+  --text-muted:          var(--flaash-muted);
+  --border-warm:         var(--flaash-cream-line);
+  --focus-ring:          var(--flaash-shutter-red);
+  --danger:              var(--flaash-error);
+
+  /* Legacy semantic aliases */
+  --bg:          var(--background);
+  --surface-2:   var(--surface-warm);
+  --border:      var(--border-warm);
+  --fg:          var(--foreground);
   --fg-2:        var(--flaash-ink-soft);
-  --fg-3:        var(--flaash-ink-mute);
+  --fg-3:        var(--text-muted);
   --fg-inverse:  var(--flaash-cream);
 
   /* Typography */
+  --font-impact:  "Archivo", -apple-system, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Playfair Display", Georgia, serif;
   --font-body:    "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
   --font-script:  "Caveat", cursive;
@@ -60,12 +83,17 @@
 
 /* ── Tailwind v4 color + font extensions ── */
 @theme inline {
+  --color-paper:        #FAF7F2;
+  --color-warm-paper:   #EFE8DA;
+  --color-shutter-red:  #FF332D;
+  --color-muted:        #756F68;
+  --color-pure-white:   #FFFFFF;
   --color-cream:        #FAF7F2;
-  --color-cream-deep:   #F0EBE3;
+  --color-cream-deep:   #EFE8DA;
   --color-cream-line:   #E6DFD2;
   --color-ink:          #1A1A1A;
   --color-ink-soft:     #3D3A36;
-  --color-ink-mute:     #6E6862;
+  --color-ink-mute:     #756F68;
   --color-amber:        #E07B2E;
   --color-amber-deep:   #B85F1E;
   --color-amber-soft:   #F4D6B7;
@@ -93,6 +121,17 @@ body {
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 /* Caps the mobile shell on desktop */
@@ -157,6 +196,159 @@ body {
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--fg-2);
+}
+
+/* ── Analog Social Premium foundations (opt-in for upcoming lots) ── */
+.flaash-label {
+  color: var(--text-muted);
+  font-family: var(--font-impact);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.flaash-btn {
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-family: var(--font-impact);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--t-fast) var(--ease-out),
+              border-color var(--t-fast) var(--ease-out),
+              color var(--t-fast) var(--ease-out),
+              transform var(--t-fast) var(--ease-out);
+  user-select: none;
+}
+
+.flaash-btn:focus-visible,
+.flaash-shutter-button:focus-visible {
+  outline-color: var(--foreground);
+}
+
+.flaash-btn:hover { transform: translateY(-1px); }
+.flaash-btn:active { transform: scale(0.98); }
+.flaash-btn:disabled,
+.flaash-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.48;
+  pointer-events: none;
+}
+
+.flaash-btn-primary {
+  background: var(--primary-action);
+  color: var(--primary-action-text);
+}
+
+.flaash-btn-primary:hover { background: #F12D28; }
+
+.flaash-btn-secondary {
+  background: var(--secondary-action);
+  color: var(--flaash-paper);
+}
+
+.flaash-btn-secondary:hover { background: var(--flaash-ink-soft); }
+
+.flaash-btn-ghost {
+  background: transparent;
+  border-color: var(--foreground);
+  color: var(--foreground);
+}
+
+.flaash-btn-ghost:hover { background: rgb(26 26 26 / 0.06); }
+
+.flaash-card {
+  background: var(--surface-warm);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-lg);
+}
+
+.flaash-photo {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+}
+
+/* Apply to a wrapper around a photo; the overlay stays deliberately subtle. */
+.flaash-photo-grain {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.flaash-photo-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.flaash-shutter-button {
+  width: 72px;
+  height: 72px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 6px solid var(--surface);
+  border-radius: 50%;
+  background: var(--primary-action);
+  box-shadow: 0 0 0 2px var(--foreground);
+  color: var(--primary-action-text);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--t-fast) var(--ease-out),
+              transform var(--t-fast) var(--ease-out);
+}
+
+.flaash-shutter-button:hover { background: #F12D28; }
+.flaash-shutter-button:active { transform: scale(0.96); }
+.flaash-shutter-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.flaash-section {
+  padding: clamp(64px, 10vw, 120px) clamp(20px, 6vw, 72px);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.flaash-section-ink {
+  background: var(--foreground);
+  color: var(--flaash-paper);
+}
+
+.flaash-section-ink .flaash-btn-ghost {
+  border-color: var(--flaash-paper);
+  color: var(--flaash-paper);
+}
+
+.flaash-section-ink .flaash-btn-ghost:hover {
+  background: rgb(250 247 242 / 0.1);
+}
+
+.flaash-section-ink :focus-visible {
+  outline-color: var(--focus-ring);
 }
 
 /* ── Pill button ── */
