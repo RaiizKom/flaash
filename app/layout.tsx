@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Flaash — Capture l'instant.",
+  title: "Flaash — L'appareil photo jetable de votre événement",
   description:
-    "Une galerie photo partagée pour vos événements. Pas d'application, pas de friction — juste un QR code.",
+    "Vos invités scannent un QR code, prennent leurs photos depuis leur navigateur, et découvrent les souvenirs dans une galerie privée. Zéro app à installer.",
   icons: { icon: "/favicon.svg" },
   openGraph: {
     title: "Flaash",
