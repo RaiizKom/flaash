@@ -100,204 +100,79 @@ export default function LandingPage() {
     <div style={{ background: "var(--flaash-cream)", overflowX: "hidden" }}>
 
       {/* ── Nav ── */}
-      <nav
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          background: "rgba(250,247,242,0.90)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          borderBottom: "1px solid var(--flaash-cream-line)",
-          padding: "0 clamp(20px, 6vw, 64px)",
-          height: 58,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 900,
-            fontStyle: "italic",
-            fontSize: 22,
-            color: "var(--flaash-ink)",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Flaash
-        </span>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <Link
-            href="/login"
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: "var(--fg-3)",
-              textDecoration: "none",
-              letterSpacing: "0.04em",
-            }}
-          >
-            Connexion
-          </Link>
-          <Link
-            href="/register"
-            className="btn-pill btn-ink"
-            style={{ fontSize: 12, padding: "10px 18px", width: "auto" }}
-          >
-            Commencer
-          </Link>
+      <nav className="landing-nav" aria-label="Navigation principale">
+        <div className="landing-nav-inner">
+          <span className="landing-wordmark">Flaash</span>
+          <div className="landing-nav-actions">
+            <Link href="#comment-ca-marche" className="landing-nav-link landing-nav-how">
+              Comment ça marche
+            </Link>
+            <Link href="/login" className="landing-nav-link">
+              Connexion
+            </Link>
+            <Link
+              href="/register"
+              className="flaash-btn flaash-btn-primary landing-nav-cta"
+            >
+              Commencer
+            </Link>
+          </div>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <section
-        style={{
-          background: "var(--flaash-amber)",
-          padding:
-            "clamp(60px, 14vw, 100px) clamp(24px, 6vw, 64px) clamp(52px, 12vw, 88px)",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Decorative rings */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            right: "clamp(-80px, -10vw, -40px)",
-            top: "clamp(-80px, -10vw, -40px)",
-            width: "clamp(240px, 50vw, 360px)",
-            height: "clamp(240px, 50vw, 360px)",
-            borderRadius: "50%",
-            border: "1.5px solid rgba(26,26,26,0.10)",
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            right: "clamp(-40px, -4vw, 0px)",
-            top: "clamp(-40px, -4vw, 0px)",
-            width: "clamp(140px, 30vw, 210px)",
-            height: "clamp(140px, 30vw, 210px)",
-            borderRadius: "50%",
-            border: "1.5px solid rgba(26,26,26,0.07)",
-            pointerEvents: "none",
-          }}
-        />
+      <section className="landing-hero">
+        <div className="landing-hero-inner">
+          <div className="landing-hero-copy">
+            <p className="flaash-label landing-fadein">
+              L&apos;appareil photo jetable collectif
+            </p>
 
-        <div style={{ maxWidth: 600, position: "relative" }}>
-          <p
-            className="f-script landing-fadein"
-            style={{ color: "var(--flaash-ink)", opacity: 0.6, fontSize: 22, marginBottom: 16 }}
-          >
-            l&apos;appareil photo jetable —
-          </p>
+            <h1 className="landing-hero-title landing-fadein">
+              La soirée se vit maintenant. Les souvenirs se découvrent plus tard.
+            </h1>
 
-          <h1
-            className="landing-fadein"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontWeight: 900,
-              fontSize: "clamp(40px, 11vw, 72px)",
-              lineHeight: 1.04,
-              letterSpacing: "-0.035em",
-              color: "var(--flaash-ink)",
-              margin: "0 0 24px",
-              animationDelay: "60ms",
-            }}
-          >
-            L&apos;instant capturé,<br />
-            révélé ensemble.
-          </h1>
+            <p className="landing-hero-subtitle landing-fadein">
+              Flaash transforme vos invités en photographes d&apos;un soir. Ils scannent un QR code, capturent les moments vrais, puis découvrent la galerie au moment choisi.
+            </p>
 
-          <p
-            className="landing-fadein"
-            style={{
-              fontSize: "clamp(15px, 4vw, 18px)",
-              fontWeight: 500,
-              color: "var(--flaash-ink)",
-              lineHeight: 1.6,
-              maxWidth: 400,
-              margin: "0 0 36px",
-              opacity: 0.75,
-              animationDelay: "120ms",
-            }}
-          >
-            Vos invités scannent un QR code, prennent leurs photos depuis leur téléphone, et découvrent tous les souvenirs au même instant. Zéro app.
-          </p>
+            <div className="landing-hero-actions landing-fadein">
+              <Link href="/register" className="flaash-btn flaash-btn-primary">
+                Créer un événement
+              </Link>
+              <Link href="#comment-ca-marche" className="flaash-btn flaash-btn-ghost">
+                Voir comment ça marche
+              </Link>
+            </div>
+          </div>
 
-          <div
-            className="landing-fadein"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-              maxWidth: 280,
-              animationDelay: "180ms",
-            }}
-          >
-            <Link href="/register" className="btn-pill btn-ink">
-              CRÉER UN ÉVÉNEMENT →
-            </Link>
-            <Link
-              href="/login"
-              style={{
-                textAlign: "center",
-                fontSize: 13,
-                fontWeight: 600,
-                color: "var(--flaash-ink)",
-                opacity: 0.55,
-                textDecoration: "none",
-                padding: "8px 0",
-                letterSpacing: "0.04em",
-              }}
-            >
-              J&apos;ai déjà un compte
-            </Link>
+          <div className="landing-hero-media flaash-photo-grain" aria-hidden="true">
+            <div className="landing-hero-photo-placeholder" />
           </div>
         </div>
       </section>
 
       {/* ── Trust strip ── */}
-      <section
-        style={{
-          background: "var(--flaash-ink)",
-          padding: "18px clamp(24px, 6vw, 64px)",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "12px 28px",
-          alignItems: "center",
-        }}
-      >
-        {[
-          "Zéro app à installer",
-          "Reveal différé ou manuel",
-          "Export ZIP inclus",
-          "Hébergé en Europe",
-          "Paiement unique",
-        ].map((t) => (
-          <span
-            key={t}
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: "rgba(250,247,242,0.5)",
-              letterSpacing: "0.10em",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-            }}
-          >
-            ✦ {t}
-          </span>
-        ))}
+      <section className="landing-trust" aria-label="Les garanties Flaash">
+        <ul className="landing-trust-list">
+          {[
+            "Zéro app à installer",
+            "QR code prêt à partager",
+            "Photos cachées jusqu'au reveal",
+            "Galerie privée",
+            "Export des souvenirs",
+          ].map((item) => (
+            <li key={item} className="landing-trust-item">
+              <span className="landing-trust-dot" aria-hidden="true" />
+              {item}
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* ── Comment ça marche ── */}
       <section
+        id="comment-ca-marche"
         style={{
           background: "var(--flaash-cream)",
           padding: "clamp(56px, 12vw, 96px) clamp(24px, 6vw, 64px)",
