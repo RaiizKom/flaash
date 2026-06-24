@@ -12,6 +12,25 @@ Ce plan transforme la direction « Flaash — Analog Social Premium » en lots i
 - Après chaque lot de code, exécuter `npm run quality`.
 - Toute régression fonctionnelle bloque le passage au lot suivant.
 - Les nouveaux visuels doivent avoir été validés selon `IMAGE_SHOTLIST.md`.
+- Avant toute modification UI, appliquer la précondition stratégique définie ci-dessous.
+
+## Précondition stratégique — obligatoire avant le Lot 1 et chaque lot suivant
+
+Avant d'ouvrir ou de modifier un fichier UI, formuler en une phrase comment le changement renforce la vérité culturelle Flaash :
+
+> **Vivre le moment d'abord, redécouvrir les souvenirs ensemble ensuite.**
+
+Le changement doit répondre positivement à au moins une question :
+
+1. Rend-il la soirée plus présente que l'interface ?
+2. Rend-il la capture plus naturelle et moins envahissante ?
+3. Rend-il l'attente compréhensible et désirable ?
+4. Renforce-t-il le reveal comme moment où l'événement revient ?
+5. Transforme-t-il un élément fonctionnel en objet social sans ajouter de friction ?
+
+Si la justification se limite à « plus premium », « plus analogique », « plus moderne » ou « plus joli », la modification n'est pas prête. Elle doit être revue avant implémentation.
+
+Cette vérification doit apparaître dans le diagnostic ou le plan du lot. Elle ne remplace pas les contrôles fonctionnels, d'accessibilité ou de performance.
 
 ## Matrice de contrôle commune
 
@@ -88,6 +107,7 @@ Le lot est clos lorsque chaque emplacement de la landing dispose d'un actif appr
 - Mettre en place Archivo et la hiérarchie typographique.
 - Ajouter les états focus, pressé et reduced-motion nécessaires.
 - Préserver temporairement les anciens tokens utilisés par les écrans non migrés.
+- Introduire uniquement des choix visuels reliés à la précondition stratégique, pas une esthétique analogique décorative.
 
 ### Interdit
 

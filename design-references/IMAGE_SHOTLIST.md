@@ -11,6 +11,19 @@ Ce document définit les visuels nécessaires à la landing « Flaash — Analog
 - Couvrir au minimum mariage contemporain, anniversaire et soirée privée dans le corpus final.
 - Éviter de répéter les mêmes personnes, vêtements, décors et compositions.
 - Prévoir des zones calmes utilisables pour du texte sans fabriquer une scène vide.
+- Ne jamais montrer des personnes « contentes d'utiliser une app ». Les sujets doivent vivre la soirée ou redécouvrir ensemble ce qu'ils ont vécu.
+- Le téléphone et l'interface restent secondaires : l'émotion appartient aux personnes, pas au produit affiché.
+
+## Les quatre tensions à montrer
+
+Le corpus final doit rendre visibles quatre moments distincts du rituel Flaash :
+
+1. **La soirée en train de se vivre** — présence, interactions, mouvement et attention tournée vers les autres.
+2. **La QR card comme objet désirable dans le monde réel** — intégrée naturellement au décor, reconnaissable mais jamais présentée comme une démonstration.
+3. **La capture comme geste naturel** — courte, périphérique et immédiatement suivie d'un retour à l'interaction.
+4. **Le reveal comme moment intime de redécouverte** — réactions liées entre elles, complicité et sensation que l'événement revient.
+
+Une sélection est incomplète si elle montre seulement l'esthétique d'une soirée ou l'utilisation d'un téléphone. Elle doit couvrir la totalité de cette tension narrative.
 
 ## Images nécessaires
 
@@ -23,6 +36,15 @@ Ce document définit les visuels nécessaires à la landing « Flaash — Analog
 | Mosaïque événements | Prouver la variété des usages | Mélange portrait, carré et paysage ; 4 à 6 scènes distinctes | Mariage contemporain, anniversaire, soirée privée, agence | Même décor partout, photothèque incohérente, domination du mariage |
 | Détails analogiques | Créer des respirations éditoriales | Gros plans : main, verre, chaussures de danse, confettis, tirage photo | Tactile, imparfait, spontané | Nature morte trop stylisée, faux appareil vintage décoratif |
 | Reveal/gallery texture | Accompagner la section sombre | Portraits ou fragments nocturnes avec zones Ink naturelles | Nuit, flash, contraste, souvenir retrouvé | Noir bouché, visages méconnaissables, filtre rétro excessif |
+
+### Interdits transverses
+
+- Shooting mariage dirigé ou éditorial luxe.
+- Stock-photo IA : sourires génériques, peau plastique, gestes trop propres ou composition publicitaire.
+- Téléphone central, tenu face caméra ou traité comme le héros de l'image.
+- QR code surdimensionné, parfaitement centré ou utilisé comme preuve démonstrative.
+- Personnes regardant une interface avec une satisfaction publicitaire.
+- Grain et accessoires rétro ajoutés sans lien avec la mémoire, l'attente ou la redécouverte.
 
 ## Prompt — hero émotionnel
 
@@ -107,6 +129,8 @@ Une image est validée uniquement si toutes les conditions bloquantes sont rempl
 - Le cadrage reste exploitable aux ratios desktop et mobile définis pour son emplacement.
 - Les zones utiles au texte ne compromettent pas l'action ou les visages.
 - Le contraste et la netteté sont suffisants pour une compression web.
+- L'image contribue explicitement à l'une des quatre tensions du rituel Flaash.
+- L'image reste compréhensible si le téléphone ou l'interface sont masqués.
 
 ### Évaluation qualitative
 

@@ -3,11 +3,20 @@
 Statut : validé pour cadrage de la refonte visuelle.  
 Direction : **Flaash — Analog Social Premium**.
 
+Univers de marque associé : [`BRAND_UNIVERSE.md`](./BRAND_UNIVERSE.md).  
+Critère stratégique : [`STRATEGIC_AUDIT_APPENDIX.md`](./STRATEGIC_AUDIT_APPENDIX.md).
+
 ## Intention
 
 Flaash doit évoquer un appareil photo jetable collectif présenté avec la chaleur d'un album de soirée et la clarté d'un produit numérique moderne.
 
 La marque doit être chaleureuse sans devenir décorative, expressive sans devenir enfantine, premium sans paraître exclusive, analogique sans pastiche rétro, et sociale sans ressembler à une publicité démonstrative.
+
+Le premium Flaash exprime la **présence**, l'attention et la qualité de l'expérience — jamais le prestige, la rareté sociale ou la distance. L'analogique est une **texture émotionnelle** liée à l'attente, à l'imperfection et à la redécouverte — jamais une esthétique rétro décorative autonome.
+
+Chaque choix visuel doit renforcer la même séquence : **vivre le moment d'abord, redécouvrir les souvenirs ensemble ensuite**.
+
+> **Flaash ne capture pas seulement l'événement. Flaash crée le moment où l'événement revient.**
 
 Le signe visuel central est le **shutter red** : il relie les actions « créer », « scanner », « prendre une photo » et « révéler ».
 
@@ -42,6 +51,8 @@ Le signe visuel central est le **shutter red** : il relie les actions « créer 
 - Les grilles de cartes SaaS trop homogènes.
 - Les images où le téléphone ou le QR code dominent la scène.
 - Les codes de papeterie de mariage luxe : dorures, chandelles, fleurs blanches parfaites, tables cérémonielles et compositions trop précieuses.
+- Toute refonte seulement « jolie » qui ajoute chaleur, grain, rouge ou arrondis sans rendre le rituel Flaash plus clair.
+- Les choix qui confondent premium avec prestige ou analogique avec décoration rétro.
 
 ## Palette finale
 
@@ -144,6 +155,7 @@ Le signe visuel central est le **shutter red** : il relie les actions « créer 
 - Les sections photographiques privilégient une grande scène et quelques fragments secondaires.
 - Les sections fonctionnelles restent simples, lisibles et moins expressives que les sections émotionnelles.
 - La landing doit alterner désirabilité, explication et réassurance.
+- Le rythme des sections doit conduire de la soirée vécue vers le reveal, puis vers la mémoire partagée.
 
 ## Images
 
@@ -156,6 +168,7 @@ Le signe visuel central est le **shutter red** : il relie les actions « créer 
 - Le téléphone reste secondaire et son écran est flou, abstrait ou illisible.
 - Le QR code est visible uniquement lorsqu'il est nécessaire à la compréhension.
 - Le traitement des images reste cohérent entre hero, cartes et reveal.
+- Les personnes vivent une interaction ou redécouvrent un souvenir ; elles ne posent jamais comme des utilisateurs satisfaits d'une application.
 
 ## Interdits visuels
 
@@ -184,3 +197,6 @@ Le signe visuel central est le **shutter red** : il relie les actions « créer 
 10. La refonte doit être livrée par lots, sans toucher à la logique métier.
 11. Les prix, plans, limites, règles Stripe, Supabase, RLS et R2 sont hors périmètre visuel.
 12. La performance mobile, l'accessibilité et la scannabilité du QR restent prioritaires sur les effets graphiques.
+13. Le premium Flaash exprime la présence, pas le prestige.
+14. L'analogique est une texture émotionnelle, pas une décoration rétro.
+15. Une décision visuelle est invalide si elle embellit l'interface sans renforcer « vivre d'abord, redécouvrir ensemble ensuite ».
