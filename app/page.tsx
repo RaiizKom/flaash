@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { PLANS } from "@/lib/utils/pricing";
 
 const PUBLIC_PLANS = PLANS.filter((p) => p.id !== "test");
@@ -146,8 +147,16 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="landing-hero-media flaash-photo-grain" aria-hidden="true">
-            <div className="landing-hero-photo-placeholder" />
+          <div className="landing-hero-media flaash-photo-grain">
+            <Image
+              src="/images/landing/hero-event-memory.webp"
+              alt="Des invités partagent un moment chaleureux autour d'une table pendant une soirée."
+              fill
+              priority
+              quality={84}
+              sizes="(max-width: 900px) calc(100vw - 40px), 42vw"
+              className="landing-hero-photo"
+            />
           </div>
         </div>
       </section>
