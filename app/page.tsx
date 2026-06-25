@@ -201,10 +201,15 @@ export default function LandingPage() {
       {/* ── Pendant la soirée ── */}
       <section className="landing-presence flaash-section">
         <div className="landing-section-inner landing-story-layout">
-          {/* Future asset: /images/landing/capture-party-moment.webp */}
-          <div className="landing-editorial-frame landing-editorial-frame-capture" aria-hidden="true">
-            <span>Capture naturelle</span>
-            <strong>Un geste rapide, pas une tâche à gérer.</strong>
+          <div className="landing-capture-media flaash-photo-grain">
+            <Image
+              src="/images/landing/capture-party-moment.webp"
+              alt="Des invités vivent un moment spontané pendant qu'une personne capture naturellement la scène avec son téléphone."
+              fill
+              quality={84}
+              sizes="(max-width: 900px) calc(100vw - 40px), 40vw"
+              className="landing-capture-photo"
+            />
           </div>
 
           <div className="landing-story-copy">
