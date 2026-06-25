@@ -1013,6 +1013,22 @@ input[type=number] {
   line-height: 1.12;
 }
 
+.landing-reveal-media {
+  position: relative;
+  min-height: 420px;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  border: 1px solid rgb(250 247 242 / 0.14);
+  border-radius: var(--radius-xl);
+  background: #101110;
+}
+
+.landing-reveal-photo {
+  display: block;
+  object-fit: cover;
+  object-position: 50% 48%;
+}
+
 .landing-editorial-frame-reveal {
   min-height: 420px;
   aspect-ratio: 3 / 2;
@@ -1134,7 +1150,7 @@ details[open] .faq-chevron::before { content: "−"; }
   }
 
   .landing-editorial-frame-scan,
-  .landing-editorial-frame-reveal {
+  .landing-reveal-media {
     min-height: 340px;
     aspect-ratio: 3 / 2;
   }
@@ -1228,7 +1244,7 @@ details[open] .faq-chevron::before { content: "−"; }
   }
 
   .landing-editorial-frame-scan,
-  .landing-editorial-frame-reveal {
+  .landing-reveal-media {
     min-height: 240px;
     border-radius: var(--radius-lg);
   }

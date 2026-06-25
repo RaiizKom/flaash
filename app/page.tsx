@@ -225,10 +225,15 @@ export default function LandingPage() {
             <blockquote>Un même moment, redécouvert à travers tous les regards.</blockquote>
           </div>
 
-          {/* Future asset: /images/landing/reveal-phone-group.webp */}
-          <div className="landing-editorial-frame landing-editorial-frame-reveal" aria-hidden="true">
-            <span>Reveal</span>
-            <strong>Les souvenirs reviennent ensemble.</strong>
+          <div className="landing-reveal-media flaash-photo-grain">
+            <Image
+              src="/images/landing/reveal-phone-group.webp"
+              alt="Un groupe d'invités redécouvre ensemble les photos d'une soirée sur un téléphone."
+              fill
+              quality={84}
+              sizes="(max-width: 900px) calc(100vw - 40px), 44vw"
+              className="landing-reveal-photo"
+            />
           </div>
         </div>
       </section>
