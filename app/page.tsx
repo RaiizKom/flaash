@@ -184,10 +184,15 @@ export default function LandingPage() {
               ))}
             </ol>
 
-            {/* Future asset: /images/landing/scan-qr-table.webp */}
-            <div className="landing-editorial-frame landing-editorial-frame-scan" aria-hidden="true">
-              <span>QR card</span>
-              <strong>Posée dans le monde réel.</strong>
+            <div className="landing-scan-media flaash-photo-grain">
+              <Image
+                src="/images/landing/scan-qr-table.webp"
+                alt="Une carte QR Flaash posée sur une table de soirée pendant qu'un invité la scanne."
+                fill
+                quality={84}
+                sizes="(max-width: 900px) calc(100vw - 40px), 44vw"
+                className="landing-scan-photo"
+              />
             </div>
           </div>
         </div>
