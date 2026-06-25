@@ -8,23 +8,18 @@ const MIN_PRICE = Math.min(...PUBLIC_PLANS.map((p) => p.price));
 const HOW_IT_WORKS = [
   {
     n: "01",
-    title: "Créez l'événement",
-    body: "Choisissez le type, le nombre d'invités et le mode de révélation. Moins de 3 minutes.",
+    title: "Scannez",
+    body: "Un QR code posé sur la table, prêt à être partagé.",
   },
   {
     n: "02",
-    title: "Partagez le QR code",
-    body: "Imprimez ou affichez le code sur place. Vos invités scannent — aucune installation.",
+    title: "Capturez",
+    body: "Les invités prennent les moments vrais, sans app à installer.",
   },
   {
     n: "03",
-    title: "Capturez l'instant",
-    body: "Chaque invité prend ses photos depuis son navigateur, en quelques secondes.",
-  },
-  {
-    n: "04",
-    title: "La galerie se révèle",
-    body: "À l'heure choisie, tous les souvenirs apparaissent ensemble, d'un seul coup.",
+    title: "Découvrez ensemble",
+    body: "Les photos restent cachées jusqu'au moment choisi.",
   },
 ];
 
@@ -35,17 +30,6 @@ const EVENT_TYPES: { label: string; featured: boolean }[] = [
   { label: "Corporate", featured: false },
   { label: "Baby shower", featured: false },
   { label: "Retraite", featured: false },
-];
-
-const FEATURES = [
-  "Galerie photo privée et sécurisée",
-  "QR code unique par événement",
-  "Reveal différé — à l'heure que vous choisissez",
-  "Export ZIP complet pour l'organisateur",
-  "Aucune application à installer pour vos invités",
-  "Photo de couverture personnalisée",
-  "Accessible depuis tous les navigateurs mobiles",
-  "Modération photo depuis votre tableau de bord",
 ];
 
 const PLAN_FEATURES: Record<string, string[]> = {
@@ -180,225 +164,94 @@ export default function LandingPage() {
       </section>
 
       {/* ── Comment ça marche ── */}
-      <section
-        id="comment-ca-marche"
-        style={{
-          background: "var(--flaash-cream)",
-          padding: "clamp(56px, 12vw, 96px) clamp(24px, 6vw, 64px)",
-        }}
-      >
-        <p className="f-eyebrow" style={{ marginBottom: 14 }}>Comment ça marche</p>
-        <h2
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 800,
-            fontSize: "clamp(28px, 7vw, 48px)",
-            lineHeight: 1.08,
-            letterSpacing: "-0.025em",
-            color: "var(--flaash-ink)",
-            margin: "0 0 52px",
-            maxWidth: 460,
-          }}
-        >
-          Quatre étapes.<br />Des souvenirs pour toujours.
-        </h2>
+      <section id="comment-ca-marche" className="landing-ritual flaash-section">
+        <div className="landing-section-inner">
+          <div className="landing-section-heading">
+            <p className="flaash-label">Comment ça marche</p>
+            <h2>Trois gestes. Puis on revient à la soirée.</h2>
+          </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "clamp(28px, 6vw, 48px)",
-            maxWidth: 880,
-          }}
-        >
-          {HOW_IT_WORKS.map(({ n, title, body }) => (
-            <div key={n}>
-              <span
-                style={{
-                  display: "block",
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 900,
-                  fontSize: "clamp(52px, 13vw, 72px)",
-                  lineHeight: 1,
-                  color: "var(--flaash-amber)",
-                  marginBottom: 18,
-                  letterSpacing: "-0.04em",
-                }}
-              >
-                {n}
-              </span>
-              <p
-                style={{
-                  fontWeight: 700,
-                  fontSize: 16,
-                  margin: "0 0 8px",
-                  color: "var(--flaash-ink)",
-                }}
-              >
-                {title}
-              </p>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: "var(--fg-2)",
-                  margin: 0,
-                  lineHeight: 1.65,
-                }}
-              >
-                {body}
-              </p>
+          <div className="landing-ritual-layout">
+            <ol className="landing-ritual-steps">
+              {HOW_IT_WORKS.map(({ n, title, body }) => (
+                <li key={n} className="landing-ritual-step">
+                  <span className="landing-ritual-number">{n}</span>
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            {/* Future asset: /images/landing/scan-qr-table.webp */}
+            <div className="landing-editorial-frame landing-editorial-frame-scan" aria-hidden="true">
+              <span>QR card</span>
+              <strong>Posée dans le monde réel.</strong>
             </div>
-          ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pendant la soirée ── */}
+      <section className="landing-presence flaash-section">
+        <div className="landing-section-inner landing-story-layout">
+          {/* Future asset: /images/landing/capture-party-moment.webp */}
+          <div className="landing-editorial-frame landing-editorial-frame-capture" aria-hidden="true">
+            <span>Capture naturelle</span>
+            <strong>Un geste rapide, pas une tâche à gérer.</strong>
+          </div>
+
+          <div className="landing-story-copy">
+            <p className="flaash-label">Pendant la soirée</p>
+            <h2>Pendant la soirée, personne ne doit gérer l&apos;album.</h2>
+            <p>
+              Les invités capturent ce qu&apos;ils voient : les rires, les détails, les angles imparfaits, les moments qu&apos;un photographe ne peut pas toujours saisir.
+            </p>
+            <strong>Une photo. Puis on revient à la soirée.</strong>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Le moment de la révélation ── */}
+      <section className="landing-reveal flaash-section flaash-section-ink">
+        <div className="landing-section-inner landing-reveal-layout">
+          <div className="landing-reveal-copy">
+            <p className="flaash-label">Le moment de la révélation</p>
+            <h2>Puis la soirée revient.</h2>
+            <p>
+              Au moment choisi, la galerie s&apos;ouvre. Les souvenirs apparaissent à travers les yeux de ceux qui étaient vraiment là.
+            </p>
+            <blockquote>Un même moment, redécouvert à travers tous les regards.</blockquote>
+          </div>
+
+          {/* Future asset: /images/landing/reveal-phone-group.webp */}
+          <div className="landing-editorial-frame landing-editorial-frame-reveal" aria-hidden="true">
+            <span>Reveal</span>
+            <strong>Les souvenirs reviennent ensemble.</strong>
+          </div>
         </div>
       </section>
 
       {/* ── Pour quels événements ── */}
-      <section
-        style={{
-          background: "var(--flaash-cream-deep)",
-          padding: "clamp(48px, 10vw, 80px) clamp(24px, 6vw, 64px)",
-        }}
-      >
-        <p className="f-eyebrow" style={{ marginBottom: 14 }}>Conçu pour</p>
-        <h2
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 800,
-            fontSize: "clamp(24px, 6vw, 40px)",
-            lineHeight: 1.12,
-            letterSpacing: "-0.025em",
-            color: "var(--flaash-ink)",
-            margin: "0 0 32px",
-            maxWidth: 380,
-          }}
-        >
-          Tout événement qui mérite d&apos;être capturé.
-        </h2>
+      <section className="landing-events-transition flaash-section">
+        <div className="landing-section-inner">
+          <div className="landing-section-heading landing-events-heading">
+            <p className="flaash-label">Pour toutes les façons de se retrouver</p>
+            <h2>Chaque événement a ses regards. Flaash les réunit.</h2>
+          </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-          {EVENT_TYPES.map(({ label, featured }) => (
-            <span
-              key={label}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "10px 18px",
-                borderRadius: "var(--radius-pill)",
-                fontSize: 14,
-                fontWeight: 700,
-                background: featured ? "var(--flaash-amber)" : "var(--flaash-cream)",
-                color: featured ? "var(--flaash-ink)" : "var(--fg-2)",
-                border: `1.5px solid ${featured ? "var(--flaash-amber)" : "var(--flaash-cream-line)"}`,
-                letterSpacing: "0.01em",
-              }}
-            >
-              {featured && (
-                <span style={{ fontSize: 10, lineHeight: 1 }}>★</span>
-              )}
-              {label}
-            </span>
-          ))}
+          <div className="landing-event-types">
+            {EVENT_TYPES.map(({ label }) => (
+              <span key={label}>{label}</span>
+            ))}
+          </div>
+
+          <p className="landing-events-contact">
+            Plus de 250 invités ? Contactez-nous à{" "}
+            <a href="mailto:hello@flaash.ch">hello@flaash.ch</a>
+          </p>
         </div>
-
-        <p
-          style={{
-            marginTop: 32,
-            fontSize: 13,
-            color: "var(--fg-3)",
-            fontWeight: 500,
-            lineHeight: 1.6,
-            maxWidth: 340,
-          }}
-        >
-          Plus de 250 invités ? Contactez-nous à{" "}
-          <a
-            href="mailto:hello@flaash.ch"
-            style={{
-              color: "var(--flaash-amber-deep)",
-              fontWeight: 700,
-              textDecoration: "none",
-            }}
-          >
-            hello@flaash.ch
-          </a>
-        </p>
-      </section>
-
-      {/* ── Pourquoi Flaash ── */}
-      <section
-        style={{
-          background: "var(--flaash-cream)",
-          padding: "clamp(48px, 10vw, 80px) clamp(24px, 6vw, 64px)",
-        }}
-      >
-        <p className="f-eyebrow" style={{ marginBottom: 14 }}>Pourquoi Flaash</p>
-        <h2
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 800,
-            fontSize: "clamp(24px, 6vw, 40px)",
-            lineHeight: 1.12,
-            letterSpacing: "-0.025em",
-            color: "var(--flaash-ink)",
-            margin: "0 0 36px",
-            maxWidth: 380,
-          }}
-        >
-          Simple pour vos invités.<br />Puissant pour vous.
-        </h2>
-
-        <ul
-          style={{
-            listStyle: "none",
-            padding: 0,
-            margin: 0,
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            maxWidth: 520,
-          }}
-        >
-          {FEATURES.map((f) => (
-            <li
-              key={f}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 12,
-              }}
-            >
-              <span
-                style={{
-                  flexShrink: 0,
-                  width: 22,
-                  height: 22,
-                  borderRadius: "50%",
-                  background: "var(--flaash-forest)",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 10,
-                  color: "var(--flaash-cream)",
-                  fontWeight: 900,
-                  marginTop: 1,
-                }}
-              >
-                ✓
-              </span>
-              <span
-                style={{
-                  fontSize: 15,
-                  fontWeight: 500,
-                  color: "var(--flaash-ink)",
-                  lineHeight: 1.55,
-                }}
-              >
-                {f}
-              </span>
-            </li>
-          ))}
-        </ul>
       </section>
 
       {/* ── Tarifs ── */}
