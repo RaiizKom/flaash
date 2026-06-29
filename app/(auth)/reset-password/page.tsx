@@ -10,57 +10,41 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
   const { error } = searchParams;
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "var(--flaash-forest)" }}>
-      <div style={{ height: 6, background: "var(--flaash-amber)" }} />
-
-      <div className="flex flex-col flex-1 px-6 pb-10" style={{ paddingTop: 56 }}>
-        <div style={{ marginBottom: 48 }}>
-          <div
-            className="f-display"
-            style={{ color: "var(--flaash-cream)", fontSize: "clamp(48px,14vw,72px)" }}
-          >
-            Fl<em>aa</em>sh
-          </div>
-          <p className="f-script" style={{ color: "var(--flaash-forest-soft)", marginTop: 8 }}>
-            nouvel accès, même lumière.
+    <main className="auth-page">
+      <div className="auth-frame">
+        <section className="auth-brand" aria-label="Flaash">
+          <Link href="/" className="auth-back-link">
+            ← Retour à l'accueil
+          </Link>
+          <span className="auth-wordmark">Flaash</span>
+          <h2>Sécuriser votre espace.</h2>
+          <p>
+            Choisissez un nouveau mot de passe avant de retrouver vos
+            événements, vos galeries et vos souvenirs.
           </p>
-        </div>
+          <ul className="auth-ritual-list">
+            <li>Accès organisateur</li>
+            <li>Événements conservés</li>
+            <li>Galeries privées</li>
+          </ul>
+        </section>
 
-        <div
-          style={{
-            background: "var(--flaash-cream)",
-            borderRadius: "var(--radius-xl)",
-            padding: "32px 24px 28px",
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 24,
-          }}
-        >
-          <div>
-            <p className="f-eyebrow" style={{ marginBottom: 6 }}>
-              Sécurité
+        <section className="auth-card" aria-labelledby="reset-password-title">
+          <div className="auth-card-header">
+            <p className="flaash-label">Sécurité</p>
+            <h1 id="reset-password-title">Choisir un nouveau mot de passe</h1>
+            <p>
+              Sécurisez votre accès avant de retrouver vos événements.
             </p>
-            <h1 className="f-h2">Nouveau mot de passe</h1>
           </div>
 
           {error && (
-            <div
-              style={{
-                background: "var(--flaash-error-soft)",
-                border: "1px solid var(--flaash-error)",
-                borderRadius: "var(--radius-sm)",
-                padding: "12px 14px",
-                fontSize: 14,
-                color: "var(--flaash-error)",
-                fontWeight: 500,
-              }}
-            >
+            <div className="auth-message auth-message-error">
               {decodeURIComponent(error)}
             </div>
           )}
 
-          <form action={updatePassword} className="flex flex-col gap-5">
+          <form action={updatePassword} className="auth-form">
             <div>
               <PasswordField
                 id="password"
@@ -70,33 +54,23 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
                 minLength={8}
                 placeholder="8 caractères minimum"
               />
-              <span style={{ fontSize: 12, color: "var(--fg-3)" }}>
+              <span className="auth-hint">
                 Au moins 8 caractères.
               </span>
             </div>
 
-            <div style={{ marginTop: 8 }}>
-              <button type="submit" className="btn-pill btn-forest">
-                METTRE À JOUR
-              </button>
-            </div>
+            <button type="submit" className="flaash-btn flaash-btn-primary auth-submit">
+              Mettre à jour
+            </button>
           </form>
 
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 20, textAlign: "center" }}>
-            <Link
-              href="/login"
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "var(--flaash-amber-deep)",
-                textDecoration: "none",
-              }}
-            >
+          <div className="auth-card-footer">
+            <Link href="/login" className="auth-link">
               Retour à la connexion
             </Link>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

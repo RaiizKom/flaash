@@ -10,85 +10,47 @@ export default async function LoginPage({ searchParams }: Props) {
   const { error, next, success } = searchParams;
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "var(--flaash-ink)" }}>
-      {/* Amber top stripe */}
-      <div style={{ height: 6, background: "var(--flaash-amber)" }} />
-
-      <div
-        className="flex flex-col flex-1 px-6 pb-10"
-        style={{ paddingTop: 56 }}
-      >
-        {/* Logo */}
-        <div style={{ marginBottom: 48 }}>
-          <div
-            className="f-display"
-            style={{
-              color: "var(--flaash-cream)",
-              fontSize: "clamp(48px,14vw,72px)",
-            }}
-          >
-            Fl<em>aa</em>sh
-          </div>
-          <p
-            className="f-script"
-            style={{ color: "var(--flaash-amber)", marginTop: 8 }}
-          >
-            on garde la lumière allumée.
+    <main className="auth-page">
+      <div className="auth-frame">
+        <section className="auth-brand" aria-label="Flaash">
+          <Link href="/" className="auth-back-link">
+            ← Retour à l'accueil
+          </Link>
+          <span className="auth-wordmark">Flaash</span>
+          <h2>Retrouvez vos événements.</h2>
+          <p>
+            Revenez à votre espace pour préparer vos QR codes, suivre vos
+            galeries et déclencher vos moments de reveal au bon moment.
           </p>
-        </div>
+          <ul className="auth-ritual-list">
+            <li>Événements organisés</li>
+            <li>Galeries et souvenirs</li>
+            <li>Reveal manuel ou programmé</li>
+          </ul>
+        </section>
 
-        {/* Card */}
-        <div
-          style={{
-            background: "var(--flaash-cream)",
-            borderRadius: "var(--radius-xl)",
-            padding: "32px 24px 28px",
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 24,
-          }}
-        >
-          <div>
-            <p className="f-eyebrow" style={{ marginBottom: 6 }}>
-              Organisateur
+        <section className="auth-card" aria-labelledby="login-title">
+          <div className="auth-card-header">
+            <p className="flaash-label">Organisateur</p>
+            <h1 id="login-title">Revenir à votre espace Flaash</h1>
+            <p>
+              Retrouvez vos événements, vos galeries et vos moments de reveal.
             </p>
-            <h1 className="f-h2">Connexion</h1>
           </div>
 
           {error && (
-            <div
-              style={{
-                background: "var(--flaash-error-soft)",
-                border: "1px solid var(--flaash-error)",
-                borderRadius: "var(--radius-sm)",
-                padding: "12px 14px",
-                fontSize: 14,
-                color: "var(--flaash-error)",
-                fontWeight: 500,
-              }}
-            >
+            <div className="auth-message auth-message-error">
               {decodeURIComponent(error)}
             </div>
           )}
 
           {success === "password-updated" && (
-            <div
-              style={{
-                background: "rgba(45,92,74,0.1)",
-                border: "1px solid rgba(45,92,74,0.3)",
-                borderRadius: "var(--radius-sm)",
-                padding: "12px 14px",
-                fontSize: 14,
-                color: "var(--flaash-forest)",
-                fontWeight: 500,
-              }}
-            >
+            <div className="auth-message auth-message-success">
               Votre mot de passe a été mis à jour. Vous pouvez vous connecter.
             </div>
           )}
 
-          <form action={login} className="flex flex-col gap-5">
+          <form action={login} className="auth-form">
             <input type="hidden" name="next" value={next ?? "/dashboard"} />
 
             <div className="f-input-wrap">
@@ -116,48 +78,24 @@ export default async function LoginPage({ searchParams }: Props) {
 
             <Link
               href="/forgot-password"
-              style={{
-                alignSelf: "flex-end",
-                color: "var(--flaash-amber-deep)",
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
+              className="auth-secondary-link"
             >
               Mot de passe oublié ?
             </Link>
 
-            <div style={{ marginTop: 8 }}>
-              <button type="submit" className="btn-pill btn-ink">
-                SE CONNECTER
-              </button>
-            </div>
+            <button type="submit" className="flaash-btn flaash-btn-primary auth-submit">
+              Se connecter
+            </button>
           </form>
 
-          <div
-            style={{
-              borderTop: "1px solid var(--border)",
-              paddingTop: 20,
-              textAlign: "center",
-            }}
-          >
-            <span style={{ fontSize: 14, color: "var(--fg-3)" }}>
-              Pas encore de compte ?{" "}
-            </span>
-            <Link
-              href="/register"
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "var(--flaash-amber-deep)",
-                textDecoration: "none",
-              }}
-            >
+          <div className="auth-card-footer">
+            Pas encore de compte ?{" "}
+            <Link href="/register" className="auth-link">
               Créer un compte
             </Link>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
