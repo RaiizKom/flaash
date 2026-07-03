@@ -11,33 +11,28 @@ export default async function NewEventPage({ searchParams }: Props) {
   const { error } = searchParams;
 
   return (
-    <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>
-      {/* Back */}
-      <Link
-        href="/dashboard"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          fontSize: 13,
-          fontWeight: 600,
-          color: "var(--fg-3)",
-          textDecoration: "none",
-          marginBottom: 24,
-          letterSpacing: "0.06em",
-        }}
-      >
-        ← Mes événements
-      </Link>
+    <main className="dashboard-new-page">
+      <div className="dashboard-new-shell">
+        <Link href="/dashboard" className="dashboard-new-back">
+          ← Retrouver vos soirées
+        </Link>
 
-      <p className="f-eyebrow" style={{ marginBottom: 6 }}>
-        02 — NOUVEAU
-      </p>
-      <h1 className="f-h1" style={{ marginBottom: 32 }}>
-        Créer un événement
-      </h1>
+        <section className="dashboard-new-hero" aria-labelledby="dashboard-new-title">
+          <div className="dashboard-new-hero-copy">
+            <p className="dashboard-section-label">Nouvelle soirée</p>
+            <h1 id="dashboard-new-title">Préparer une expérience Flaash</h1>
+            <p>
+              Définissez le cadre, le rythme de capture et le moment où les souvenirs reviendront.
+            </p>
+          </div>
+        </section>
 
-      <CreateEventForm error={error} />
-    </div>
+        <section className="dashboard-new-ritual" aria-label="Rituel Flaash">
+          <p>Vos invités scanneront le QR, captureront la soirée, puis reviendront au reveal.</p>
+        </section>
+
+        <CreateEventForm error={error} />
+      </div>
+    </main>
   );
 }
