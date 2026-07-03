@@ -51,6 +51,11 @@ Doctrine:
   - QR scannable conserve.
   - PNG corrige.
   - Note impression ajoutee pour desactiver les en-tetes/pieds de page navigateur.
+- [x] Lot 7.7 - production route cleanup / error surfaces
+  - `/test` supprime.
+  - `error.tsx` et `global-error.tsx` rendus non techniques.
+  - `not-found.tsx` micro-polish.
+  - Aucune logique metier modifiee.
 
 Known merges:
 
@@ -67,6 +72,7 @@ Planned commits:
 - [x] `feat: redesign dashboard overview as event memory hub`
 - [x] `feat: align dashboard event creation with Flaash visual system`
 - [x] `feat: align printable QR card with Flaash visual system`
+- [x] `chore: clean production routes and error surfaces`
 
 ## Active / Next Lots
 

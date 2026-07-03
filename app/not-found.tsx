@@ -10,7 +10,6 @@ export default function NotFound() {
         background: "var(--flaash-ink)",
       }}
     >
-      {/* Amber top stripe */}
       <div style={{ height: 6, background: "var(--flaash-amber)" }} />
 
       <div
@@ -24,7 +23,6 @@ export default function NotFound() {
           textAlign: "center",
         }}
       >
-        {/* Big 404 */}
         <div
           className="f-display"
           style={{
@@ -46,7 +44,7 @@ export default function NotFound() {
             marginBottom: 32,
           }}
         >
-          cette page n&apos;existe pas —
+          cette page n&apos;est plus dans la pellicule —
         </p>
 
         <p
@@ -62,7 +60,7 @@ export default function NotFound() {
         </p>
 
         <Link href="/" className="btn-pill btn-amber" style={{ maxWidth: 280 }}>
-          RETOUR À L&apos;ACCUEIL
+          Revenir à l&apos;accueil
         </Link>
       </div>
     </div>
