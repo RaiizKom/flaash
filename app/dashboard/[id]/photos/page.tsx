@@ -60,97 +60,102 @@ export default async function PhotosPage({ params }: Props) {
 
   const activePhotos  = allPhotos.filter((p) => !p.is_deleted);
   const deletedPhotos = allPhotos.filter((p) =>  p.is_deleted);
+  const contributorCount = new Set(
+    allPhotos
+      .map((p) => p.guestId)
+      .filter((guestId): guestId is string => Boolean(guestId))
+  ).size;
+  const isRevealed = ev.status === "revealed";
+  const preparationCopy = isRevealed
+    ? "La galerie est ouverte. Les souvenirs peuvent être conservés."
+    : "Gardez les regards qui doivent revenir dans la galerie.";
 
   return (
-    <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>
-      {/* Back */}
-      <Link
-        href={`/dashboard/${id}`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          fontSize: 13,
-          fontWeight: 600,
-          color: "var(--fg-3)",
-          textDecoration: "none",
-          marginBottom: 24,
-          letterSpacing: "0.06em",
-        }}
-      >
-        ← {ev.title}
-      </Link>
+    <div className="dashboard-photos-page">
+      <div className="dashboard-photos-shell">
+        <Link href={`/dashboard/${id}`} className="dashboard-photos-back">
+          ← Retour à l&apos;événement
+        </Link>
 
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <p className="f-eyebrow" style={{ marginBottom: 6 }}>MODÉRATION</p>
-        <h1 className="f-h1">
-          {activePhotos.length} photo{activePhotos.length !== 1 ? "s" : ""}
-        </h1>
-        {deletedPhotos.length > 0 && (
-          <p style={{ fontSize: 13, color: "var(--fg-3)", marginTop: 4 }}>
-            {deletedPhotos.length} supprimée{deletedPhotos.length !== 1 ? "s" : ""}
-          </p>
+        <header className="dashboard-photos-hero">
+          <div>
+            <p className="dashboard-section-label">Préparation</p>
+            <h1>Préparer les souvenirs</h1>
+            <p className="dashboard-photos-event-title">{ev.title}</p>
+            <p className="dashboard-photos-hero-copy">{preparationCopy}</p>
+          </div>
+          <div className="dashboard-photos-reveal-card">
+            <span>{isRevealed ? "Galerie ouverte" : "Avant le reveal"}</span>
+            <p>
+              {isRevealed
+                ? "Les regards visibles peuvent maintenant être conservés."
+                : "Les souvenirs visibles composeront le retour de la soirée."}
+            </p>
+          </div>
+        </header>
+
+        <section className="dashboard-photos-stats" aria-label="Résumé des souvenirs">
+          <div>
+            <span>{activePhotos.length}</span>
+            <p>{activePhotos.length === 1 ? "souvenir visible" : "souvenirs visibles"}</p>
+          </div>
+          <div>
+            <span>{deletedPhotos.length}</span>
+            <p>{deletedPhotos.length === 1 ? "souvenir mis de côté" : "souvenirs mis de côté"}</p>
+          </div>
+          <div>
+            <span>{contributorCount}</span>
+            <p>{contributorCount === 1 ? "invité contributeur" : "invités contributeurs"}</p>
+          </div>
+          <div>
+            <span>{isRevealed ? "Ouvert" : "En attente"}</span>
+            <p>{isRevealed ? "reveal lancé" : "reveal à préparer"}</p>
+          </div>
+        </section>
+
+        {allPhotos.length === 0 && (
+          <section className="dashboard-photos-empty" aria-label="Aucun souvenir">
+            <p className="dashboard-section-label">Galerie</p>
+            <h2>Les premiers souvenirs attendent encore.</h2>
+            <p>
+              Quand vos invités captureront la soirée, leurs regards apparaîtront ici avant le reveal.
+            </p>
+          </section>
         )}
+
+        <div className="dashboard-photos-layout">
+          <main className="dashboard-photos-main" aria-label="Souvenirs de la galerie">
+            <PhotoGrid
+              eventId={id}
+              activePhotos={activePhotos}
+              deletedPhotos={deletedPhotos}
+            />
+          </main>
+
+          <aside className="dashboard-photos-aside" aria-label="Préparation du reveal">
+            <div className="dashboard-photos-aside-card">
+              <p className="dashboard-section-label">Reveal</p>
+              <h2>{isRevealed ? "Souvenirs prêts à conserver" : "Préparer le retour"}</h2>
+              <p>
+                {isRevealed
+                  ? "La galerie est ouverte. Le téléchargement reprend les souvenirs visibles."
+                  : "Gardez les regards justes, mettez le reste de côté, puis laissez la soirée revenir."}
+              </p>
+            </div>
+
+            <div className="dashboard-photos-aside-card dashboard-photos-download-card">
+              <p className="dashboard-section-label">À conserver</p>
+              <h2>Télécharger les souvenirs</h2>
+              <p>Le téléchargement regroupe les souvenirs visibles, prêts à être conservés.</p>
+              {activePhotos.length > 0 && (
+                <a href={`/api/download/${ev.slug}`} download className="dashboard-photos-download">
+                  Télécharger les souvenirs
+                </a>
+              )}
+            </div>
+          </aside>
+        </div>
       </div>
-
-      {/* Download ZIP */}
-      {activePhotos.length > 0 && (
-        <div style={{ marginBottom: 24 }}>
-          <a
-            href={`/api/download/${ev.slug}`}
-            download
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "12px 18px",
-              borderRadius: "var(--radius-pill)",
-              border: "1.5px solid var(--border)",
-              background: "var(--surface-2)",
-              color: "var(--fg-2)",
-              fontSize: 13,
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              textDecoration: "none",
-            }}
-          >
-            ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({activePhotos.length})
-          </a>
-          <p
-            style={{
-              color: "var(--fg-3)",
-              fontSize: 12,
-              fontWeight: 500,
-              lineHeight: 1.45,
-              marginTop: 8,
-              maxWidth: 420,
-            }}
-          >
-            Le fichier ZIP sera enregistré dans les fichiers ou téléchargements de ton
-            appareil. Ouvre-le ensuite pour extraire les photos et les ajouter à ta galerie.
-          </p>
-        </div>
-      )}
-
-      {/* Empty state */}
-      {allPhotos.length === 0 && (
-        <div style={{ textAlign: "center", paddingTop: 60 }}>
-          <p style={{ fontSize: 40 }}>📷</p>
-          <p className="f-script" style={{ color: "var(--flaash-amber)", marginTop: 8, fontSize: 22 }}>
-            aucune photo encore —
-          </p>
-          <p style={{ color: "var(--fg-3)", fontSize: 14, marginTop: 8, maxWidth: 260, margin: "8px auto 0" }}>
-            Les photos apparaîtront ici dès qu&apos;un invité en prendra.
-          </p>
-        </div>
-      )}
-
-      <PhotoGrid
-        eventId={id}
-        activePhotos={activePhotos}
-        deletedPhotos={deletedPhotos}
-      />
     </div>
   );
 }
