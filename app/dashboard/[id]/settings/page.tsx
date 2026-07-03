@@ -39,35 +39,25 @@ export default async function EventSettingsPage({ params }: Props) {
   const ev = event as Event;
 
   return (
-    <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>
-      <Link
-        href={`/dashboard/${id}`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          fontSize: 13,
-          fontWeight: 600,
-          color: "var(--fg-3)",
-          textDecoration: "none",
-          marginBottom: 24,
-          letterSpacing: "0.06em",
-        }}
-      >
-        ← Retour au dashboard
-      </Link>
+    <div className="dashboard-settings-page">
+      <div className="dashboard-settings-shell">
+        <Link href={`/dashboard/${id}`} className="dashboard-settings-back">
+          ← Retour à l&apos;événement
+        </Link>
 
-      <div style={{ marginBottom: 24 }}>
-        <p className="f-eyebrow" style={{ marginBottom: 6 }}>PARAMÈTRES</p>
-        <h1 className="f-h1" style={{ marginBottom: 8 }}>
-          {ev.title}
-        </h1>
-        <p style={{ color: "var(--fg-3)", fontSize: 14, lineHeight: 1.45, margin: 0 }}>
-          Modifie les réglages principaux sans changer le lien invité ni le QR code.
-        </p>
+        <header className="dashboard-settings-hero">
+          <div>
+            <p className="dashboard-section-label">Cadre de la soirée</p>
+            <h1>Ajuster l&apos;expérience</h1>
+          </div>
+          <p>
+            Définissez comment vos invités capturent, reviennent et découvrent les souvenirs.
+          </p>
+          <span>{ev.title}</span>
+        </header>
+
+        <SettingsForm event={ev} maxPhotosTaken={maxPhotosTaken} />
       </div>
-
-      <SettingsForm event={ev} maxPhotosTaken={maxPhotosTaken} />
     </div>
   );
 }
