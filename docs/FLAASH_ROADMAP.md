@@ -43,6 +43,7 @@ Doctrine:
 - [x] Dashboard event detail command center
 - [x] Dashboard photos moderation / reveal preparation
 - [x] Dashboard settings alignment
+- [x] Dashboard guests participation alignment
 
 Known merges:
 
@@ -55,10 +56,10 @@ Known merges:
 Planned commits:
 
 - [ ] `feat: align dashboard settings with Flaash visual system`
+- [ ] `feat: align dashboard guests participation with Flaash visual system`
 
 ## Active / Next Lots
 
-- [ ] Lot 7.4 - `/dashboard/[id]/guests`
 - [ ] Lot 7.5 - `/dashboard` overview + `/dashboard/new`
 - [ ] Lot 7.6 - `/print/[slug]`
 - [ ] Final lot - general QA + Vercel Preview + production preparation
