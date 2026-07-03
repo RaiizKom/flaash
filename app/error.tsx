@@ -1,46 +1,86 @@
 "use client";
 
+import Link from "next/link";
+
 export default function Error({
-  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
-    <div style={{ fontFamily: "monospace", padding: 32, background: "#1a1a1a", color: "#f5f0e8", minHeight: "100vh" }}>
-      <h2 style={{ color: "#F5A623", marginBottom: 16 }}>Erreur dans la page</h2>
-      <p><strong>Message :</strong> {error.message || "(aucun message)"}</p>
-      {error.digest && (
-        <p><strong>Digest :</strong> {error.digest}</p>
-      )}
-      <pre style={{
-        marginTop: 16,
-        padding: 16,
-        background: "#111",
-        borderRadius: 8,
-        fontSize: 12,
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-all",
-        color: "#ff6b6b",
-      }}>
-        {error.stack ?? "(pas de stack)"}
-      </pre>
-      <button
-        onClick={reset}
+    <main
+      style={{
+        minHeight: "100dvh",
+        display: "grid",
+        placeItems: "center",
+        padding: "40px 22px",
+        background: "var(--flaash-cream)",
+        color: "var(--flaash-ink)",
+      }}
+    >
+      <section
         style={{
-          marginTop: 24,
-          padding: "10px 20px",
-          background: "#F5A623",
-          border: "none",
-          borderRadius: 8,
-          cursor: "pointer",
-          fontWeight: 700,
-          fontSize: 14,
+          width: "min(100%, 560px)",
+          padding: "42px 28px",
+          border: "1px solid var(--flaash-cream-line)",
+          borderRadius: 24,
+          background: "rgba(255, 255, 255, 0.58)",
+          boxShadow: "0 24px 70px rgba(26, 26, 26, 0.10)",
+          textAlign: "center",
         }}
       >
-        Réessayer
-      </button>
-    </div>
+        <p
+          className="flaash-label"
+          style={{ marginBottom: 14, color: "var(--fg-3)" }}
+        >
+          Flaash
+        </p>
+        <h1
+          style={{
+            margin: "0 auto 16px",
+            maxWidth: 460,
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(38px, 8vw, 64px)",
+            fontWeight: 900,
+            letterSpacing: 0,
+            lineHeight: 0.96,
+          }}
+        >
+          Quelque chose a interrompu le moment.
+        </h1>
+        <p
+          style={{
+            maxWidth: 390,
+            margin: "0 auto 30px",
+            color: "var(--fg-2)",
+            fontSize: 16,
+            fontWeight: 550,
+            lineHeight: 1.62,
+          }}
+        >
+          Vous pouvez réessayer ou revenir à vos soirées.
+        </p>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 12,
+          }}
+        >
+          <button
+            onClick={reset}
+            type="button"
+            className="flaash-btn flaash-btn-primary"
+          >
+            Réessayer
+          </button>
+          <Link href="/dashboard" className="flaash-btn flaash-btn-ghost">
+            Revenir aux soirées
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }
