@@ -53,21 +53,21 @@ function Stepper({
   }
 
   return (
-    <div className="f-input-wrap">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
+    <div className="f-input-wrap create-event-stepper">
+      <div className="create-event-field-head">
         <label className="f-label" htmlFor={id}>{label}</label>
-        <span style={{ fontSize: 11, color: "var(--fg-3)", fontWeight: 600 }}>{min} – {max}</span>
+        <span>{min} – {max}</span>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--surface-2)", border: "1.5px solid var(--border)", borderRadius: "var(--radius-sm)", padding: "10px 12px" }}>
+      <div className="create-event-stepper-control">
         <button type="button" onClick={() => stepBy(-step)} disabled={value <= min} aria-label={`Diminuer ${label}`}
-          style={{ width: 48, height: 48, flexShrink: 0, borderRadius: "50%", border: "1.5px solid var(--border)", background: value <= min ? "transparent" : "var(--flaash-ink)", color: value <= min ? "var(--fg-3)" : "var(--flaash-cream)", fontSize: 20, fontWeight: 700, lineHeight: 1, cursor: value <= min ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all var(--t-fast)", userSelect: "none" }}>−</button>
+          className="create-event-stepper-button">−</button>
         <input id={id} type="number" inputMode="numeric" value={raw}
           onChange={(e) => setRaw(e.target.value)}
           onBlur={() => commit(raw)}
           onFocus={(e) => e.target.select()}
-          style={{ flex: 1, minWidth: 0, textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 32, border: "none", background: "transparent", color: "var(--flaash-ink)", padding: "0 8px", outline: "none", WebkitAppearance: "none", MozAppearance: "textfield" }} />
+          className="create-event-stepper-input" />
         <button type="button" onClick={() => stepBy(step)} disabled={value >= max} aria-label={`Augmenter ${label}`}
-          style={{ width: 48, height: 48, flexShrink: 0, borderRadius: "50%", border: "1.5px solid var(--border)", background: value >= max ? "transparent" : "var(--flaash-ink)", color: value >= max ? "var(--fg-3)" : "var(--flaash-cream)", fontSize: 20, fontWeight: 700, lineHeight: 1, cursor: value >= max ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all var(--t-fast)", userSelect: "none" }}>+</button>
+          className="create-event-stepper-button">+</button>
       </div>
     </div>
   );
@@ -84,28 +84,22 @@ function PlanCard({
     <button
       type="button"
       onClick={onSelect}
-      style={{
-        width: "100%", textAlign: "left", padding: "16px",
-        borderRadius: "var(--radius-sm)",
-        border: `2px solid ${isRecommended ? "var(--flaash-amber)" : selected ? "var(--flaash-ink)" : "var(--border)"}`,
-        background: selected ? (isRecommended ? "rgba(245,166,35,0.06)" : "var(--flaash-cream-deep)") : "transparent",
-        cursor: "pointer", position: "relative", transition: "all var(--t-fast)",
-      }}
+      className={`create-event-plan-card${selected ? " create-event-plan-card-selected" : ""}${isRecommended ? " create-event-plan-card-recommended" : ""}`}
     >
       {isRecommended && (
-        <span style={{ position: "absolute", top: -11, left: 12, background: "var(--flaash-amber)", color: "var(--flaash-ink)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", padding: "2px 8px", borderRadius: 100 }}>
-          RECOMMANDÉ
+        <span className="create-event-plan-badge">
+          Pour ce cadre
         </span>
       )}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <span style={{ fontWeight: 700, fontSize: 15 }}>{plan.label}</span>
-        <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20 }}>
+      <div className="create-event-plan-head">
+        <span>{plan.label}</span>
+        <strong>
           {plan.price === 0 ? "Gratuit" : `${plan.price} CHF`}
-        </span>
+        </strong>
       </div>
-      <p style={{ fontSize: 12, color: "var(--fg-3)", marginTop: 4 }}>{plan.description}</p>
+      <p>{plan.description}</p>
       {!compatible && incompatibleMsg && (
-        <p style={{ fontSize: 11, color: "#dc2626", marginTop: 6, fontWeight: 600 }}>
+        <p className="create-event-plan-warning">
           {incompatibleMsg}
         </p>
       )}
@@ -289,172 +283,163 @@ export default function CreateEventForm({ error }: { error?: string }) {
   // ── Step 1 ─────────────────────────────────────────────────────────────────
   if (step === 1) {
     return (
-      <form className="flex flex-col gap-7">
+      <form className="create-event-form">
         {error && (
-          <div style={{ background: "var(--flaash-error-soft)", border: "1px solid var(--flaash-error)", borderRadius: "var(--radius-sm)", padding: "12px 14px", fontSize: 14, color: "var(--flaash-error)", fontWeight: 500 }}>
+          <div className="create-event-error">
             {decodeURIComponent(error)}
           </div>
         )}
 
-        {/* Event type */}
-        <div className="f-input-wrap">
-          <label className="f-label">Type d&apos;événement</label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
-            {EVENT_TYPES.map((type) => (
-              <label key={type} className="f-chip-radio">
-                <input type="radio" name="event_type" value={type} checked={eventType === type}
-                  onChange={() => handleTypeChange(type)}
-                  style={{ position: "absolute", opacity: 0, width: 0, height: 0 }} />
-                {EVENT_TYPE_LABELS[type]}
-              </label>
-            ))}
-          </div>
+        <div className="create-event-step-head">
+          <p className="dashboard-section-label">Cadre de la soirée</p>
+          <h2>Préparer ce que vos invités vont vivre</h2>
         </div>
 
-        {/* Title */}
-        <div className="f-input-wrap">
-          <label className="f-label" htmlFor="title">Titre de l&apos;événement</label>
-          <input id="title" name="title" type="text" required value={title}
-            placeholder={TITLE_PLACEHOLDERS[eventType]}
-            onChange={(e) => setTitle(e.target.value)}
-            onFocus={(e) => placeCursorAtEnd(e.currentTarget)}
-            className="f-input" style={{ fontSize: 20 }} />
-        </div>
-
-        {/* Steppers */}
-        <Stepper id="max_guests" label="Nombre d'invités" value={maxGuests} min={1} max={500} step={5} onChange={setMaxGuests} />
-        <Stepper id="photos_per_guest" label="Photos par invité" value={photosPerGuest} min={1} max={20} step={1} onChange={setPhotosPerGuest} />
-
-        {/* Reveal mode */}
-        <div className="f-input-wrap">
-          <label className="f-label">Révélation de la galerie</label>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
-            {(["fixed", "manual"] as const).map((mode) => (
-              <label key={mode} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", borderRadius: "var(--radius-sm)", border: `1.5px solid ${revealMode === mode ? "var(--flaash-ink)" : "var(--border)"}`, background: revealMode === mode ? "var(--flaash-cream-deep)" : "transparent", cursor: "pointer", transition: "all var(--t-fast)" }}>
-                <input type="radio" checked={revealMode === mode} onChange={() => setRevealMode(mode)} style={{ marginTop: 2, accentColor: "var(--flaash-ink)", flexShrink: 0 }} />
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{mode === "fixed" ? "Date fixée" : "Révélation manuelle"}</div>
-                  <div style={{ fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>
-                    {mode === "fixed" ? "La galerie se révèle automatiquement à la date choisie." : "Vous révélez la galerie manuellement depuis votre dashboard."}
-                  </div>
-                </div>
-              </label>
-            ))}
+        <section className="create-event-section">
+          <div className="create-event-section-head">
+            <p>Identité</p>
+            <span>Le nom et le ton de la soirée.</span>
           </div>
-          {revealMode === "fixed" && (
-            <input id="reveal_at" name="reveal_at" type="datetime-local" value={revealAt}
-              onChange={(e) => setRevealAt(e.target.value)} required className="f-input-box" style={{ marginTop: 10 }} />
-          )}
-        </div>
 
-        {/* Library upload */}
-        <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", borderRadius: "var(--radius-sm)", background: "var(--surface-2)", border: "1.5px solid var(--border)", cursor: "pointer" }}>
-          <div>
-            <div style={{ fontWeight: 600, fontSize: 14 }}>Autoriser les photos de la photothèque</div>
-            <div style={{ fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>Les invités peuvent importer des photos existantes.</div>
-          </div>
-          <input type="checkbox" name="allow_library_upload"
-            checked={allowLibrary}
-            onChange={(e) => setAllowLibrary(e.target.checked)}
-            style={{ accentColor: "var(--flaash-ink)", width: 20, height: 20, flexShrink: 0 }} />
-        </label>
-
-        {/* Cover photo */}
-        <div className="f-card" style={{ padding: "16px 18px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 8 }}>
-            <p className="f-eyebrow">Photo de couverture</p>
-            <span style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 700 }}>
-              Optionnel
-            </span>
-          </div>
-          <p style={{ color: "var(--fg-3)", fontSize: 13, lineHeight: 1.45, marginBottom: 14 }}>
-            Conseil : utilise une image horizontale. Les bords peuvent être légèrement recadrés selon l&apos;écran.
-          </p>
-
-          {coverPreviewUrl && (
-            <div style={{ marginBottom: 12 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={coverPreviewUrl}
-                alt="Aperçu de la photo de couverture"
-                style={{
-                  width: "100%",
-                  aspectRatio: "16 / 10",
-                  objectFit: "cover",
-                  borderRadius: "var(--radius-md)",
-                  display: "block",
-                  background: "var(--surface-2)",
-                }}
-              />
+          <div className="f-input-wrap">
+            <label className="f-label">Type de soirée</label>
+            <div className="create-event-chip-group">
+              {EVENT_TYPES.map((type) => (
+                <label key={type} className="f-chip-radio">
+                  <input type="radio" name="event_type" value={type} checked={eventType === type}
+                    onChange={() => handleTypeChange(type)}
+                    style={{ position: "absolute", opacity: 0, width: 0, height: 0 }} />
+                  {EVENT_TYPE_LABELS[type]}
+                </label>
+              ))}
             </div>
-          )}
+          </div>
 
-          <input
-            ref={coverInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleCoverChange}
-            style={{ display: "none" }}
-          />
+          <div className="f-input-wrap">
+            <label className="f-label" htmlFor="title">Nom de la soirée</label>
+            <input id="title" name="title" type="text" required value={title}
+              placeholder={TITLE_PLACEHOLDERS[eventType]}
+              onChange={(e) => setTitle(e.target.value)}
+              onFocus={(e) => placeCursorAtEnd(e.currentTarget)}
+              className="f-input create-event-title-input" />
+          </div>
+        </section>
 
-          <div style={{ display: "flex", gap: 10 }}>
-            <button
-              type="button"
-              onClick={() => coverInputRef.current?.click()}
-              style={{
-                flex: 1,
-                borderRadius: "var(--radius-pill)",
-                border: "1.5px solid var(--border)",
-                background: "var(--surface-2)",
-                color: "var(--fg-2)",
-                cursor: "pointer",
-                fontSize: 12,
-                fontWeight: 800,
-                letterSpacing: "0.06em",
-                padding: "11px 14px",
-                textTransform: "uppercase",
-              }}
-            >
-              {coverFile ? "Remplacer l'image" : "Choisir une image"}
-            </button>
-            {coverFile && (
-              <button
-                type="button"
-                onClick={removeCover}
-                style={{
-                  borderRadius: "var(--radius-pill)",
-                  border: "1.5px solid var(--border)",
-                  background: "transparent",
-                  color: "var(--fg-3)",
-                  cursor: "pointer",
-                  fontSize: 12,
-                  fontWeight: 800,
-                  letterSpacing: "0.06em",
-                  padding: "11px 14px",
-                  textTransform: "uppercase",
-                }}
-              >
-                Retirer
-              </button>
+        <section className="create-event-section">
+          <div className="create-event-section-head">
+            <p>Participation</p>
+            <span>Combien d&apos;invités participent, et combien de poses chacun peut garder.</span>
+          </div>
+
+          <div className="create-event-two-col">
+            <Stepper id="max_guests" label="Invités" value={maxGuests} min={1} max={500} step={5} onChange={setMaxGuests} />
+            <Stepper id="photos_per_guest" label="Poses par invité" value={photosPerGuest} min={1} max={20} step={1} onChange={setPhotosPerGuest} />
+          </div>
+
+          <label className="create-event-toggle">
+            <div>
+              <strong>Autoriser la photothèque</strong>
+              <span>Les invités peuvent ajouter des souvenirs déjà présents sur leur téléphone.</span>
+            </div>
+            <input type="checkbox" name="allow_library_upload"
+              checked={allowLibrary}
+              onChange={(e) => setAllowLibrary(e.target.checked)} />
+          </label>
+        </section>
+
+        <section className="create-event-section">
+          <div className="create-event-section-head">
+            <p>Moment du reveal</p>
+            <span>Choisissez quand la galerie reviendra aux invités.</span>
+          </div>
+
+          <div className="f-input-wrap">
+            <label className="f-label">Reveal de la galerie</label>
+            <div className="create-event-radio-stack">
+              {(["fixed", "manual"] as const).map((mode) => (
+                <label key={mode} className={`create-event-choice${revealMode === mode ? " create-event-choice-selected" : ""}`}>
+                  <input type="radio" checked={revealMode === mode} onChange={() => setRevealMode(mode)} />
+                  <div>
+                    <strong>{mode === "fixed" ? "Date fixée" : "Reveal manuel"}</strong>
+                    <span>
+                      {mode === "fixed" ? "La galerie reviendra automatiquement au moment choisi." : "Vous révélerez la galerie depuis votre espace organisateur."}
+                    </span>
+                  </div>
+                </label>
+              ))}
+            </div>
+            {revealMode === "fixed" && (
+              <input id="reveal_at" name="reveal_at" type="datetime-local" value={revealAt}
+                onChange={(e) => setRevealAt(e.target.value)} required className="f-input-box create-event-date" />
             )}
           </div>
+        </section>
 
-          {coverError && (
-            <p style={{ color: "#dc2626", fontSize: 13, fontWeight: 600, marginTop: 10 }}>
-              {coverError}
+        <section className="create-event-section create-event-cover-section">
+          <div className="create-event-section-head">
+            <p>Couverture</p>
+            <span>Une image pour reconnaître la soirée avant le reveal.</span>
+          </div>
+
+          <div className="create-event-cover-card">
+            <div className="create-event-cover-head">
+              <p>Image de couverture</p>
+              <span>Optionnel</span>
+            </div>
+            <p>
+              Choisissez une image horizontale. Les bords peuvent être légèrement recadrés selon l&apos;écran.
             </p>
-          )}
-        </div>
 
-        {/* Validation error */}
+            {coverPreviewUrl && (
+              <div className="create-event-cover-preview">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={coverPreviewUrl}
+                  alt="Aperçu de la photo de couverture"
+                />
+              </div>
+            )}
+
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleCoverChange}
+              style={{ display: "none" }}
+            />
+
+            <div className="create-event-cover-actions">
+              <button
+                type="button"
+                onClick={() => coverInputRef.current?.click()}
+              >
+                {coverFile ? "Remplacer l'image" : "Choisir une image"}
+              </button>
+              {coverFile && (
+                <button
+                  type="button"
+                  onClick={removeCover}
+                >
+                  Retirer
+                </button>
+              )}
+            </div>
+
+            {coverError && (
+              <p className="create-event-error-text">
+                {coverError}
+              </p>
+            )}
+          </div>
+        </section>
+
         {step1Error && (
-          <p style={{ fontSize: 13, color: "#dc2626", fontWeight: 600 }}>{step1Error}</p>
+          <p className="create-event-error-text">{step1Error}</p>
         )}
 
-        {/* Continue button */}
-        <div style={{ paddingBottom: 8 }}>
-          <button type="button" onClick={handleContinue} className="btn-pill btn-amber">
-            CONTINUER →
+        <div className="create-event-actions">
+          <button type="button" onClick={handleContinue} className="create-event-primary">
+            Choisir l&apos;offre
           </button>
         </div>
       </form>
@@ -463,52 +448,59 @@ export default function CreateEventForm({ error }: { error?: string }) {
 
   // ── Step 2 ─────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col gap-6">
-      {/* Recap */}
-      <div className="f-card" style={{ padding: "16px 20px" }}>
-        <p className="f-eyebrow" style={{ marginBottom: 10 }}>Récapitulatif</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+    <div className="create-event-form create-event-offer-step">
+      <div className="create-event-step-head">
+        <p className="dashboard-section-label">Choisir l&apos;offre</p>
+        <h2>Finaliser le cadre Flaash</h2>
+      </div>
+
+      <section className="create-event-recap">
+        <div className="create-event-section-head">
+          <p>Cadre choisi</p>
+          <span>La soirée, les invités et le moment du reveal.</span>
+        </div>
+        <div className="create-event-recap-list">
           {[
             [EVENT_TYPE_LABELS[eventType], title],
             ["Invités", `${maxGuests}`],
-            ["Photos / invité", `${photosPerGuest}`],
+            ["Poses par invité", `${photosPerGuest}`],
             [
-              "Révélation",
+              "Reveal",
               revealMode === "fixed" && revealAt
                 ? `Prévue le ${new Date(revealAt).toLocaleString("fr-CH")}`
                 : "Manuelle",
             ],
           ].map(([k, v]) => (
-            <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-              <span style={{ color: "var(--fg-3)" }}>{k}</span>
-              <span style={{ fontWeight: 600 }}>{v}</span>
+            <div key={k}>
+              <span>{k}</span>
+              <strong>{v}</strong>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Urgency — simple, no day count */}
       {revealMode === "fixed" && revealAt && (
-        <div style={{ background: "var(--flaash-amber-soft)", borderRadius: "var(--radius-sm)", padding: "12px 16px", fontSize: 13, color: "var(--flaash-amber-deep)", fontWeight: 600 }}>
-          Sécurisez votre événement maintenant.
+        <div className="create-event-note">
+          Votre reveal est daté. La soirée peut être préparée maintenant.
         </div>
       )}
 
-      {/* +250 → devis */}
       {maxGuests > 250 ? (
-        <div style={{ background: "var(--surface-2)", border: "1.5px solid var(--border)", borderRadius: "var(--radius-md)", padding: "20px", textAlign: "center" }}>
-          <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>Vous avez plus de 250 invités ?</p>
-          <p style={{ fontSize: 14, color: "var(--fg-3)", marginBottom: 16 }}>Contactez-nous pour un devis sur mesure.</p>
-          <a href="mailto:hello@flaash.ch" className="btn-pill btn-ink" style={{ fontSize: 13 }}>
-            Demander un devis →
+        <div className="create-event-quote">
+          <p>Plus de 250 invités ?</p>
+          <span>Écrivons le cadre ensemble pour une grande soirée.</span>
+          <a href="mailto:hello@flaash.ch" className="create-event-secondary">
+            Demander un devis
           </a>
         </div>
       ) : (
         <>
-          {/* Plan selector */}
-          <div className="f-input-wrap">
-            <label className="f-label" style={{ marginBottom: 12 }}>Choisissez votre plan</label>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <section className="create-event-section create-event-plans">
+            <div className="create-event-section-head">
+              <p>Offre Flaash</p>
+              <span>Choisissez selon la taille de votre soirée.</span>
+            </div>
+            <div className="create-event-plan-list">
               {displayedPlans.map((plan) => {
                 const isTest = plan.id === "test";
                 // strict compatibility (no tolerance)
@@ -533,48 +525,43 @@ export default function CreateEventForm({ error }: { error?: string }) {
                 );
               })}
             </div>
-          </div>
+          </section>
 
-          {/* Test plan note */}
           {selectedPlanId === "test" && (
-            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: "12px 16px", fontSize: 13, color: "var(--fg-3)" }}>
+            <div className="create-event-note">
               Le plan Test est limité à 3 appareils et 20 photos — idéal pour tester l&apos;expérience avant votre événement.
             </div>
           )}
 
-          {/* Compatibility error */}
           {!canSubmit && (
-            <p style={{ fontSize: 13, color: "#dc2626", fontWeight: 600 }}>
+            <p className="create-event-error-text">
               Le plan sélectionné ne couvre pas {maxGuests} invités. Choisissez {suggestedPlan?.label ?? "un plan supérieur"}.
             </p>
           )}
 
-          {/* Submit error */}
           {submitError && (
-            <p style={{ fontSize: 13, color: "#dc2626", fontWeight: 600 }}>{submitError}</p>
+            <p className="create-event-error-text">{submitError}</p>
           )}
 
-          {/* Actions */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingBottom: 8 }}>
+          <div className="create-event-actions">
             <button
               type="button"
               onClick={handleSubmit}
               disabled={isPending || !canSubmit}
-              className="btn-pill btn-amber"
-              style={{ opacity: (isPending || !canSubmit) ? 0.6 : 1 }}
+              className="create-event-primary"
             >
               {isPending
-                ? "CRÉATION…"
+                ? "Création…"
                 : selectedPlan.price === 0
-                  ? "CRÉER GRATUITEMENT →"
-                  : `PAYER ${selectedPlan.price} CHF →`}
+                  ? "Créer la soirée"
+                  : "Continuer vers le paiement"}
             </button>
           </div>
         </>
       )}
 
-      <button type="button" onClick={handleBack} style={{ background: "none", border: "none", fontSize: 13, color: "var(--fg-3)", cursor: "pointer", fontWeight: 600, textAlign: "left" }}>
-        ← Modifier
+      <button type="button" onClick={handleBack} className="create-event-back">
+        ← Revenir au cadre
       </button>
     </div>
   );
