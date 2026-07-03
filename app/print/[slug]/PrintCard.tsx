@@ -6,7 +6,13 @@ import QRCode from "qrcode";
 
 const CARD_W = 1260;
 const CARD_H = 1785;
-const BG    = "#F5F0E8";
+const BG = "#FAF7F2";
+const INK = "#1A1A1A";
+const PAPER = "#FFFFFF";
+const WARM = "#EFE8DA";
+const MUTED = "#756F68";
+const RED = "#FF332D";
+const FOREST = "#1E3D2F";
 
 interface Props { title: string; eventUrl: string; slug: string; }
 
@@ -65,6 +71,38 @@ function wrapText(
   return curY;
 }
 
+function getWrappedLines(ctx: CanvasRenderingContext2D, text: string, maxW: number) {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let line = "";
+
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width > maxW && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawWrappedLines(
+  ctx: CanvasRenderingContext2D,
+  lines: string[],
+  cx: number,
+  y: number,
+  lineH: number
+) {
+  lines.forEach((line, index) => {
+    ctx.fillText(line, cx, y + index * lineH);
+  });
+  return y + Math.max(lines.length - 1, 0) * lineH;
+}
+
 function drawLogoText(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -101,7 +139,7 @@ function drawLogoText(
 
   const visualWidth = visualRight - visualLeft + safetyPadding * 2;
   let curX = x - visualWidth / 2 - visualLeft + safetyPadding;
-  ctx.fillStyle = "#1A1A1A";
+  ctx.fillStyle = INK;
 
   for (const segment of segments) {
     ctx.font = segment.font;
@@ -119,8 +157,8 @@ function drawFlaashLogo(ctx: CanvasRenderingContext2D, x: number, y: number, h: 
   ctx.translate(x, y);
   ctx.scale(scale, scale);
 
-  ctx.fillStyle = "#E07B2E";
-  ctx.strokeStyle = "#1A1A1A";
+  ctx.fillStyle = RED;
+  ctx.strokeStyle = INK;
   ctx.lineWidth = 8;
   ctx.lineJoin = "round";
   ctx.beginPath();
@@ -147,7 +185,7 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
     const dataUrl = await QRCode.toDataURL(eventUrl, {
       width: 640,
       margin: 1,
-      color: { dark: "#1A1A1A", light: "#ffffff" },
+      color: { dark: INK, light: PAPER },
     });
     return loadDataUrlImage(dataUrl);
   }
@@ -167,72 +205,92 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       const ctx = canvas.getContext("2d")!;
       ctx.clearRect(0, 0, CARD_W, CARD_H);
 
-      // ── Background ──────────────────────────────────────────────────────
       ctx.fillStyle = BG;
       ctx.fillRect(0, 0, CARD_W, CARD_H);
 
-      // ── Inner border ─────────────────────────────────────────────────────
-      ctx.strokeStyle = "rgba(0,0,0,0.07)";
-      ctx.lineWidth = 2;
-      roundRect(ctx, 20, 20, CARD_W - 40, CARD_H - 40, 24);
+      ctx.strokeStyle = "rgba(26, 26, 26, 0.12)";
+      ctx.lineWidth = 3;
+      roundRect(ctx, 44, 44, CARD_W - 88, CARD_H - 88, 34);
       ctx.stroke();
 
-      // ── Logo ──────────────────────────────────────────────────────────────
-      const logoH = 190;
-      const logoW = (470 / 350) * logoH;
-      drawFlaashLogo(ctx, (CARD_W - logoW) / 2, 80, logoH);
-
-      // ── Eyebrow ──────────────────────────────────────────────────────────
-      ctx.font      = '600 26px "Inter", system-ui, sans-serif';
-      ctx.fillStyle = "#9A8F82";
-      ctx.textAlign = "center";
-      ctx.fillText("GALERIE PARTAGÉE DE LA SOIRÉE", CARD_W / 2, 340);
-
-      // ── QR card ───────────────────────────────────────────────────────────
-      const qrSize    = 640;
-      const qrPad     = 44;
-      const qrCardW   = qrSize + qrPad * 2;
-      const qrCardH   = qrSize + qrPad * 2;
-      const qrCardX   = (CARD_W - qrCardW) / 2;
-      const qrCardY   = 410;
-
-      ctx.shadowColor  = "rgba(0,0,0,0.08)";
-      ctx.shadowBlur   = 36;
-      ctx.shadowOffsetY = 8;
-      ctx.fillStyle = "#ffffff";
-      roundRect(ctx, qrCardX, qrCardY, qrCardW, qrCardH, 36);
+      ctx.fillStyle = RED;
+      ctx.beginPath();
+      ctx.arc(118, 118, 14, 0, Math.PI * 2);
       ctx.fill();
-      ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+      const logoH = 150;
+      const logoW = (470 / 350) * logoH;
+      drawFlaashLogo(ctx, (CARD_W - logoW) / 2, 76, logoH);
+
+      ctx.font = '800 28px "Archivo", system-ui, sans-serif';
+      ctx.fillStyle = MUTED;
+      ctx.textAlign = "center";
+      ctx.fillText("CARTE QR DE LA SOIRÉE", CARD_W / 2, 294);
+
+      const qrSize = 670;
+      const qrPad = 58;
+      const qrCardW = qrSize + qrPad * 2;
+      const qrCardH = qrSize + qrPad * 2;
+      const qrCardX = (CARD_W - qrCardW) / 2;
+      const qrCardY = 360;
+
+      ctx.shadowColor = "rgba(26, 26, 26, 0.10)";
+      ctx.shadowBlur = 30;
+      ctx.shadowOffsetY = 10;
+      ctx.fillStyle = PAPER;
+      roundRect(ctx, qrCardX, qrCardY, qrCardW, qrCardH, 38);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
 
       ctx.drawImage(qrImg, qrCardX + qrPad, qrCardY + qrPad, qrSize, qrSize);
 
-      // ── Title ─────────────────────────────────────────────────────────────
-      ctx.font      = '800 66px "Playfair Display", Georgia, serif';
-      ctx.fillStyle = "#1A1A1A";
+      const headlineY = qrCardY + qrCardH + 104;
+      ctx.font = '900 58px "Archivo", system-ui, sans-serif';
+      ctx.fillStyle = INK;
       ctx.textAlign = "center";
-      const titleStartY  = qrCardY + qrCardH + 80;
-      const lastTitleY   = wrapText(ctx, title, CARD_W / 2, titleStartY, CARD_W - 140, 82);
+      wrapText(ctx, "Scannez. Capturez. Revenez à la soirée.", CARD_W / 2, headlineY, CARD_W - 210, 64);
 
-      // ── Subtitle ──────────────────────────────────────────────────────────
-      ctx.font      = 'italic 600 50px "Caveat", cursive';
-      ctx.fillStyle = "#7A7060";
-      ctx.fillText("Scannez & capturez l'instant.", CARD_W / 2, lastTitleY + 94);
+      ctx.font = '650 35px "Archivo", system-ui, sans-serif';
+      ctx.fillStyle = MUTED;
+      ctx.fillText("Les souvenirs reviendront au reveal.", CARD_W / 2, headlineY + 168);
 
-      // ── URL ───────────────────────────────────────────────────────────────
-      ctx.font      = '400 26px "Inter", system-ui, sans-serif';
-      ctx.fillStyle = "#9A8F82";
-      ctx.fillText(displayUrl, CARD_W / 2, lastTitleY + 190);
+      ctx.fillStyle = FOREST;
+      const badgeY = headlineY + 224;
+      roundRect(ctx, CARD_W / 2 - 158, badgeY, 316, 48, 24);
+      ctx.fill();
+      ctx.font = '800 20px "Archivo", system-ui, sans-serif';
+      ctx.fillStyle = BG;
+      ctx.fillText("Aucune app à installer", CARD_W / 2, badgeY + 31);
 
-      // ── Brand "—— FLAASH ——" ──────────────────────────────────────────────
-      const brandY = CARD_H - 100;
-      ctx.font      = '700 22px "Inter", system-ui, sans-serif';
-      ctx.fillStyle = "#B5ADA3";
+      const titleMaxW = CARD_W - 170;
+      ctx.font = '800 50px "Playfair Display", Georgia, serif';
+      let titleLines = getWrappedLines(ctx, title, titleMaxW);
+      let titleLineH = 57;
+
+      if (titleLines.length > 2) {
+        ctx.font = '800 38px "Playfair Display", Georgia, serif';
+        titleLineH = 43;
+        titleLines = getWrappedLines(ctx, title, titleMaxW);
+      }
+
+      ctx.fillStyle = INK;
+      const titleY = badgeY + 94;
+      const lastTitleY = drawWrappedLines(ctx, titleLines.slice(0, 3), CARD_W / 2, titleY, titleLineH);
+
+      ctx.font = '600 24px "Archivo", system-ui, sans-serif';
+      ctx.fillStyle = MUTED;
+      ctx.fillText(displayUrl, CARD_W / 2, lastTitleY + 42);
+
+      const brandY = CARD_H - 74;
+      ctx.font = '850 22px "Archivo", system-ui, sans-serif';
+      ctx.fillStyle = "rgba(26, 26, 26, 0.42)";
       ctx.fillText("FLAASH", CARD_W / 2, brandY);
-      const brandW  = ctx.measureText("FLAASH").width;
+      const brandW = ctx.measureText("FLAASH").width;
       const lineGap = 22;
-      const lineLen = 68;
-      ctx.strokeStyle = "#C8C0B6";
-      ctx.lineWidth   = 1.5;
+      const lineLen = 72;
+      ctx.strokeStyle = "rgba(26, 26, 26, 0.18)";
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(CARD_W / 2 - brandW / 2 - lineGap - lineLen, brandY - 7);
       ctx.lineTo(CARD_W / 2 - brandW / 2 - lineGap, brandY - 7);
@@ -242,10 +300,9 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       ctx.lineTo(CARD_W / 2 + brandW / 2 + lineGap + lineLen, brandY - 7);
       ctx.stroke();
 
-      // ── Download ─────────────────────────────────────────────────────────
       const url = canvas.toDataURL("image/png");
-      const a   = document.createElement("a");
-      a.href     = url;
+      const a = document.createElement("a");
+      a.href = url;
       a.download = `flaash-${slug}.png`;
       document.body.appendChild(a);
       a.click();
@@ -261,12 +318,339 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
   return (
     <>
       <style>{`
-        @media print { .no-print { display: none !important; } }
         @page { size: A6 portrait; margin: 10mm; }
+        *, *::before, *::after { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; background: ${BG}; }
+
+        .print-qr-page {
+          min-height: 100dvh;
+          padding: 28px 22px 72px;
+          background:
+            linear-gradient(180deg, rgb(239 232 218 / 0.62), transparent 460px),
+            ${BG};
+          color: ${INK};
+          font-family: "Archivo", system-ui, sans-serif;
+        }
+
+        .print-qr-shell {
+          width: min(100%, 1120px);
+          margin-inline: auto;
+        }
+
+        .print-qr-hero {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+          gap: clamp(28px, 5vw, 64px);
+          align-items: start;
+        }
+
+        .print-qr-copy {
+          padding-top: 30px;
+        }
+
+        .print-qr-label,
+        .print-card-kicker {
+          margin: 0;
+          color: ${MUTED};
+          font-size: 12px;
+          font-weight: 850;
+          letter-spacing: 0.12em;
+          line-height: 1.2;
+          text-transform: uppercase;
+        }
+
+        .print-qr-copy h1 {
+          max-width: 680px;
+          margin: 12px 0 18px;
+          color: ${INK};
+          font-family: "Archivo", system-ui, sans-serif;
+          font-size: clamp(44px, 6vw, 76px);
+          font-weight: 900;
+          letter-spacing: 0;
+          line-height: 0.94;
+        }
+
+        .print-qr-copy > p:not(.print-qr-label) {
+          max-width: 620px;
+          margin: 0;
+          color: ${MUTED};
+          font-size: 17px;
+          font-weight: 550;
+          line-height: 1.58;
+        }
+
+        .print-qr-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-top: 30px;
+        }
+
+        .print-qr-primary,
+        .print-qr-secondary {
+          min-height: 54px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 15px 22px;
+          border-radius: 999px;
+          cursor: pointer;
+          font-family: "Archivo", system-ui, sans-serif;
+          font-size: 14px;
+          font-weight: 850;
+          letter-spacing: 0;
+          line-height: 1.1;
+          transition: transform 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
+                      opacity 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        .print-qr-primary {
+          border: 1.5px solid ${INK};
+          background: ${INK};
+          color: ${BG};
+        }
+
+        .print-qr-secondary {
+          border: 1.5px solid rgb(26 26 26 / 0.18);
+          background: transparent;
+          color: ${INK};
+        }
+
+        .print-qr-primary:hover,
+        .print-qr-secondary:hover {
+          transform: translateY(-1px);
+        }
+
+        .print-qr-primary:disabled {
+          cursor: not-allowed;
+          opacity: 0.62;
+          transform: none;
+        }
+
+        .print-qr-print-note {
+          max-width: 470px;
+          margin: 12px 0 0;
+          color: ${MUTED};
+          font-size: 12px;
+          font-weight: 650;
+          line-height: 1.45;
+        }
+
+        .print-qr-tips {
+          display: grid;
+          gap: 10px;
+          max-width: 520px;
+          margin-top: 34px;
+          padding: 0;
+          list-style: none;
+        }
+
+        .print-qr-tips li {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          color: ${INK};
+          font-size: 14px;
+          font-weight: 700;
+        }
+
+        .print-qr-tips li::before {
+          content: "";
+          width: 7px;
+          height: 7px;
+          flex: 0 0 auto;
+          border-radius: 999px;
+          background: ${RED};
+        }
+
+        .print-qr-preview-wrap {
+          display: flex;
+          justify-content: center;
+        }
+
+        .print-card {
+          width: min(100%, 420px);
+          min-height: 595px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 18px;
+          position: relative;
+          padding: 28px 24px 30px;
+          overflow: hidden;
+          border: 1px solid rgb(26 26 26 / 0.12);
+          border-radius: 24px;
+          background: ${BG};
+          box-shadow: 0 24px 60px rgb(26 26 26 / 0.12);
+          text-align: center;
+        }
+
+        .print-card::before {
+          content: "";
+          position: absolute;
+          top: 24px;
+          left: 24px;
+          width: 9px;
+          height: 9px;
+          border-radius: 999px;
+          background: ${RED};
+        }
+
+        .print-card-logo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .print-card-qr {
+          display: inline-flex;
+          padding: 22px;
+          border: 1px solid rgb(26 26 26 / 0.07);
+          border-radius: 18px;
+          background: ${PAPER};
+          box-shadow: 0 8px 24px rgb(26 26 26 / 0.10);
+        }
+
+        .print-card-qr svg {
+          display: block;
+        }
+
+        .print-card-main {
+          max-width: 330px;
+          margin: 0;
+          color: ${INK};
+          font-size: 25px;
+          font-weight: 900;
+          letter-spacing: 0;
+          line-height: 1.04;
+        }
+
+        .print-card-sub {
+          margin: -7px 0 0;
+          color: ${MUTED};
+          font-size: 13px;
+          font-weight: 700;
+          line-height: 1.35;
+        }
+
+        .print-card-app {
+          margin: -4px 0 0;
+          padding: 7px 12px;
+          border-radius: 999px;
+          background: ${FOREST};
+          color: ${BG};
+          font-size: 10px;
+          font-weight: 850;
+          line-height: 1;
+        }
+
+        .print-card-footer {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          margin-top: auto;
+        }
+
+        .print-card-title {
+          max-width: 330px;
+          margin: 0;
+          color: ${INK};
+          font-family: "Playfair Display", Georgia, serif;
+          font-size: 23px;
+          font-weight: 800;
+          line-height: 1.12;
+        }
+
+        .print-card-url {
+          max-width: 100%;
+          margin: 0;
+          color: ${MUTED};
+          font-size: 10px;
+          font-weight: 650;
+          overflow-wrap: anywhere;
+        }
+
+        .print-card-brand {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: rgb(26 26 26 / 0.42);
+          font-size: 8.5px;
+          font-weight: 850;
+          letter-spacing: 0.26em;
+          text-transform: uppercase;
+        }
+
+        .print-card-brand span {
+          width: 24px;
+          height: 1px;
+          background: rgb(26 26 26 / 0.20);
+        }
+
+        @media print {
+          .no-print { display: none !important; }
+          .print-qr-page {
+            min-height: auto;
+            padding: 0;
+            background: ${BG};
+          }
+          .print-qr-shell,
+          .print-qr-hero,
+          .print-qr-preview-wrap {
+            display: block;
+            width: auto;
+            margin: 0;
+          }
+          .print-card {
+            width: auto;
+            min-height: calc(148mm - 20mm);
+            margin: 0;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+          }
+        }
+
+        @media (max-width: 860px) {
+          .print-qr-hero {
+            grid-template-columns: 1fr;
+          }
+          .print-qr-copy {
+            padding-top: 0;
+          }
+          .print-qr-actions {
+            flex-direction: column;
+          }
+          .print-qr-primary,
+          .print-qr-secondary {
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .print-qr-page {
+            padding: 22px 14px 56px;
+          }
+          .print-card {
+            min-height: 560px;
+            padding: 24px 18px 26px;
+          }
+          .print-card-qr {
+            padding: 18px;
+          }
+          .print-card-qr svg {
+            width: 218px;
+            height: 218px;
+          }
+          .print-card-main {
+            font-size: 23px;
+          }
+        }
       `}</style>
 
-      {/* Hidden draw canvas */}
       <canvas
         ref={canvasRef}
         width={CARD_W}
@@ -274,84 +658,82 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
         style={{ position: "fixed", left: -9999, top: 0, width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
       />
 
-      {/* Screen button */}
-      <div className="no-print" style={{ display: "flex", justifyContent: "flex-end", padding: "14px 20px" }}>
-        <button
-          onClick={handleDownload}
-          disabled={isGenerating}
-          style={{
-            background: "#1A1A1A", color: "#FAF7F2", border: "none",
-            borderRadius: 999, padding: "10px 22px", fontSize: 13,
-            fontWeight: 700, letterSpacing: "0.06em",
-            cursor: isGenerating ? "default" : "pointer",
-            opacity: isGenerating ? 0.7 : 1,
-            display: "inline-flex", alignItems: "center", gap: 7,
-          }}
-        >
-          {isGenerating ? "⏳ Génération…" : "⬇ Télécharger la carte"}
-        </button>
-      </div>
+      <main className="print-qr-page">
+        <div className="print-qr-shell">
+          <section className="print-qr-hero" aria-labelledby="print-qr-title">
+            <div className="print-qr-copy no-print">
+              <p className="print-qr-label">Carte QR</p>
+              <h1 id="print-qr-title">Préparer la carte de la soirée</h1>
+              <p>
+                Imprimez-la, posez-la à l&apos;entrée ou sur une table. Les invités scannent,
+                capturent, puis reviennent au moment.
+              </p>
 
-      {/* Visual preview — design unchanged */}
-      <div
-        id="flaash-print-card"
-        style={{
-          width: 420, minHeight: 595, margin: "0 auto",
-          background: BG,
-          boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.07)",
-          borderRadius: 20, padding: "28px 24px 32px",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", gap: 20, textAlign: "center",
-          position: "relative",
-          fontFamily: "'Inter', system-ui, sans-serif",
-        }}
-      >
-        {/* Logo */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 350" width={97} height={72} style={{ display: "block" }}>
-            <g transform="translate(155 6)">
-              <path d="M86 8 L24 92 L66 92 L52 152 L132 60 L86 60 Z" fill="#E07B2E" stroke="#1A1A1A" strokeWidth={8} strokeLinejoin="round" />
-            </g>
-            <text x="235" y="335" textAnchor="middle" fontFamily="'Playfair Display', Georgia, serif" fontWeight={900} fontSize={150} letterSpacing={-6} fill="#1A1A1A">
-              Fl<tspan fontStyle="italic" fontWeight={800}>aa</tspan>sh
-            </text>
-          </svg>
-          <p style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: "#9A8F82", margin: 0 }}>
-            Galerie partagée de la soirée
-          </p>
+              <div className="print-qr-actions">
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  disabled={isGenerating}
+                  className="print-qr-primary"
+                >
+                  {isGenerating ? "Génération..." : "Télécharger la carte"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="print-qr-secondary"
+                >
+                  Imprimer depuis le navigateur
+                </button>
+              </div>
+
+              <p className="print-qr-print-note">
+                Dans les options d&apos;impression, désactivez les en-têtes et pieds de page.
+              </p>
+
+              <ul className="print-qr-tips" aria-label="Conseils pour poser la carte QR">
+                <li>Posez la carte à l&apos;entrée.</li>
+                <li>Gardez le QR bien visible.</li>
+                <li>Aucune app à installer.</li>
+              </ul>
+            </div>
+
+            <div className="print-qr-preview-wrap">
+              <div id="flaash-print-card" className="print-card">
+                <div className="print-card-logo">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 350" width={88} height={66} style={{ display: "block" }}>
+                    <g transform="translate(155 6)">
+                      <path d="M86 8 L24 92 L66 92 L52 152 L132 60 L86 60 Z" fill={RED} stroke={INK} strokeWidth={8} strokeLinejoin="round" />
+                    </g>
+                    <text x="235" y="335" textAnchor="middle" fontFamily="'Playfair Display', Georgia, serif" fontWeight={900} fontSize={150} letterSpacing={-6} fill={INK}>
+                      Fl<tspan fontStyle="italic" fontWeight={800}>aa</tspan>sh
+                    </text>
+                  </svg>
+                  <p className="print-card-kicker">Carte QR de la soirée</p>
+                </div>
+
+                <div className="print-card-qr">
+                  <QRCodeSVG value={eventUrl} size={240} bgColor={PAPER} fgColor={INK} level="M" />
+                </div>
+
+                <p className="print-card-main">Scannez. Capturez. Revenez à la soirée.</p>
+                <p className="print-card-sub">Les souvenirs reviendront au reveal.</p>
+                <p className="print-card-app">Aucune app à installer</p>
+
+                <div className="print-card-footer">
+                  <h2 className="print-card-title">{title}</h2>
+                  <p className="print-card-url">{displayUrl}</p>
+                  <div className="print-card-brand" aria-hidden="true">
+                    <span />
+                    Flaash
+                    <span />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-
-        {/* QR preview (SVG — display only) */}
-        <div style={{ background: "#fff", borderRadius: 16, padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.08)", display: "inline-flex" }}>
-          <QRCodeSVG value={eventUrl} size={240} bgColor="#ffffff" fgColor="#1A1A1A" level="M" />
-        </div>
-
-        {/* Title */}
-        <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 26, fontWeight: 800, color: "#1A1A1A", lineHeight: 1.2, margin: 0 }}>
-          {title}
-        </h1>
-
-        {/* Subtitle */}
-        <p style={{ fontFamily: "'Caveat', cursive", fontStyle: "italic", fontSize: 17, color: "#7A7060", margin: "-8px 0 0" }}>
-          Scannez &amp; capturez l&apos;instant.
-        </p>
-
-        {/* Footer */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, width: "100%", marginTop: "auto" }}>
-          <p style={{ fontSize: 10.5, color: "#9A8F82", margin: 0, wordBreak: "break-all" }}>{displayUrl}</p>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 8.5, fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase", color: "#B5ADA3" }}>
-            <span style={{ width: 24, height: 1, background: "#C8C0B6", display: "inline-block" }} />
-            Flaash
-            <span style={{ width: 24, height: 1, background: "#C8C0B6", display: "inline-block" }} />
-          </div>
-        </div>
-
-        {/* Watermark */}
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width={120} height={120} aria-hidden="true"
-          style={{ position: "absolute", bottom: -16, right: -10, opacity: 0.04, transform: "rotate(-12deg)", pointerEvents: "none" }}>
-          <path d="M86 8 L24 92 L66 92 L52 152 L132 60 L86 60 Z" fill="#E07B2E" stroke="#1A1A1A" strokeWidth={8} strokeLinejoin="round" />
-        </svg>
-      </div>
+      </main>
     </>
   );
 }

@@ -45,6 +45,12 @@ Doctrine:
 - [x] Dashboard settings alignment
 - [x] Dashboard guests participation alignment
 - [x] Lot 7.5 - `/dashboard` overview + `/dashboard/new` event creation
+- [x] Lot 7.6 - `/print/[slug]` printable QR card alignment
+  - Page web editorialisee pour preparer la carte QR.
+  - Carte A6 conservee.
+  - QR scannable conserve.
+  - PNG corrige.
+  - Note impression ajoutee pour desactiver les en-tetes/pieds de page navigateur.
 
 Known merges:
 
@@ -60,10 +66,10 @@ Planned commits:
 - [ ] `feat: align dashboard guests participation with Flaash visual system`
 - [x] `feat: redesign dashboard overview as event memory hub`
 - [x] `feat: align dashboard event creation with Flaash visual system`
+- [x] `feat: align printable QR card with Flaash visual system`
 
 ## Active / Next Lots
 
-- [ ] Lot 7.6 - `/print/[slug]`
 - [ ] Final lot - general QA + Vercel Preview + production preparation
 
 ## Backlog Product
