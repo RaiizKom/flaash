@@ -42,6 +42,7 @@ Doctrine:
 - [x] Guest gallery alignment
 - [x] Dashboard event detail command center
 - [x] Dashboard photos moderation / reveal preparation
+- [x] Dashboard settings alignment
 
 Known merges:
 
@@ -51,9 +52,12 @@ Known merges:
 - [x] `merge: redesign dashboard event detail command center`
 - [x] `merge: align dashboard photos moderation with Flaash visual system`
 
+Planned commits:
+
+- [ ] `feat: align dashboard settings with Flaash visual system`
+
 ## Active / Next Lots
 
-- [ ] Lot 7.3 - `/dashboard/[id]/settings`
 - [ ] Lot 7.4 - `/dashboard/[id]/guests`
 - [ ] Lot 7.5 - `/dashboard` overview + `/dashboard/new`
 - [ ] Lot 7.6 - `/print/[slug]`
