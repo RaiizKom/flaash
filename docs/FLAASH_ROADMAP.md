@@ -44,6 +44,7 @@ Doctrine:
 - [x] Dashboard photos moderation / reveal preparation
 - [x] Dashboard settings alignment
 - [x] Dashboard guests participation alignment
+- [x] Lot 7.5 - `/dashboard` overview + `/dashboard/new` event creation
 
 Known merges:
 
@@ -57,10 +58,11 @@ Planned commits:
 
 - [ ] `feat: align dashboard settings with Flaash visual system`
 - [ ] `feat: align dashboard guests participation with Flaash visual system`
+- [x] `feat: redesign dashboard overview as event memory hub`
+- [x] `feat: align dashboard event creation with Flaash visual system`
 
 ## Active / Next Lots
 
-- [ ] Lot 7.5 - `/dashboard` overview + `/dashboard/new`
 - [ ] Lot 7.6 - `/print/[slug]`
 - [ ] Final lot - general QA + Vercel Preview + production preparation
 
@@ -137,6 +139,7 @@ Before commit or merge:
 - [ ] Re-check landing image V2 only after dashboard/print alignment is stable.
 - [ ] Revisit transactional emails with Resend.
 - [ ] Revisit privacy message visibility on guest event pages.
+- [ ] Remplacer certains messages d'erreur contenant "dashboard" par "espace organisateur" dans `/dashboard/new`.
 - [ ] Plan production QA checklist after final dashboard and print lots.
 
 ## Update Protocol
