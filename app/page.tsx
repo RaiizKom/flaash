@@ -39,7 +39,7 @@ const PLAN_FEATURES: Record<string, string[]> = {
     "QR code prêt à partager",
     "Photos cachées jusqu'au reveal",
     "Galerie privée",
-    "Export ZIP inclus",
+    "Export des souvenirs inclus",
   ],
   classic: [
     "Jusqu'à 120 invités",
@@ -47,7 +47,7 @@ const PLAN_FEATURES: Record<string, string[]> = {
     "QR code prêt à partager",
     "Photos cachées jusqu'au reveal",
     "Galerie privée",
-    "Export ZIP inclus",
+    "Export des souvenirs inclus",
   ],
   premium: [
     "Jusqu'à 250 invités",
@@ -55,7 +55,7 @@ const PLAN_FEATURES: Record<string, string[]> = {
     "QR code prêt à partager",
     "Photos cachées jusqu'au reveal",
     "Galerie privée",
-    "Export ZIP inclus",
+    "Export des souvenirs inclus",
   ],
 };
 
@@ -74,11 +74,11 @@ const FAQ = [
   },
   {
     q: "Est-ce que je récupère toutes les photos ?",
-    a: "Oui. Vous pouvez télécharger un export ZIP complet après l'événement, avec les souvenirs prêts à conserver.",
+    a: "Oui. Téléchargement complet des souvenirs après l'événement, prêts à conserver.",
   },
   {
     q: "Que se passe-t-il si un invité envoie une photo inappropriée ?",
-    a: "Vous gardez la main. Une photo peut être supprimée et un invité bloqué si nécessaire.",
+    a: "Vous gardez la main. Un souvenir peut être mis de côté et un invité mis à l'écart si nécessaire.",
   },
   {
     q: "Le paiement est-il unique ?",

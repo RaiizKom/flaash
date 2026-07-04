@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Flaash — L'appareil photo jetable de votre événement",
   description:
     "Vos invités scannent un QR code, prennent leurs photos depuis leur navigateur, et découvrent les souvenirs dans une galerie privée. Zéro app à installer.",
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/flaash-favicon.svg" },
   openGraph: {
     title: "Flaash",
     description: "Capture l'instant.",

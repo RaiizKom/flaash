@@ -56,6 +56,14 @@ Doctrine:
   - `error.tsx` et `global-error.tsx` rendus non techniques.
   - `not-found.tsx` micro-polish.
   - Aucune logique metier modifiee.
+- [x] Lot 7.8 - final DA wording and surface polish
+  - 404 alignee DA actuelle.
+  - CTA dashboard nav harmonise.
+  - Logs client galerie retires.
+  - Wording ZIP/upload nettoye.
+  - Wording landing nettoye.
+  - Favicon corrige.
+  - Aucune logique metier modifiee.
 
 Known merges:
 
@@ -73,6 +81,7 @@ Planned commits:
 - [x] `feat: align dashboard event creation with Flaash visual system`
 - [x] `feat: align printable QR card with Flaash visual system`
 - [x] `chore: clean production routes and error surfaces`
+- [x] `chore: polish final DA wording and surfaces`
 
 ## Active / Next Lots
 

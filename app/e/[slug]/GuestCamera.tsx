@@ -363,7 +363,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
           setPhase("blocked");
           return;
         }
-        showToast(data.error ?? "Erreur d'upload.", false);
+        showToast(data.error ?? "La photo n'a pas pu être envoyée.", false);
         return;
       }
 
@@ -471,7 +471,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
             className="flaash-btn flaash-btn-primary"
             disabled={!firstName.trim() || isJoining}
           >
-            {isJoining ? "Inscription…" : "Participer à l'album"}
+            {isJoining ? "Préparation…" : "Participer à l'album"}
           </button>
 
           <PrivacyNote />
@@ -694,7 +694,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
         <div className="guest-card guest-uploaded-card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 10 }}>
             <p className="guest-label" style={{ margin: 0 }}>
-              Mes photos
+              Mes souvenirs
             </p>
             <span style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 700 }}>
               {uploadedPhotos.length}

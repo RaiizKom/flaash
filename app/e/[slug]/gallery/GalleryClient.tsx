@@ -119,15 +119,9 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
   useEffect(() => {
     try {
       const sessionRaw = localStorage.getItem(`flaash_guest_${eventSlug}`);
-      console.log("[gallery] localStorage key:", `flaash_guest_${eventSlug}`);
-      console.log("[gallery] raw session:", sessionRaw);
       if (sessionRaw) {
         const s = JSON.parse(sessionRaw) as { guestId: string };
-        console.log("[gallery] guestId:", s.guestId);
-        console.log("[gallery] photo guest_ids:", photos.map((p) => p.guest_id));
         setGuestId(s.guestId);
-      } else {
-        console.log("[gallery] no session found for slug:", eventSlug);
       }
     } catch { /* */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -226,8 +220,7 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
             </button>
           </div>
           <p className="guest-gallery-note">
-            Le fichier ZIP sera enregistré dans les fichiers ou téléchargements de ton
-            appareil. Ouvre-le ensuite pour extraire les photos et les ajouter à ta galerie.
+            Le téléchargement regroupe les souvenirs de la soirée.
           </p>
           {downloadError && (
             <p style={{
