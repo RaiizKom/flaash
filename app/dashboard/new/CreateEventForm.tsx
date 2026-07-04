@@ -195,10 +195,10 @@ export default function CreateEventForm({ error }: { error?: string }) {
       });
 
       if (!res.ok) {
-        setSubmitError("La photo de couverture n'a pas pu être ajoutée. Tu pourras l'ajouter depuis le dashboard.");
+        setSubmitError("La photo de couverture n'a pas pu être ajoutée. Tu pourras l'ajouter depuis l'espace organisateur.");
       }
     } catch {
-      setSubmitError("La photo de couverture n'a pas pu être ajoutée. Tu pourras l'ajouter depuis le dashboard.");
+      setSubmitError("La photo de couverture n'a pas pu être ajoutée. Tu pourras l'ajouter depuis l'espace organisateur.");
     }
   }
 
