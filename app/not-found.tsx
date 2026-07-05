@@ -73,9 +73,25 @@ export default function NotFound() {
           Le lien est peut-être expiré ou l&apos;adresse incorrecte.
         </p>
 
-        <Link href="/" className="flaash-btn flaash-btn-primary" style={{ width: "min(100%, 280px)" }}>
-          Revenir à l&apos;accueil
-        </Link>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 12,
+          }}
+        >
+          <Link
+            href="/dashboard"
+            className="flaash-btn flaash-btn-primary"
+            style={{ width: "min(100%, 280px)" }}
+          >
+            Revenir à vos soirées
+          </Link>
+          <Link href="/" className="flaash-btn flaash-btn-ghost">
+            Accueil public
+          </Link>
+        </div>
       </section>
     </main>
   );
