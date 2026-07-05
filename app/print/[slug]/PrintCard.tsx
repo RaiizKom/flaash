@@ -12,7 +12,6 @@ const PAPER = "#FFFFFF";
 const WARM = "#EFE8DA";
 const MUTED = "#756F68";
 const RED = "#FF332D";
-const FOREST = "#1E3D2F";
 
 interface Props { title: string; eventUrl: string; slug: string; }
 
@@ -213,11 +212,6 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       roundRect(ctx, 44, 44, CARD_W - 88, CARD_H - 88, 34);
       ctx.stroke();
 
-      ctx.fillStyle = RED;
-      ctx.beginPath();
-      ctx.arc(118, 118, 14, 0, Math.PI * 2);
-      ctx.fill();
-
       const logoH = 150;
       const logoW = (470 / 350) * logoH;
       drawFlaashLogo(ctx, (CARD_W - logoW) / 2, 76, logoH);
@@ -227,60 +221,61 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
       ctx.textAlign = "center";
       ctx.fillText("CARTE QR DE LA SOIRÉE", CARD_W / 2, 294);
 
-      const qrSize = 670;
-      const qrPad = 58;
+      const qrSize = 580;
+      const qrPad = 54;
       const qrCardW = qrSize + qrPad * 2;
       const qrCardH = qrSize + qrPad * 2;
       const qrCardX = (CARD_W - qrCardW) / 2;
-      const qrCardY = 360;
+      const qrCardY = 356;
 
-      ctx.shadowColor = "rgba(26, 26, 26, 0.10)";
-      ctx.shadowBlur = 30;
-      ctx.shadowOffsetY = 10;
+      ctx.shadowColor = "rgba(26, 26, 26, 0.04)";
+      ctx.shadowBlur = 7;
+      ctx.shadowOffsetY = 2;
       ctx.fillStyle = PAPER;
-      roundRect(ctx, qrCardX, qrCardY, qrCardW, qrCardH, 38);
+      roundRect(ctx, qrCardX, qrCardY, qrCardW, qrCardH, 18);
       ctx.fill();
       ctx.shadowBlur = 0;
       ctx.shadowOffsetY = 0;
 
+      ctx.strokeStyle = "rgba(26, 26, 26, 0.08)";
+      ctx.lineWidth = 2;
+      roundRect(ctx, qrCardX, qrCardY, qrCardW, qrCardH, 18);
+      ctx.stroke();
+
       ctx.drawImage(qrImg, qrCardX + qrPad, qrCardY + qrPad, qrSize, qrSize);
 
-      const headlineY = qrCardY + qrCardH + 104;
-      ctx.font = '900 58px "Archivo", system-ui, sans-serif';
+      const headlineY = qrCardY + qrCardH + 92;
+      ctx.font = '900 54px "Archivo", system-ui, sans-serif';
       ctx.fillStyle = INK;
       ctx.textAlign = "center";
-      wrapText(ctx, "Scannez. Capturez. Revenez à la soirée.", CARD_W / 2, headlineY, CARD_W - 210, 64);
+      const lastHeadlineY = wrapText(ctx, "Scannez. Capturez. Revenez à la soirée.", CARD_W / 2, headlineY, CARD_W - 220, 60);
 
-      ctx.font = '650 35px "Archivo", system-ui, sans-serif';
+      ctx.font = '650 32px "Archivo", system-ui, sans-serif';
       ctx.fillStyle = MUTED;
-      ctx.fillText("Les souvenirs reviendront au reveal.", CARD_W / 2, headlineY + 168);
+      ctx.fillText("Les souvenirs reviendront au reveal.", CARD_W / 2, lastHeadlineY + 70);
 
-      ctx.fillStyle = FOREST;
-      const badgeY = headlineY + 224;
-      roundRect(ctx, CARD_W / 2 - 158, badgeY, 316, 48, 24);
-      ctx.fill();
-      ctx.font = '800 20px "Archivo", system-ui, sans-serif';
-      ctx.fillStyle = BG;
-      ctx.fillText("Aucune app à installer", CARD_W / 2, badgeY + 31);
-
-      const titleMaxW = CARD_W - 170;
-      ctx.font = '800 50px "Playfair Display", Georgia, serif';
+      const titleMaxW = CARD_W - 230;
+      ctx.font = '800 64px "Playfair Display", Georgia, serif';
       let titleLines = getWrappedLines(ctx, title, titleMaxW);
-      let titleLineH = 57;
+      let titleLineH = 70;
 
       if (titleLines.length > 2) {
-        ctx.font = '800 38px "Playfair Display", Georgia, serif';
-        titleLineH = 43;
+        ctx.font = '800 50px "Playfair Display", Georgia, serif';
+        titleLineH = 56;
         titleLines = getWrappedLines(ctx, title, titleMaxW);
       }
 
       ctx.fillStyle = INK;
-      const titleY = badgeY + 94;
+      const titleY = lastHeadlineY + 170;
       const lastTitleY = drawWrappedLines(ctx, titleLines.slice(0, 3), CARD_W / 2, titleY, titleLineH);
 
       ctx.font = '600 24px "Archivo", system-ui, sans-serif';
       ctx.fillStyle = MUTED;
-      ctx.fillText(displayUrl, CARD_W / 2, lastTitleY + 42);
+      ctx.fillText(displayUrl, CARD_W / 2, lastTitleY + 56);
+
+      ctx.font = '650 20px "Archivo", system-ui, sans-serif';
+      ctx.fillStyle = "rgba(26, 26, 26, 0.48)";
+      ctx.fillText("Rien à installer.", CARD_W / 2, lastTitleY + 94);
 
       const brandY = CARD_H - 74;
       ctx.font = '850 22px "Archivo", system-ui, sans-serif';
@@ -474,75 +469,70 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 18px;
+          gap: 17px;
           position: relative;
-          padding: 28px 24px 30px;
+          padding: 30px 24px 28px;
           overflow: hidden;
           border: 1px solid rgb(26 26 26 / 0.12);
           border-radius: 24px;
           background: ${BG};
-          box-shadow: 0 24px 60px rgb(26 26 26 / 0.12);
+          box-shadow: 0 10px 28px rgb(26 26 26 / 0.055);
           text-align: center;
-        }
-
-        .print-card::before {
-          content: "";
-          position: absolute;
-          top: 24px;
-          left: 24px;
-          width: 9px;
-          height: 9px;
-          border-radius: 999px;
-          background: ${RED};
         }
 
         .print-card-logo {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
+        }
+
+        .print-card-body {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 15px;
+          padding-top: 2px;
         }
 
         .print-card-qr {
           display: inline-flex;
-          padding: 22px;
-          border: 1px solid rgb(26 26 26 / 0.07);
-          border-radius: 18px;
+          padding: 18px;
+          border: 1px solid rgb(26 26 26 / 0.08);
+          border-radius: 14px;
           background: ${PAPER};
-          box-shadow: 0 8px 24px rgb(26 26 26 / 0.10);
+          box-shadow: 0 2px 8px rgb(26 26 26 / 0.035);
         }
 
         .print-card-qr svg {
           display: block;
         }
 
+        .print-card-copy {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 7px;
+          max-width: 340px;
+          text-align: center;
+        }
+
         .print-card-main {
-          max-width: 330px;
           margin: 0;
           color: ${INK};
-          font-size: 25px;
+          font-size: 23px;
           font-weight: 900;
           letter-spacing: 0;
           line-height: 1.04;
         }
 
         .print-card-sub {
-          margin: -7px 0 0;
+          margin: 0;
           color: ${MUTED};
-          font-size: 13px;
+          font-size: 12.5px;
           font-weight: 700;
           line-height: 1.35;
-        }
-
-        .print-card-app {
-          margin: -4px 0 0;
-          padding: 7px 12px;
-          border-radius: 999px;
-          background: ${FOREST};
-          color: ${BG};
-          font-size: 10px;
-          font-weight: 850;
-          line-height: 1;
         }
 
         .print-card-footer {
@@ -552,6 +542,7 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
           align-items: center;
           gap: 8px;
           margin-top: auto;
+          padding-top: 0;
         }
 
         .print-card-title {
@@ -559,9 +550,9 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
           margin: 0;
           color: ${INK};
           font-family: "Playfair Display", Georgia, serif;
-          font-size: 23px;
+          font-size: 27px;
           font-weight: 800;
-          line-height: 1.12;
+          line-height: 1.08;
         }
 
         .print-card-url {
@@ -571,6 +562,14 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
           font-size: 10px;
           font-weight: 650;
           overflow-wrap: anywhere;
+        }
+
+        .print-card-app-note {
+          margin: -3px 0 0;
+          color: rgb(26 26 26 / 0.48);
+          font-size: 9.5px;
+          font-weight: 650;
+          line-height: 1.2;
         }
 
         .print-card-brand {
@@ -608,7 +607,7 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
             width: auto;
             min-height: calc(148mm - 20mm);
             margin: 0;
-            border: 0;
+            border: 1px solid rgb(26 26 26 / 0.12);
             border-radius: 0;
             box-shadow: none;
           }
@@ -636,17 +635,18 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
           }
           .print-card {
             min-height: 560px;
-            padding: 24px 18px 26px;
+            padding: 25px 18px 26px;
+            gap: 15px;
           }
           .print-card-qr {
-            padding: 18px;
+            padding: 16px;
           }
           .print-card-qr svg {
-            width: 218px;
-            height: 218px;
+            width: 235px;
+            height: 235px;
           }
           .print-card-main {
-            font-size: 23px;
+            font-size: 22px;
           }
         }
       `}</style>
@@ -712,17 +712,21 @@ export default function PrintCard({ title, eventUrl, slug }: Props) {
                   <p className="print-card-kicker">Carte QR de la soirée</p>
                 </div>
 
-                <div className="print-card-qr">
-                  <QRCodeSVG value={eventUrl} size={240} bgColor={PAPER} fgColor={INK} level="M" />
-                </div>
+                <div className="print-card-body">
+                  <div className="print-card-qr">
+                    <QRCodeSVG value={eventUrl} size={242} bgColor={PAPER} fgColor={INK} level="M" />
+                  </div>
 
-                <p className="print-card-main">Scannez. Capturez. Revenez à la soirée.</p>
-                <p className="print-card-sub">Les souvenirs reviendront au reveal.</p>
-                <p className="print-card-app">Aucune app à installer</p>
+                  <div className="print-card-copy">
+                    <p className="print-card-main">Scannez. Capturez. Revenez à la soirée.</p>
+                    <p className="print-card-sub">Les souvenirs reviendront au reveal.</p>
+                  </div>
+                </div>
 
                 <div className="print-card-footer">
                   <h2 className="print-card-title">{title}</h2>
                   <p className="print-card-url">{displayUrl}</p>
+                  <p className="print-card-app-note">Rien à installer.</p>
                   <div className="print-card-brand" aria-hidden="true">
                     <span />
                     Flaash
