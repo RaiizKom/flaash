@@ -51,6 +51,10 @@ Doctrine:
   - QR scannable conserve.
   - PNG corrige.
   - Note impression ajoutee pour desactiver les en-tetes/pieds de page navigateur.
+  - Micro-polish : composition de la carte QR affinee apres audit.
+  - Retour a une structure verticale editoriale compacte.
+  - QR centre et scannable conserve.
+  - Badge remplace par "Rien a installer." discret.
 - [x] Lot 7.7 - production route cleanup / error surfaces
   - `/test` supprime.
   - `error.tsx` et `global-error.tsx` rendus non techniques.
@@ -80,6 +84,7 @@ Planned commits:
 - [x] `feat: redesign dashboard overview as event memory hub`
 - [x] `feat: align dashboard event creation with Flaash visual system`
 - [x] `feat: align printable QR card with Flaash visual system`
+- [ ] `chore: refine printable QR card composition`
 - [x] `chore: clean production routes and error surfaces`
 - [x] `chore: polish final DA wording and surfaces`
 
