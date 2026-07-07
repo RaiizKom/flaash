@@ -9,14 +9,6 @@ export const maxDuration = 30;
 const MAX_UPLOAD_BYTES = 25_000_000;
 
 export async function POST(req: NextRequest) {
-  console.log('[upload] ENV CHECK:', {
-    keyId:    process.env.CLOUDFLARE_R2_ACCESS_KEY_ID?.slice(0, 8),
-    secret:   process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY?.slice(0, 8),
-    endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
-    bucket:   process.env.CLOUDFLARE_R2_BUCKET,
-  });
-  console.log("[upload] POST received");
-
   let formData: FormData;
   try {
     formData = await req.formData();
@@ -26,14 +18,6 @@ export async function POST(req: NextRequest) {
 
   const token = formData.get("token") as string | null;
   const file = formData.get("file");
-  console.log(
-    "[upload] token present:",
-    !!token,
-    "| file present:",
-    !!file,
-    "| file size:",
-    file instanceof File ? file.size : undefined
-  );
 
   if (!token || !(file instanceof File)) {
     return NextResponse.json({ error: "Données manquantes." }, { status: 400 });
@@ -60,8 +44,6 @@ export async function POST(req: NextRequest) {
     .eq("token", token)
     .single();
 
-  console.log("[upload] guest lookup:", guest ? `id=${guest.id} taken=${guest.photos_taken}` : "NOT FOUND", guestError?.message ?? "");
-
   if (!guest) {
     return NextResponse.json({ error: "Invité introuvable." }, { status: 404 });
   }
@@ -72,8 +54,6 @@ export async function POST(req: NextRequest) {
     status: string;
     photos_per_guest: number;
   } | null;
-
-  console.log("[upload] event status:", event?.status, "| quota:", guest.photos_taken, "/", event?.photos_per_guest);
 
   if (guest.is_blocked) {
     return NextResponse.json({ error: "Accès bloqué." }, { status: 403 });
@@ -86,7 +66,6 @@ export async function POST(req: NextRequest) {
   }
 
   // Compress with Sharp
-  console.log("[upload] compressing with sharp...");
   const raw = Buffer.from(await file.arrayBuffer());
 
   let fullBuffer: Buffer, thumbBuffer: Buffer;
@@ -103,7 +82,6 @@ export async function POST(req: NextRequest) {
         .jpeg({ quality: 72 })
         .toBuffer(),
     ]);
-    console.log("[upload] sharp OK — full:", fullBuffer.length, "bytes | thumb:", thumbBuffer.length, "bytes");
   } catch (err) {
     console.error("[upload] sharp FAILED:", err);
     return NextResponse.json({ error: "Erreur de compression." }, { status: 500 });
@@ -113,20 +91,12 @@ export async function POST(req: NextRequest) {
   const fullKey = `events/${guest.event_id}/photos/${photoId}.jpg`;
   const thumbKey = `events/${guest.event_id}/thumbs/${photoId}.jpg`;
 
-  console.log("[upload] uploading to R2...");
-  console.log("[upload] R2 key prefix:", process.env.CLOUDFLARE_R2_ACCESS_KEY_ID?.slice(0, 4));
-  console.log("[upload] R2 secret set:", !!process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY);
-  console.log("[upload] R2 endpoint:", process.env.CLOUDFLARE_R2_ENDPOINT);
-  console.log("[upload] R2 bucket:", process.env.CLOUDFLARE_R2_BUCKET);
-  console.log("[upload] R2 public URL:", process.env.CLOUDFLARE_R2_PUBLIC_URL);
-
   let storageUrl: string, thumbnailUrl: string;
   try {
     [storageUrl, thumbnailUrl] = await Promise.all([
       uploadBuffer(fullKey, fullBuffer, "image/jpeg"),
       uploadBuffer(thumbKey, thumbBuffer, "image/jpeg"),
     ]);
-    console.log("[upload] R2 upload OK — storageUrl:", storageUrl);
   } catch (err) {
     console.error("[upload] R2 upload FAILED:", err);
     return NextResponse.json({ error: "Erreur de stockage." }, { status: 500 });
@@ -141,9 +111,8 @@ export async function POST(req: NextRequest) {
     source: "camera",
   });
 
-  console.log("[upload] insert:", insertError ? `FAILED — ${insertError.message}` : "OK");
-
   if (insertError) {
+    console.error("[upload] insert FAILED:", insertError.message);
     return NextResponse.json({ error: "Erreur d'enregistrement." }, { status: 500 });
   }
 
@@ -151,8 +120,6 @@ export async function POST(req: NextRequest) {
     .from("guests")
     .update({ photos_taken: guest.photos_taken + 1 })
     .eq("id", guest.id);
-
-  console.log("[upload] done — photoId:", photoId);
 
   return NextResponse.json({
     photoId,
