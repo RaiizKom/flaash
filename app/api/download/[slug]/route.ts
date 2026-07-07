@@ -21,8 +21,8 @@ export async function GET(
   if (!event) {
     return NextResponse.json({ error: "Événement introuvable." }, { status: 404 });
   }
-  if (event.status !== "revealed" && event.status !== "active") {
-    return NextResponse.json({ error: "Galerie non disponible." }, { status: 403 });
+  if (event.status !== "revealed") {
+    return NextResponse.json({ error: "Les souvenirs ne sont pas encore révélés." }, { status: 403 });
   }
 
   const { data: photos } = await supabase
