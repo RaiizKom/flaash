@@ -33,6 +33,13 @@ Doctrine:
 - Merge policy: lot branches merge into `refactor/flaash-analog-social-premium` with `merge --no-ff`.
 - Do not commit or merge unless explicitly requested.
 
+## Release Status
+
+- **Flaash — Analog Social Premium redesign is shipped to production** on `flaash.ch`.
+- Production tested OK.
+- Production commit: `3183acb` — `merge: release Flaash analog social premium redesign`.
+- Release date: 2026-07-07.
+
 ## Completed Lots
 
 - [x] Brand system and landing conversion updates
@@ -90,7 +97,27 @@ Planned commits:
 
 ## Active / Next Lots
 
-- [ ] Final lot - general QA + Vercel Preview + production preparation
+- [x] Final lot - general QA + Vercel Preview + production preparation — done, production validated 2026-07-07 (`3183acb`).
+
+## Post-Release / Prochaines Priorités
+
+Direction : la refonte est en production et validée. La priorité passe maintenant à la solidification du paiement réel et à la stabilisation, avant de reprendre des features.
+
+À faire maintenant :
+
+- [ ] Passer Stripe en mode production / live.
+- [ ] Vérifier les produits et prix Stripe live.
+- [ ] Vérifier le webhook Stripe live (`checkout.session.completed`).
+- [ ] Vérifier les variables d'environnement Vercel production.
+- [ ] Faire un test de paiement réel contrôlé.
+- [ ] Audit complet post-release du produit.
+- [ ] Prioriser les prochaines features avec Pedro.
+- [ ] Stabilisation et monitoring post-release.
+
+Backlog plus tard :
+
+- [ ] Amélioration future de la carte QR / supports physiques, si nécessaire.
+- [ ] Voir `Backlog Product` ci-dessous pour le reste (export ZIP, galerie, tri, reveal, téléchargement, expérience invités).
 
 ## Backlog Product
 
@@ -107,6 +134,7 @@ Planned commits:
 - [ ] best photos filter
 - [ ] photobook export
 - [ ] App Clip / web app
+- [ ] organizer analytics
 - [ ] possible V2 landing images, not priority
 
 ## Technical Debt
