@@ -97,17 +97,17 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
   }
 
   return (
-    <div className="f-card" style={{ padding: "18px 20px", marginBottom: 20 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
-        <p className="f-eyebrow">Photo de couverture</p>
+    <div className="dashboard-cover-card">
+      <div className="dashboard-cover-header">
+        <p className="dashboard-section-label">Image de la page invitée</p>
         {coverUrl && (
-          <span style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 700 }}>
-            Active
+          <span className="dashboard-cover-status">
+            Définie
           </span>
         )}
       </div>
-      <p style={{ color: "var(--fg-3)", fontSize: 13, lineHeight: 1.45, marginBottom: 14 }}>
-        Conseil : utilise une image horizontale. Les bords peuvent être légèrement recadrés selon l&apos;écran.
+      <p className="dashboard-cover-help">
+        C&apos;est l&apos;image que vos invités verront en arrivant. Un format horizontal s&apos;affiche mieux.
       </p>
 
       {coverUrl ? (
@@ -119,14 +119,14 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
             width: "100%",
             aspectRatio: "16 / 10",
             objectFit: "cover",
-            borderRadius: "var(--radius-md)",
+            borderRadius: "20px",
             display: "block",
             marginBottom: 14,
-            background: "var(--surface-2)",
+            background: "var(--surface-warm)",
           }}
         />
       ) : (
-        <p style={{ color: "var(--fg-3)", fontSize: 14, lineHeight: 1.5, marginBottom: 14 }}>
+        <p className="dashboard-cover-empty">
           Aucune photo de couverture définie.
         </p>
       )}
@@ -143,20 +143,7 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={isUploading || isDeleting}
-        style={{
-          borderRadius: "var(--radius-pill)",
-          border: "1.5px solid var(--border)",
-          background: "var(--surface-2)",
-          color: "var(--fg-2)",
-          cursor: isUploading || isDeleting ? "default" : "pointer",
-          fontSize: 12,
-          fontWeight: 800,
-          letterSpacing: "0.06em",
-          opacity: isUploading || isDeleting ? 0.65 : 1,
-          padding: "11px 16px",
-          textTransform: "uppercase",
-          width: "100%",
-        }}
+        className="dashboard-action-button dashboard-action-button-paper"
       >
         {isUploading ? "Envoi en cours…" : coverUrl ? "Remplacer la photo" : "Ajouter une photo"}
       </button>
@@ -166,21 +153,7 @@ export default function CoverUploadCard({ eventId, initialCoverUrl }: Props) {
           type="button"
           onClick={handleDeleteCover}
           disabled={isUploading || isDeleting}
-          style={{
-            borderRadius: "var(--radius-pill)",
-            border: "1.5px solid var(--border)",
-            background: "transparent",
-            color: "var(--fg-3)",
-            cursor: isUploading || isDeleting ? "default" : "pointer",
-            fontSize: 12,
-            fontWeight: 800,
-            letterSpacing: "0.06em",
-            marginTop: 10,
-            opacity: isUploading || isDeleting ? 0.65 : 1,
-            padding: "11px 16px",
-            textTransform: "uppercase",
-            width: "100%",
-          }}
+          className="dashboard-action-button dashboard-action-button-quiet"
         >
           {isDeleting ? "Suppression…" : "Supprimer la photo"}
         </button>

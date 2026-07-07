@@ -2,69 +2,97 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div
+    <main
       style={{
         minHeight: "100dvh",
-        display: "flex",
-        flexDirection: "column",
-        background: "var(--flaash-ink)",
+        display: "grid",
+        placeItems: "center",
+        padding: "40px 22px",
+        background: "var(--flaash-cream)",
+        color: "var(--flaash-ink)",
       }}
     >
-      {/* Amber top stripe */}
-      <div style={{ height: 6, background: "var(--flaash-amber)" }} />
-
-      <div
+      <section
         style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "40px 24px",
+          width: "min(100%, 560px)",
+          padding: "42px 28px",
+          border: "1px solid var(--flaash-cream-line)",
+          borderRadius: 24,
+          background: "rgba(255, 255, 255, 0.58)",
+          boxShadow: "0 24px 70px rgba(26, 26, 26, 0.10)",
           textAlign: "center",
         }}
       >
-        {/* Big 404 */}
-        <div
-          className="f-display"
+        <p
+          className="flaash-label"
+          style={{ marginBottom: 14, color: "var(--fg-3)" }}
+        >
+          Flaash
+        </p>
+
+        <p
           style={{
-            fontSize: "clamp(96px, 28vw, 160px)",
-            color: "var(--flaash-amber)",
+            margin: "0 auto 16px",
+            color: "var(--flaash-ink)",
+            fontFamily: "var(--font-impact)",
+            fontSize: "clamp(72px, 20vw, 128px)",
+            fontWeight: 900,
+            letterSpacing: 0,
             lineHeight: 1,
-            marginBottom: 0,
+          }}
+          aria-label="Erreur 404"
+        >
+          404
+        </p>
+
+        <h1
+          style={{
+            maxWidth: 430,
+            margin: "0 auto 14px",
+            color: "var(--flaash-ink)",
+            fontFamily: "var(--font-impact)",
+            fontSize: "clamp(32px, 7vw, 54px)",
+            fontWeight: 900,
+            letterSpacing: 0,
+            lineHeight: 0.98,
           }}
         >
-          4<em>0</em>4
+          Cette page n&apos;est plus dans la pellicule.
+        </h1>
+
+        <p
+          style={{
+            maxWidth: 360,
+            margin: "0 auto 30px",
+            color: "var(--fg-2)",
+            fontSize: 16,
+            fontWeight: 550,
+            lineHeight: 1.62,
+          }}
+        >
+          Le lien est peut-être expiré ou l&apos;adresse incorrecte.
+        </p>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 12,
+          }}
+        >
+          <Link
+            href="/dashboard"
+            className="flaash-btn flaash-btn-primary"
+            style={{ width: "min(100%, 280px)" }}
+          >
+            Revenir à vos soirées
+          </Link>
+          <Link href="/" className="flaash-btn flaash-btn-ghost">
+            Accueil public
+          </Link>
         </div>
-
-        <p
-          className="f-script"
-          style={{
-            color: "rgba(250,247,242,0.55)",
-            fontSize: 22,
-            marginTop: 8,
-            marginBottom: 32,
-          }}
-        >
-          cette page n&apos;existe pas —
-        </p>
-
-        <p
-          style={{
-            color: "rgba(250,247,242,0.7)",
-            fontSize: 15,
-            maxWidth: 280,
-            lineHeight: 1.6,
-            marginBottom: 40,
-          }}
-        >
-          Le lien est peut-être expiré ou vous avez suivi une mauvaise adresse.
-        </p>
-
-        <Link href="/" className="btn-pill btn-amber" style={{ maxWidth: 280 }}>
-          RETOUR À L&apos;ACCUEIL
-        </Link>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

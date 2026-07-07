@@ -71,10 +71,10 @@ export default async function DashboardLayout({
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           <Link
             href="/dashboard/new"
-            className="btn-pill btn-amber"
-            style={{ padding: "12px 16px", fontSize: 13, width: "auto" }}
+            className="flaash-btn flaash-btn-primary"
+            style={{ minHeight: 44, padding: "12px 16px", fontSize: 13, width: "auto" }}
           >
-            + CRÉER
+            Nouvelle soirée
           </Link>
           <form action={logout}>
             <button

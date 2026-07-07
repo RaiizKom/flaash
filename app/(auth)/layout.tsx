@@ -3,9 +3,5 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flaash-shell flex flex-col min-h-dvh">
-      {children}
-    </div>
-  );
+  return <div className="auth-shell">{children}</div>;
 }

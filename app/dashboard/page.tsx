@@ -6,13 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import { type Event, STATUS_LABELS, EVENT_TYPE_LABELS } from "@/types";
 import { deleteEvent } from "@/app/dashboard/[id]/actions";
 
-const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
-  draft:    { bg: "var(--flaash-cream-line)", fg: "var(--fg-3)" },
-  active:   { bg: "var(--flaash-amber-soft)", fg: "var(--flaash-amber-deep)" },
-  revealed: { bg: "var(--flaash-forest-soft)", fg: "var(--flaash-forest)" },
-  closed:   { bg: "var(--flaash-cream-line)", fg: "var(--fg-3)" },
-};
-
 export default async function DashboardPage() {
   let user;
   let events: Event[] = [];
@@ -39,154 +32,207 @@ export default async function DashboardPage() {
   if (!user) redirect("/login");
 
   const eventsData = events;
+  const totalEvents = eventsData.length;
+  const activeEvents = eventsData.filter((event) => event.status === "active").length;
+  const revealedEvents = eventsData.filter((event) => event.status === "revealed").length;
+  const draftEvents = eventsData.filter((event) => event.status === "draft").length;
+  const focusEvent = eventsData[0];
+  const secondaryEvents = eventsData.slice(1);
+  const overviewStats = [
+    { label: "Soirées", value: totalEvents, detail: "au total" },
+    { label: "Actives", value: activeEvents, detail: "en cours" },
+    { label: "Révélées", value: revealedEvents, detail: "souvenirs revenus" },
+    { label: "Brouillons", value: draftEvents, detail: "à préparer" },
+  ];
 
   return (
-    <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 32, paddingBottom: 80 }}>
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <p className="f-eyebrow" style={{ marginBottom: 6 }}>
-          01 — MES ÉVÉNEMENTS
-        </p>
-        <h1 className="f-h1">
-          {eventsData.length === 0 ? "Aucun événement" : `${eventsData.length} événement${eventsData.length > 1 ? "s" : ""}`}
-        </h1>
-      </div>
+    <main className="dashboard-overview">
+      <section className="dashboard-overview-hero" aria-labelledby="dashboard-overview-title">
+        <div className="dashboard-overview-copy">
+          <p className="dashboard-overview-label">Vos soirées</p>
+          <h1 id="dashboard-overview-title">Retrouver les souvenirs en attente</h1>
+          <p>
+            Suivez les soirées actives, les reveals à venir et les souvenirs déjà revenus.
+          </p>
+        </div>
+        <Link href="/dashboard/new" className="dashboard-overview-cta">
+          Préparer une nouvelle soirée
+        </Link>
+      </section>
 
       {/* Empty state */}
       {eventsData.length === 0 && (
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            textAlign: "center",
-            gap: 16,
-            paddingBottom: 60,
-          }}
-        >
-          <div
-            style={{
-              width: 80, height: 80,
-              borderRadius: "50%",
-              background: "var(--flaash-amber-soft)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 36,
-            }}
-          >
-            📷
+        <section className="dashboard-overview-empty">
+          <div className="dashboard-overview-empty-mark" aria-hidden="true">
+            <span />
           </div>
-          <p style={{ color: "var(--fg-2)", fontSize: 15, maxWidth: 260, lineHeight: 1.5 }}>
-            Aucun événement pour l&apos;instant — créez le premier.
+          <p className="dashboard-overview-empty-label">Le premier scan</p>
+          <h2>Votre première soirée Flaash attend son QR.</h2>
+          <p>
+            Créez un événement, faites circuler le QR, puis laissez les souvenirs arriver.
           </p>
-          <p className="f-script" style={{ color: "var(--flaash-forest)" }}>
-            vos souvenirs se développent…
-          </p>
-          <Link
-            href="/dashboard/new"
-            className="btn-pill btn-ink"
-            style={{ marginTop: 8, maxWidth: 280 }}
-          >
-            CRÉER UN ÉVÉNEMENT
+          <Link href="/dashboard/new" className="dashboard-overview-cta">
+            Préparer une nouvelle soirée
           </Link>
-        </div>
+        </section>
       )}
 
       {/* Event list */}
-      {eventsData.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {eventsData.map((event) => {
-            const colors = STATUS_COLORS[event.status] ?? STATUS_COLORS.draft;
-            return (
-              <div key={event.id}>
-                <Link href={`/dashboard/${event.id}`} style={{ textDecoration: "none", display: "block" }}>
-                  <div
-                    className="f-card"
-                    style={{
-                      padding: "18px 20px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 10,
-                      transition: "box-shadow var(--t-base)",
-                      borderBottomLeftRadius: event.status === "draft" ? 0 : undefined,
-                      borderBottomRightRadius: event.status === "draft" ? 0 : undefined,
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p className="f-eyebrow" style={{ marginBottom: 3 }}>
-                          {EVENT_TYPE_LABELS[event.event_type]}
-                        </p>
-                        <h2
-                          className="f-h3"
-                          style={{ margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                        >
-                          {event.title}
-                        </h2>
-                      </div>
-                      <span
-                        className="status-badge"
-                        style={{ background: colors.bg, color: colors.fg, flexShrink: 0 }}
-                      >
-                        {STATUS_LABELS[event.status]}
-                      </span>
-                    </div>
+      {focusEvent && (
+        <section className="dashboard-overview-events" aria-label="Soirées Flaash">
+          <article
+            className={`dashboard-overview-focus${focusEvent.status === "draft" ? " dashboard-overview-focus-draft" : ""}`}
+          >
+            <Link href={`/dashboard/${focusEvent.id}`} className="dashboard-overview-focus-link">
+              <div className="dashboard-overview-focus-copy">
+                <div className="dashboard-overview-focus-kicker">
+                  <p>À reprendre</p>
+                  <span className={`dashboard-overview-status dashboard-overview-status-${focusEvent.status}`}>
+                    {STATUS_LABELS[focusEvent.status]}
+                  </span>
+                </div>
+                <h2>{focusEvent.title}</h2>
+                <p className="dashboard-overview-focus-type">
+                  {EVENT_TYPE_LABELS[focusEvent.event_type]}
+                </p>
+              </div>
 
-                    <div style={{ display: "flex", gap: 16, fontSize: 13, color: "var(--fg-3)" }}>
-                      <span>{event.max_guests} invités max</span>
-                      <span>·</span>
-                      <span>{event.photos_per_guest} photos/invité</span>
-                      <span>·</span>
-                      <span style={{ fontWeight: 600, color: "var(--fg-2)" }}>
-                        CHF {event.price_chf}
-                      </span>
-                    </div>
-
-                    {event.status === "draft" && (
-                      <div style={{ fontSize: 12, color: "var(--flaash-amber-deep)", fontWeight: 600 }}>
-                        Paiement requis pour activer →
-                      </div>
-                    )}
-                  </div>
-                </Link>
-
-                {/* BUG 2 — Delete button for draft events */}
-                {event.status === "draft" && (
-                  <form
-                    action={deleteEvent.bind(null, event.id)}
-                    style={{
-                      background: "var(--flaash-error-soft)",
-                      border: "1px solid var(--border)",
-                      borderTop: "none",
-                      borderBottomLeftRadius: "var(--radius-md)",
-                      borderBottomRightRadius: "var(--radius-md)",
-                      padding: "10px 20px",
-                      display: "flex",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <button
-                      type="submit"
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: "var(--flaash-error)",
-                        padding: "4px 0",
-                      }}
-                    >
-                      Supprimer le brouillon →
-                    </button>
-                  </form>
+              <div className="dashboard-overview-focus-details" aria-label="Cadre de la soirée principale">
+                <span>
+                  <strong>Invités</strong>
+                  {focusEvent.max_guests} max
+                </span>
+                <span>
+                  <strong>Souvenirs</strong>
+                  {focusEvent.photos_per_guest} poses par invité
+                </span>
+                {focusEvent.price_chf !== null && focusEvent.price_chf !== undefined && (
+                  <span>
+                    <strong>Cadre</strong>
+                    CHF {focusEvent.price_chf}
+                  </span>
                 )}
               </div>
-            );
-          })}
-        </div>
+
+              <div className="dashboard-overview-focus-action">
+                {focusEvent.status === "draft" && (
+                  <span className="dashboard-overview-draft-note">
+                    Paiement requis pour activer
+                  </span>
+                )}
+                <span className="dashboard-overview-open">Ouvrir la soirée</span>
+              </div>
+            </Link>
+
+            {focusEvent.status === "draft" && (
+              <form
+                action={deleteEvent.bind(null, focusEvent.id)}
+                className="dashboard-overview-draft-delete dashboard-overview-focus-delete"
+              >
+                <button type="submit">
+                  Supprimer le brouillon
+                </button>
+              </form>
+            )}
+          </article>
+
+          <section className="dashboard-overview-pilot" aria-label="Pilotage des soirées">
+            {overviewStats.map((stat) => (
+              <div className="dashboard-overview-stat" key={stat.label}>
+                <span>{stat.label}</span>
+                <strong>{stat.value}</strong>
+                <p>{stat.detail}</p>
+              </div>
+            ))}
+          </section>
+
+          {secondaryEvents.length > 0 && (
+            <div className="dashboard-overview-events-secondary">
+              <div className="dashboard-overview-events-head">
+                <div>
+                  <p className="dashboard-overview-label">Autres soirées</p>
+                  <h2>Les autres soirées à retrouver</h2>
+                </div>
+                <span>
+                  {secondaryEvents.length} soirée{secondaryEvents.length > 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <div className="dashboard-overview-event-list">
+              {secondaryEvents.map((event) => {
+                const isDraft = event.status === "draft";
+                const priceLabel =
+                  event.price_chf === null || event.price_chf === undefined
+                    ? null
+                    : `CHF ${event.price_chf}`;
+                return (
+                  <article
+                    className={`dashboard-overview-event-card${isDraft ? " dashboard-overview-event-card-draft" : ""}`}
+                    key={event.id}
+                  >
+                    <Link href={`/dashboard/${event.id}`} className="dashboard-overview-event-link">
+                      <div className="dashboard-overview-event-main">
+                        <span
+                          className={`dashboard-overview-event-signal dashboard-overview-event-signal-${event.status}`}
+                          aria-hidden="true"
+                        />
+                        <div className="dashboard-overview-event-title">
+                          <div className="dashboard-overview-event-kicker">
+                            <p>{EVENT_TYPE_LABELS[event.event_type]}</p>
+                            <span className={`dashboard-overview-status dashboard-overview-status-${event.status}`}>
+                              {STATUS_LABELS[event.status]}
+                            </span>
+                          </div>
+                          <h3>{event.title}</h3>
+                        </div>
+                      </div>
+
+                      <div className="dashboard-overview-event-meta" aria-label="Cadre de la soirée">
+                        <span>
+                          <strong>Invités</strong>
+                          {event.max_guests} max
+                        </span>
+                        <span>
+                          <strong>Souvenirs</strong>
+                          {event.photos_per_guest} poses par invité
+                        </span>
+                        {priceLabel && (
+                          <span>
+                            <strong>Cadre</strong>
+                            {priceLabel}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="dashboard-overview-event-action">
+                        {isDraft && (
+                          <div className="dashboard-overview-draft-note">
+                            Paiement requis pour activer
+                          </div>
+                        )}
+                        <span className="dashboard-overview-open">Ouvrir la soirée</span>
+                      </div>
+                    </Link>
+
+                    {/* BUG 2 — Delete button for draft events */}
+                    {isDraft && (
+                      <form
+                        action={deleteEvent.bind(null, event.id)}
+                        className="dashboard-overview-draft-delete"
+                      >
+                        <button type="submit">
+                          Supprimer le brouillon
+                        </button>
+                      </form>
+                    )}
+                  </article>
+                );
+              })}
+              </div>
+            </div>
+          )}
+        </section>
       )}
-    </div>
+    </main>
   );
 }

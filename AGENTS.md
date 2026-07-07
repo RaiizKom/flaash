@@ -1,93 +1,196 @@
-# AGENTS.md — Flaash
+# AGENTS.md - Flaash
 
-## Rôle de l’agent
-Tu es un agent de développement pour Flaash, une web app d’appareil photo jetable digital pour événements premium en Suisse et en Europe.
+## Project Path
 
-Tu dois agir comme un développeur senior prudent : comprendre avant de modifier, limiter le périmètre, vérifier chaque changement, puis expliquer clairement ce qui a été fait.
+- Official project: `/Volumes/SamsungDev/Dev/Active/Flaash`
+- Work command:
+  - `cd /Volumes/SamsungDev/Dev/Active/Flaash`
+  - `code .`
+- Related project, not this repo: `/Volumes/SamsungDev/Dev/Active/AppFitness`
+- Do not use old Flaash paths such as `~/flaash`.
 
-## Dossier officiel
-- Le seul dossier officiel du projet est `/Users/pedrolopes05/flaash`.
-- Ne pas utiliser ni référencer l’ancien dossier `/Users/pedrolopes05/Desktop/flaash`, supprimé.
+## Role
 
-## Stack technique
-- Frontend : Next.js 14, App Router, TypeScript
-- Backend / DB : Supabase, Postgres, Auth, Realtime, région EU
-- Storage : Cloudflare R2
-- Paiements : Stripe CHF
-- Hosting : Vercel
-- Image processing : Sharp
-- QR code : qrcode.react
-- i18n : next-intl, installé mais pas encore implémenté
-- Email : Resend, pas encore implémenté
+You are a senior development agent for Flaash, a digital disposable camera web app for premium events in Switzerland and Europe.
 
-## Règles de travail obligatoires
-- Ne jamais commencer à coder sans avoir d’abord identifié les fichiers concernés.
-- Pour un bug, formuler les hypothèses avant de modifier le code.
-- Limiter les modifications au périmètre demandé.
-- Ne jamais refactoriser largement sans demande explicite.
-- Ne jamais modifier le pricing, les limites de plans, les règles Stripe, les règles Supabase/RLS ou le stockage R2 sans l’indiquer explicitement.
-- Ne jamais exposer de secrets, clés API, tokens, variables `.env`, credentials Supabase, Stripe, Resend, Vercel ou Cloudflare.
-- Ne jamais inventer une variable d’environnement. Si elle manque, lister précisément son nom et son usage.
-- Ne jamais supprimer une fonctionnalité existante validée sans confirmation.
-- Ne jamais ajouter de dépendance production sans justification et confirmation.
+You must understand the brand, product ritual, current roadmap, and functional boundaries before changing code. Flaash is not a generic React/CSS project.
 
-## Workflow attendu
-1. Inspecter le code pertinent.
-2. Résumer le diagnostic en 3 à 8 lignes.
-3. Proposer le plan d’action.
-4. Appliquer uniquement les changements nécessaires.
-5. Exécuter les vérifications disponibles.
-6. Donner un résumé final : fichiers modifiés, logique changée, tests effectués, risques restants.
+## Branch Strategy
 
-## Commandes de vérification
-Après modification, exécuter en priorité :
-- `npm run quality`
+- Long-running brand refactor branch: `refactor/flaash-analog-social-premium`
+- Create a dedicated branch for each lot.
+- Keep docs and code commits separate when that improves review clarity.
+- Merge completed lots into `refactor/flaash-analog-social-premium` with `merge --no-ff`.
+- Run `npm run quality` after each merge.
+- Do not commit unless the user explicitly asks.
 
-Ce script existe et lance :
-- `npm run lint`
-- `npm run typecheck`
-- `npm run build`
+## Mandatory Reading Before Visual Or Product Work
 
-Si une commande n’existe pas dans `package.json`, ne pas l’inventer. Lire `package.json` et proposer d’ajouter le script si pertinent.
+Before any visual, UX, product, wording, dashboard, guest, print, pricing, or landing change:
 
-## Qualité produit
-Toujours préserver les parcours critiques :
-- création d’événement
-- sélection automatique du plan
-- paiement Stripe Checkout
-- webhook `checkout.session.completed`
-- activation du plan Test sans Stripe
-- scan QR invité
-- prise de photo mobile
-- upload photo
-- modération photo
-- révélation manuelle/date fixée
-- téléchargement ZIP
-- page impression QR `/print/[slug]`
+1. Read the available strategic documents.
+2. Summarize in 5 points maximum the DA rules applicable to the intervention.
+3. Do not code before that summary.
 
-## Critères UX
-- Mobile-first, surtout iPhone Safari et Android Chrome.
-- Ne pas casser le rendu existant.
-- Éviter les changements visuels non demandés.
-- Les messages utilisateur doivent être simples, premium, rassurants et en français par défaut.
+Read by default:
 
-## État MVP connu
-Fonctionnalités validées : création événement, pricing fixe, Stripe, webhook, plan Test, modération, galerie invité, carrousel miniatures, ZIP, reveal manuel, modes de reveal, page print QR `/print/[slug]`, téléchargement PNG de la carte QR, logo SVG, dashboard organisateur, dev bypass masqué en production.
+- `docs/FLAASH_ROADMAP.md` if present
+- `design-references/FLAASH_VISUAL_SYSTEM.md`
+- `design-references/FLAASH_BRAND_VOICE.md`
+- `design-references/FLAASH_CAMPAIGN_RULES.md`
+- `design-references/DA_VALIDATED.md`
+- `design-references/BRAND_UNIVERSE.md`
+- `design-references/STRATEGIC_AUDIT_APPENDIX.md`
+- `design-references/DASHBOARD_EVENT_DETAIL_AUDIT_7_1A.md` if the work touches the dashboard
 
-Dernier état validé : le bug de téléchargement PNG de la carte QR sur `/print/[slug]` est corrigé, testé en local et validé sur Vercel. Dernier commit sur `origin/main` : `fix: stabilize QR card PNG export`.
+If a document is missing, note it briefly and continue with the available references.
 
-## Prochaines priorités MVP
-1. Pages légales / privacy
-2. Message privacy visible sur `/e/[slug]`
-3. Emails transactionnels Resend
-4. QA mobile complète
-5. Landing page marketing
-6. Mode démo permanent
+## Flaash North Star
 
-## Format de réponse attendu
-Répondre de façon concise et opérationnelle :
-- Diagnostic
-- Plan
-- Changements effectués
-- Vérifications lancées
-- Ce qui reste à valider manuellement
+Direction: **Flaash - Analog Social Premium**
+
+Phrase-world:
+
+> La soirée se vit maintenant. Les souvenirs se découvrent plus tard.
+
+Doctrine:
+
+- Flaash does not sell photos. Flaash sells the return of a night.
+- Flaash is not one more app. Flaash is a social ritual.
+- Live now, capture without interrupting, reveal later, relive together.
+- The product should feel like: "they know exactly what they are doing."
+
+## DA Rules
+
+- Paper / cream is the warm, breathable base.
+- Ink is authority, night, reveal, structure, and contrast.
+- Shutter red is a rare action signal: creation, scan, capture, reveal, or an important decision.
+- Forest green is a micro-accent for trust/calm only. Never use it for destructive actions.
+- Amber is secondary warmth, not a primary action system.
+- QR is a social object and entry point, not a generic technical code block.
+- Reveal is the main brand moment: the event comes back.
+- The phone is secondary. It enables the gesture; it is not the hero.
+- Photos are souvenirs and guest perspectives, not files.
+- Avoid cold SaaS patterns, admin language, generic feature grids, and technical-first copy.
+- Avoid cold luxury, wedding prestige codes, old dominant green, and decorative retro effects.
+
+## Product Language Rules
+
+Prefer:
+
+- soirée
+- souvenirs
+- regards
+- invités
+- galerie
+- reveal
+- QR
+- poses
+- capturer
+- révéler
+- revoir
+- revenir
+- télécharger les souvenirs
+
+Avoid in primary surfaces:
+
+- fichiers
+- upload
+- ZIP, unless technical precision is necessary
+- admin
+- gestion de fichiers
+- solution digitale
+- plateforme
+- optimiser
+- workflow
+- supprimées, when "mis de côté" is clearer and calmer
+
+French is the default user-facing language. Keep copy short, direct, premium, warm, and concrete.
+
+## Scope Discipline
+
+- Identify the files concerned before editing.
+- For bugs, state hypotheses before modifying code.
+- Keep changes scoped to the requested lot.
+- Do not refactor broadly without explicit request.
+- Do not remove a validated feature without confirmation.
+- Do not add a production dependency without justification and confirmation.
+- Do not update npm or dependencies unless explicitly requested.
+- Do not delete `.btn-amber` without auditing usage.
+- Treat old dashboard CSS as potentially redundant but not safe to delete without audit.
+
+## Functional Safety Rules
+
+Never modify without explicit request and a clear warning:
+
+- API routes
+- Supabase queries
+- Supabase RLS or permissions
+- auth, redirects, ownership checks
+- Cloudflare R2 storage
+- Stripe and pricing logic
+- upload flows
+- delete, reveal, restore, download, and webhook actions
+- environment variable names or secrets
+- production credentials, tokens, API keys, `.env` values
+
+Never expose secrets. If an environment variable is missing, list its exact name and intended use instead of inventing a replacement.
+
+## Critical Product Flows To Preserve
+
+- event creation
+- automatic plan selection
+- Stripe Checkout
+- `checkout.session.completed` webhook
+- Test plan activation without Stripe
+- guest QR scan
+- mobile camera capture
+- photo upload
+- photo moderation
+- manual/date-based reveal
+- ZIP/download export
+- print QR page `/print/[slug]`
+
+## QA Rules
+
+Before work:
+
+- Run `git status --short`.
+- Confirm the current branch.
+- Read relevant files before editing.
+
+After work:
+
+- Run `git diff --stat`.
+- Run `git diff --check`.
+- Run `npm run quality` for code changes.
+- For UI pages, verify desktop and mobile screenshots.
+- Mobile 375/390 px is mandatory for page UI.
+- Check no horizontal scroll.
+- Check touch targets, focus states, and text wrapping.
+- For sensitive pages, do a final audit before commit.
+
+Known non-blocking local warning:
+
+- Google Fonts may fail to optimize during local build. If `npm run build` succeeds, this is non-blocking.
+
+## Commit And Merge Rules
+
+- Do not commit unless requested.
+- Use a dedicated branch per lot.
+- Prefer clear commits: docs, code, fixes, QA separately when useful.
+- Before merge, confirm:
+  - scope stayed inside the lot;
+  - `npm run quality` passed;
+  - no pricing/Supabase/R2/Stripe/auth changes slipped in;
+  - visual QA is done when relevant.
+- Merge completed lot branches with `merge --no-ff` into `refactor/flaash-analog-social-premium`.
+- Run `npm run quality` again after merge.
+
+## Special Warnings
+
+- R2 local / `.env.local` credentials may be broken. Preview/Production can still be OK.
+- Vercel Preview is useful for upload/R2 verification.
+- Some remaining dashboard subpages may still carry old wording or old visual grammar.
+- AppFitness is a different project and must not be touched during Flaash work.
+- Do not treat a visual lot as simple CSS. Start from the Flaash ritual and product role.

@@ -9,74 +9,49 @@ export default async function ForgotPasswordPage({ searchParams }: Props) {
   const { error, success } = searchParams;
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "var(--flaash-ink)" }}>
-      <div style={{ height: 6, background: "var(--flaash-amber)" }} />
-
-      <div className="flex flex-col flex-1 px-6 pb-10" style={{ paddingTop: 56 }}>
-        <div style={{ marginBottom: 48 }}>
-          <div
-            className="f-display"
-            style={{ color: "var(--flaash-cream)", fontSize: "clamp(48px,14vw,72px)" }}
-          >
-            Fl<em>aa</em>sh
-          </div>
-          <p className="f-script" style={{ color: "var(--flaash-amber)", marginTop: 8 }}>
-            on retrouve l'accès.
+    <main className="auth-page">
+      <div className="auth-frame">
+        <section className="auth-brand" aria-label="Flaash">
+          <Link href="/" className="auth-back-link">
+            ← Retour à l'accueil
+          </Link>
+          <span className="auth-wordmark">Flaash</span>
+          <h2>Retrouver votre accès.</h2>
+          <p>
+            Un lien vous ramène à votre espace organisateur, sans changer vos
+            événements ni vos galeries.
           </p>
-        </div>
+          <ul className="auth-ritual-list">
+            <li>Accès sécurisé</li>
+            <li>Événements conservés</li>
+            <li>Retour à votre espace</li>
+          </ul>
+        </section>
 
-        <div
-          style={{
-            background: "var(--flaash-cream)",
-            borderRadius: "var(--radius-xl)",
-            padding: "32px 24px 28px",
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 24,
-          }}
-        >
-          <div>
-            <p className="f-eyebrow" style={{ marginBottom: 6 }}>
-              Sécurité
+        <section className="auth-card" aria-labelledby="forgot-password-title">
+          <div className="auth-card-header">
+            <p className="flaash-label">Sécurité</p>
+            <h1 id="forgot-password-title">Réinitialiser votre accès</h1>
+            <p>
+              Indiquez votre email, nous vous envoyons un lien pour revenir à
+              votre espace.
             </p>
-            <h1 className="f-h2">Mot de passe oublié</h1>
           </div>
 
           {error && (
-            <div
-              style={{
-                background: "var(--flaash-error-soft)",
-                border: "1px solid var(--flaash-error)",
-                borderRadius: "var(--radius-sm)",
-                padding: "12px 14px",
-                fontSize: 14,
-                color: "var(--flaash-error)",
-                fontWeight: 500,
-              }}
-            >
+            <div className="auth-message auth-message-error">
               {decodeURIComponent(error)}
             </div>
           )}
 
           {success === "reset-sent" && (
-            <div
-              style={{
-                background: "rgba(45,92,74,0.1)",
-                border: "1px solid rgba(45,92,74,0.3)",
-                borderRadius: "var(--radius-sm)",
-                padding: "12px 14px",
-                fontSize: 14,
-                color: "var(--flaash-forest)",
-                fontWeight: 500,
-              }}
-            >
+            <div className="auth-message auth-message-success">
               Si un compte existe pour cette adresse, un lien de réinitialisation
               vient d'être envoyé.
             </div>
           )}
 
-          <form action={requestPasswordReset} className="flex flex-col gap-5">
+          <form action={requestPasswordReset} className="auth-form">
             <div className="f-input-wrap">
               <label className="f-label" htmlFor="email">
                 Adresse e-mail
@@ -94,28 +69,18 @@ export default async function ForgotPasswordPage({ searchParams }: Props) {
               />
             </div>
 
-            <div style={{ marginTop: 8 }}>
-              <button type="submit" className="btn-pill btn-ink">
-                RECEVOIR LE LIEN
-              </button>
-            </div>
+            <button type="submit" className="flaash-btn flaash-btn-primary auth-submit">
+              Recevoir le lien
+            </button>
           </form>
 
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 20, textAlign: "center" }}>
-            <Link
-              href="/login"
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "var(--flaash-amber-deep)",
-                textDecoration: "none",
-              }}
-            >
+          <div className="auth-card-footer">
+            <Link href="/login" className="auth-link">
               Retour à la connexion
             </Link>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

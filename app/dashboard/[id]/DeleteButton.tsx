@@ -18,18 +18,7 @@ export default function DeleteButton({ eventId }: { eventId: string }) {
       <button
         type="button"
         onClick={() => setShowModal(true)}
-        style={{
-          background: "none",
-          border: "1px solid rgba(220,38,38,0.3)",
-          borderRadius: "var(--radius-pill)",
-          color: "#dc2626",
-          fontSize: 12,
-          fontWeight: 600,
-          letterSpacing: "0.06em",
-          padding: "8px 16px",
-          cursor: "pointer",
-          marginTop: 8,
-        }}
+        className="dashboard-delete-button"
       >
         Supprimer l&apos;événement
       </button>

@@ -87,165 +87,99 @@ export default function PhotoGrid({ eventId, activePhotos, deletedPhotos }: Prop
     <>
       {/* ── Active grid ─────────────────────────────────────────────────────── */}
       {activePhotos.length > 0 && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 8,
-            marginBottom: 32,
-          }}
-        >
-          {activePhotos.map((photo, index) => (
-            <div
-              key={photo.id}
-              style={{
-                position: "relative",
-                aspectRatio: "1",
-                borderRadius: "var(--radius-sm)",
-                overflow: "hidden",
-                background: "var(--surface-2)",
-              }}
-            >
-              {/* Thumbnail — opens lightbox */}
-              <button
-                type="button"
-                onClick={() => setIdx(index)}
-                style={{
-                  display: "block", width: "100%", height: "100%",
-                  padding: 0, border: "none", background: "none",
-                  cursor: "zoom-in",
-                }}
-                aria-label="Agrandir la photo"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.thumbnail_url || photo.storage_url}
-                  alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
-              </button>
-
-              {photo.guestName && (
-                <span
-                  style={{
-                    position: "absolute",
-                    left: 8,
-                    bottom: 8,
-                    zIndex: 2,
-                    maxWidth: "calc(100% - 16px)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    borderRadius: "var(--radius-pill)",
-                    background: "rgba(10,8,5,0.62)",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
-                    color: "var(--flaash-cream)",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: "0.04em",
-                    lineHeight: 1,
-                    padding: "6px 9px",
-                    pointerEvents: "none",
-                  }}
-                >
-                  {photo.guestName}
-                </span>
-              )}
-
-              {/* Delete */}
-              <form
-                action={deletePhoto.bind(null, photo.id, eventId)}
-                style={{ position: "absolute", top: 4, right: 4 }}
+        <section className="dashboard-photos-curation" aria-label="Souvenirs visibles">
+          <div className="dashboard-photos-section-head">
+            <div>
+              <p className="dashboard-section-label">Galerie</p>
+              <h2>Souvenirs visibles</h2>
+            </div>
+            <p>{activePhotos.length} prêts pour la galerie</p>
+          </div>
+          <div className="dashboard-photos-grid">
+            {activePhotos.map((photo, index) => (
+              <article
+                key={photo.id}
+                className="dashboard-photo-card"
               >
                 <button
-                  type="submit"
-                  title="Supprimer"
-                  style={{
-                    background: "rgba(0,0,0,0.55)", border: "none", borderRadius: "50%",
-                    width: 28, height: 28, display: "flex", alignItems: "center",
-                    justifyContent: "center", cursor: "pointer", color: "white", fontSize: 18,
-                  }}
+                  type="button"
+                  onClick={() => setIdx(index)}
+                  className="dashboard-photo-open"
+                  aria-label="Agrandir la photo"
                 >
-                  ×
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.thumbnail_url || photo.storage_url}
+                    alt=""
+                    className="dashboard-photo-image"
+                  />
                 </button>
-              </form>
-            </div>
-          ))}
-        </div>
+
+                <div className="dashboard-photo-meta" aria-hidden="true">
+                  <span>{photo.guestName ?? "Invité"}</span>
+                  <span>{fmtDate(photo.taken_at)}</span>
+                </div>
+
+                <form
+                  action={deletePhoto.bind(null, photo.id, eventId)}
+                  className="dashboard-photo-delete-form"
+                >
+                  <button
+                    type="submit"
+                    title="Mettre de côté"
+                    className="dashboard-photo-delete-button"
+                    aria-label="Mettre cette photo de côté"
+                  >
+                    ×
+                  </button>
+                </form>
+              </article>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* ── Deleted grid ────────────────────────────────────────────────────── */}
       {deletedPhotos.length > 0 && (
-        <>
-          <p className="f-eyebrow" style={{ marginBottom: 12 }}>SUPPRIMÉES</p>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 8,
-              opacity: 0.5,
-            }}
-          >
+        <section className="dashboard-photos-set-aside" aria-label="Souvenirs mis de côté">
+          <div className="dashboard-photos-section-head">
+            <div>
+              <p className="dashboard-section-label">Mis de côté</p>
+              <h2>Souvenirs mis de côté</h2>
+            </div>
+            <p>{deletedPhotos.length} à restaurer si besoin</p>
+          </div>
+          <div className="dashboard-photos-grid dashboard-photos-grid-muted">
             {deletedPhotos.map((photo) => (
-              <div
+              <article
                 key={photo.id}
-                style={{
-                  position: "relative", aspectRatio: "1",
-                  borderRadius: "var(--radius-sm)", overflow: "hidden",
-                  background: "var(--surface-2)",
-                }}
+                className="dashboard-photo-card dashboard-photo-card-muted"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={photo.thumbnail_url || photo.storage_url}
                   alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  className="dashboard-photo-image"
                 />
-                {photo.guestName && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: 8,
-                      bottom: 8,
-                      zIndex: 2,
-                      maxWidth: "calc(100% - 92px)",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      borderRadius: "var(--radius-pill)",
-                      background: "rgba(10,8,5,0.62)",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
-                      color: "var(--flaash-cream)",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: "0.04em",
-                      lineHeight: 1,
-                      padding: "6px 9px",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    {photo.guestName}
-                  </span>
-                )}
+                <div className="dashboard-photo-meta" aria-hidden="true">
+                  <span>{photo.guestName ?? "Invité"}</span>
+                  <span>{fmtDate(photo.taken_at)}</span>
+                </div>
                 <form
                   action={restorePhoto.bind(null, photo.id, eventId)}
-                  style={{ position: "absolute", bottom: 4, right: 4 }}
+                  className="dashboard-photo-restore-form"
                 >
                   <button
                     type="submit"
-                    style={{
-                      background: "rgba(0,0,0,0.55)", border: "none",
-                      borderRadius: "var(--radius-sm)", padding: "3px 8px",
-                      cursor: "pointer", color: "white", fontSize: 11, fontWeight: 600,
-                    }}
+                    className="dashboard-photo-restore-button"
                   >
                     Restaurer
                   </button>
                 </form>
-              </div>
+              </article>
             ))}
           </div>
-        </>
+        </section>
       )}
 
       {/* ── Lightbox ────────────────────────────────────────────────────────── */}

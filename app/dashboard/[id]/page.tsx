@@ -75,382 +75,275 @@ export default async function EventDetailPage({ params }: Props) {
   const statusColors = STATUS_COLORS[ev.status] ?? STATUS_COLORS.draft;
   const photoTotal = photoCount ?? 0;
   const activeGuestTotal = guestCount ?? 0;
-  const statCards = [
-    {
-      label: "Photos",
-      value: `${photoTotal}`,
-      action: "Voir les photos",
-      href: `/dashboard/${ev.id}/photos`,
-    },
-    {
-      label: "Invités",
-      value: `${activeGuestTotal} / ${ev.max_guests}`,
-      action: "Voir les invités",
-      href: `/dashboard/${ev.id}/guests`,
-    },
-    {
-      label: "Photos max / invité",
-      value: `${ev.photos_per_guest}`,
-      detail: "Limite de poses par invité",
-      href: null,
-    },
-  ];
+  const isLive = ev.status === "active" || ev.status === "revealed";
 
   return (
-    <div className="flex flex-col flex-1 px-5" style={{ paddingTop: 28, paddingBottom: 80 }}>
+    <div className="dashboard-event-detail">
       {/* Payment success banner — Suspense required because PaymentBanner uses useSearchParams() */}
       <Suspense fallback={null}>
         <PaymentBanner status={ev.status} />
       </Suspense>
 
-      {/* Back */}
-      <Link
-        href="/dashboard"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          fontSize: 13,
-          fontWeight: 600,
-          color: "var(--fg-3)",
-          textDecoration: "none",
-          marginBottom: 24,
-          letterSpacing: "0.06em",
-        }}
-      >
-        ← Mes événements
-      </Link>
-
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-          <p className="f-eyebrow">{EVENT_TYPE_LABELS[ev.event_type]}</p>
-          <span
-            className="status-badge"
-            style={{ background: statusColors.bg, color: statusColors.fg }}
-          >
-            {STATUS_LABELS[ev.status]}
-          </span>
-          {ev.plan_id && (
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                padding: "3px 8px",
-                borderRadius: 100,
-                background: "var(--surface-2)",
-                border: "1px solid var(--border)",
-                color: "var(--fg-3)",
-              }}
-            >
-              {getPlan(ev.plan_id)?.label ?? ev.plan_id}
-            </span>
-          )}
-        </div>
-        <h1 className="f-h1" style={{ marginBottom: 0 }}>
-          {ev.title}
-        </h1>
-        <Link
-          href={`/dashboard/${ev.id}/settings`}
-          style={{
-            alignItems: "center",
-            background: "var(--surface-2)",
-            border: "1.5px solid var(--border)",
-            borderRadius: "var(--radius-pill)",
-            color: "var(--fg-2)",
-            display: "inline-flex",
-            fontSize: 12,
-            fontWeight: 800,
-            justifyContent: "center",
-            letterSpacing: "0.06em",
-            marginTop: 14,
-            padding: "11px 16px",
-            textDecoration: "none",
-            textTransform: "uppercase",
-          }}
-        >
-          Modifier les paramètres
+      <div className="dashboard-event-inner">
+        {/* Back */}
+        <Link href="/dashboard" className="dashboard-event-back">
+          ← Mes événements
         </Link>
-      </div>
 
-      {/* Stats row */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-          gap: 10,
-          marginBottom: 22,
-        }}
-      >
-        {statCards.map((card) => (
-          <div
-            key={card.label}
-            style={{
-              background: "var(--surface-2)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-md)",
-              padding: "12px 13px",
-              minWidth: 0,
-            }}
-          >
-            <div style={{ fontSize: 10, color: "var(--fg-3)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 5 }}>
-              {card.label}
-            </div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 28, lineHeight: 1, color: "var(--flaash-ink)", marginBottom: 8 }}>
-              {card.value}
-            </div>
-            {card.href ? (
-              <Link
-                href={card.href}
-                style={{
-                  color: "var(--flaash-amber-deep)",
-                  display: "inline-flex",
-                  fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: "0.04em",
-                  textDecoration: "none",
-                  textTransform: "uppercase",
-                }}
+        {/* ── LAUNCH HERO ── */}
+        <header className={`dashboard-event-hero${isLive ? " dashboard-event-hero-live" : ""}`}>
+          <div className="dashboard-event-hero-copy">
+            <div className="dashboard-event-kicker">
+              <p className="dashboard-event-type">{EVENT_TYPE_LABELS[ev.event_type]}</p>
+              <span
+                className="status-badge"
+                style={{ background: statusColors.bg, color: statusColors.fg }}
               >
-                {card.action} →
-              </Link>
-            ) : (
-              <span style={{ color: "var(--fg-3)", fontSize: 11, fontWeight: 700 }}>
-                {card.detail}
+                {STATUS_LABELS[ev.status]}
               </span>
+              {ev.plan_id && (
+                <span className="dashboard-plan-badge">
+                  {getPlan(ev.plan_id)?.label ?? ev.plan_id}
+                </span>
+              )}
+            </div>
+            <h1 className="dashboard-event-title">{ev.title}</h1>
+            {ev.status === "active" && (
+              <p className="dashboard-event-worldphrase">
+                Votre événement est prêt à circuler.
+              </p>
+            )}
+            {ev.status === "revealed" && (
+              <p className="dashboard-event-worldphrase">
+                La galerie est ouverte. Les souvenirs peuvent revenir.
+              </p>
             )}
           </div>
-        ))}
-      </div>
-
-      {/* Draft warning: pay to activate */}
-      {ev.status === "draft" && (
-        <div
-          style={{
-            background: "var(--flaash-amber-soft)",
-            borderRadius: "var(--radius-md)",
-            padding: "18px 20px",
-            marginBottom: 24,
-          }}
-        >
-          <p style={{ fontWeight: 700, fontSize: 15, color: "var(--flaash-amber-deep)", marginBottom: 8 }}>
-            En attente de paiement
-          </p>
-          <p style={{ fontSize: 14, color: "var(--flaash-ink-soft)", marginBottom: 14 }}>
-            Procédez au paiement pour générer le QR code et accueillir vos invités.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {/* Reprendre le paiement */}
-            <form action={resumePayment.bind(null, ev.id)}>
-              <button type="submit" className="btn-pill btn-amber" style={{ fontSize: 14 }}>
-                Reprendre le paiement →
-              </button>
-            </form>
-            {/* Modifier = delete draft + /dashboard/new */}
-            <form action={deleteDraftAndNew.bind(null, ev.id)}>
-              <button type="submit" style={{ background: "none", border: "none", fontSize: 13, color: "var(--fg-3)", cursor: "pointer", fontWeight: 600, padding: 0 }}>
-                ← Modifier l&apos;événement
-              </button>
-            </form>
-            {/* Dev bypass */}
-            {process.env.NODE_ENV === "development" && (
-              <form action={activateEvent.bind(null, ev.id)}>
-                <button type="submit" style={{ fontSize: 12, fontWeight: 600, color: "var(--flaash-amber-deep)", background: "none", border: "1.5px dashed var(--flaash-amber-deep)", borderRadius: "var(--radius-pill)", padding: "8px 16px", cursor: "pointer", letterSpacing: "0.06em" }}>
-                  ⚡ ACTIVER SANS PAIEMENT (dev)
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Active / Revealed: show QR card */}
-      {(ev.status === "active" || ev.status === "revealed") && (
-        <div
-          style={{
-            background: "var(--flaash-forest)",
-            borderRadius: "var(--radius-xl)",
-            padding: "28px 20px",
-            marginBottom: 24,
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <p className="f-script" style={{ color: "var(--flaash-amber)", marginBottom: 16, textAlign: "center" }}>
-            {ev.status === "active"
-              ? "tendez le code aux invités —"
-              : "la galerie est révélée."}
-          </p>
-
-          <QRCodeCard url={eventUrl} title={ev.title} slug={ev.slug} />
-
-          <div style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-            <Link
-              href={`/dashboard/${ev.id}/photos`}
-              className="btn-pill btn-forest"
-              style={{
-                background: "rgba(250,247,242,0.15)",
-                color: "var(--flaash-cream)",
-                border: "1.5px solid rgba(250,247,242,0.3)",
-                fontSize: 13,
-              }}
-            >
-              MODÉRER LES PHOTOS
-            </Link>
-            <Link
-              href={`/print/${ev.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                width: "100%",
-                padding: "14px 18px",
-                borderRadius: "var(--radius-pill)",
-                border: "1.5px solid rgba(250,247,242,0.3)",
-                background: "rgba(250,247,242,0.1)",
-                fontSize: 13,
-                fontWeight: 700,
-                color: "var(--flaash-cream)",
-                textDecoration: "none",
-                letterSpacing: "0.05em",
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "column",
-                gap: 6,
-                textAlign: "center",
-              }}
-            >
-              <span>Carte QR à imprimer →</span>
-              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: 0, color: "rgba(250,247,242,0.52)" }}>
-                Générez une carte prête à partager avec vos invités.
-              </span>
-            </Link>
-          </div>
-        </div>
-      )}
-
-      <CoverUploadCard eventId={ev.id} initialCoverUrl={ev.cover_url} />
-
-      {/* Details card */}
-      <div className="f-card" style={{ padding: "18px 20px", marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
-          <p className="f-eyebrow">Détails</p>
-          <Link
-            href={`/dashboard/${ev.id}/settings`}
-            style={{
-              color: "var(--flaash-amber-deep)",
-              fontSize: 11,
-              fontWeight: 800,
-              letterSpacing: "0.04em",
-              textDecoration: "none",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <Link href={`/dashboard/${ev.id}/settings`} className="dashboard-hero-settings-link">
             Paramètres →
           </Link>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {[
-            ["Invités maximum", `${ev.max_guests}`],
-            ["Photos par invité", `${ev.photos_per_guest}`],
-            ["Upload photothèque", ev.allow_library_upload ? "Oui" : "Non"],
-            [
-              "Révélation",
-              ev.reveal_at
-                ? `Prévue le ${new Date(ev.reveal_at).toLocaleString("fr-CH")}`
-                : "Manuelle",
-            ],
-            // BUG 4 fix — use eventUrl (built from NEXT_PUBLIC_APP_URL)
-            ["Lien invité", eventUrl],
-            ["Prix payé", `CHF ${ev.price_chf}`],
-          ].map(([k, v]) => (
-            <div
-              key={k}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-                gap: 12,
-                paddingBottom: 10,
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
-              <span style={{ fontSize: 13, color: "var(--fg-3)" }}>{k}</span>
-              <span style={{ fontSize: 14, fontWeight: 600, textAlign: "right", wordBreak: "break-all" }}>
-                {v}
-              </span>
+        </header>
+
+        {/* ── DRAFT: Payment notice ── */}
+        {ev.status === "draft" && (
+          <div className="dashboard-event-notice dashboard-event-notice-amber">
+            <p className="dashboard-event-notice-title">En attente de paiement</p>
+            <p className="dashboard-event-notice-text">
+              Procédez au paiement pour générer le QR code et accueillir vos invités.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <form action={resumePayment.bind(null, ev.id)}>
+                <button type="submit" className="btn-pill btn-amber" style={{ fontSize: 14 }}>
+                  Reprendre le paiement →
+                </button>
+              </form>
+              <form action={deleteDraftAndNew.bind(null, ev.id)}>
+                <button type="submit" style={{ background: "none", border: "none", fontSize: 13, color: "var(--fg-3)", cursor: "pointer", fontWeight: 600, padding: 0 }}>
+                  ← Modifier l&apos;événement
+                </button>
+              </form>
+              {process.env.NODE_ENV === "development" && (
+                <form action={activateEvent.bind(null, ev.id)}>
+                  <button type="submit" style={{ fontSize: 12, fontWeight: 600, color: "var(--flaash-amber-deep)", background: "none", border: "1.5px dashed var(--flaash-amber-deep)", borderRadius: "var(--radius-pill)", padding: "8px 16px", cursor: "pointer", letterSpacing: "0.06em" }}>
+                    ⚡ ACTIVER SANS PAIEMENT (dev)
+                  </button>
+                </form>
+              )}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        )}
 
-      {/* Reveal now button (active events) */}
-      {ev.status === "active" && (
-        <form
-          action={async () => {
-            "use server";
-            await revealNow(id);
-          }}
-          style={{ marginBottom: 12 }}
-        >
-          <button type="submit" className="btn-pill btn-forest">
-            RÉVÉLER MAINTENANT
-          </button>
-        </form>
-      )}
+        {/* ── ACTIVE: Next Action band ── */}
+        {ev.status === "active" && (
+          <div className="dashboard-next-action">
+            <span className="dashboard-next-action-dot" aria-hidden="true" />
+            <div>
+              <p className="dashboard-next-action-label">Prochaine étape</p>
+              <p className="dashboard-next-action-copy">
+                Faites circuler le QR. Les invités capturent, puis reviennent à la soirée.
+              </p>
+            </div>
+          </div>
+        )}
 
-      {/* Tolerance notice: guests exceeded plan limit */}
-      {ev.plan_id && ev.max_guests > (getPlan(ev.plan_id)?.maxGuests ?? Infinity) && (
-        <div style={{ background: "var(--flaash-forest-soft)", border: "1px solid var(--flaash-forest)", borderRadius: "var(--radius-sm)", padding: "12px 16px", marginBottom: 12, fontSize: 13, color: "var(--flaash-forest)" }}>
-          Votre événement a accueilli plus d&apos;invités que prévu — nous avons accordé cette tolérance gratuitement.
-        </div>
-      )}
+        {/* ── REVEALED: Guidance band ── */}
+        {ev.status === "revealed" && (
+          <div className="dashboard-next-action dashboard-next-action-ok">
+            <span className="dashboard-next-action-dot" aria-hidden="true" />
+            <div>
+              <p className="dashboard-next-action-label">Galerie ouverte</p>
+              <p className="dashboard-next-action-copy">
+                Les souvenirs peuvent revenir. Partagez la galerie ou téléchargez toutes les photos.
+              </p>
+            </div>
+          </div>
+        )}
 
-      {/* Download ZIP — available once there are photos */}
-      {(ev.status === "active" || ev.status === "revealed") && (photoCount ?? 0) > 0 && (
-        <div>
-          <a
-            href={`/api/download/${ev.slug}`}
-            download
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              padding: "14px 20px",
-              borderRadius: "var(--radius-pill)",
-              border: "1.5px solid var(--border)",
-              background: "var(--surface-2)",
-              color: "var(--fg-2)",
-              fontSize: 13,
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              textDecoration: "none",
-              textAlign: "center",
-            }}
-          >
-            ⬇ TÉLÉCHARGER TOUTES LES PHOTOS ({photoCount})
-          </a>
-          <p
-            style={{
-              color: "var(--fg-3)",
-              fontSize: 12,
-              fontWeight: 500,
-              lineHeight: 1.45,
-              marginTop: 8,
-              textAlign: "center",
-            }}
-          >
-            Le fichier ZIP sera enregistré dans les fichiers ou téléchargements de ton
-            appareil. Ouvre-le ensuite pour extraire les photos et les ajouter à ta galerie.
-          </p>
+        {/* ── MAIN LAUNCH GRID ── */}
+        {isLive && (
+          <div className="dashboard-launch-grid">
+
+            {/* QR Launch Column */}
+            <div className="dashboard-qr-column">
+              <div className="dashboard-qr-module">
+                <QRCodeCard url={eventUrl} title={ev.title} slug={ev.slug} />
+                <Link
+                  href={`/print/${ev.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="dashboard-print-card"
+                >
+                  <span>Carte QR à imprimer →</span>
+                  <span>Prête à poser à l&apos;entrée ou sur une table.</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Command Panel */}
+            <aside className="dashboard-command-panel" aria-label="Pilotage organisateur">
+
+              {/* Live Status */}
+              <section className="dashboard-live-status">
+                <p className="dashboard-section-label">En ce moment</p>
+                <div className="dashboard-status-row">
+                  <div className="dashboard-status-item">
+                    <span className="dashboard-status-num">{photoTotal}</span>
+                    <span className="dashboard-status-meta">
+                      {photoTotal === 1 ? "souvenir capturé" : "souvenirs capturés"}
+                    </span>
+                    <Link href={`/dashboard/${ev.id}/photos`} className="dashboard-stat-link">
+                      Voir →
+                    </Link>
+                  </div>
+                  <div className="dashboard-status-item">
+                    <span className="dashboard-status-num">
+                      {activeGuestTotal}<span className="dashboard-status-max">/{ev.max_guests}</span>
+                    </span>
+                    <span className="dashboard-status-meta">
+                      {activeGuestTotal === 1 ? "invité" : "invités"}
+                    </span>
+                    <Link href={`/dashboard/${ev.id}/guests`} className="dashboard-stat-link">
+                      Voir →
+                    </Link>
+                  </div>
+                  <div className="dashboard-status-item">
+                    <span className="dashboard-status-num">{ev.photos_per_guest}</span>
+                    <span className="dashboard-status-meta">poses par invité</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Organiser Tools */}
+              <section className="dashboard-tools-panel">
+                <p className="dashboard-section-label">À gérer</p>
+                <div className="dashboard-action-stack">
+                  <Link
+                    href={`/dashboard/${ev.id}/photos`}
+                    className="dashboard-action-button dashboard-action-button-ink"
+                  >
+                    Modérer les photos
+                  </Link>
+                  <Link
+                    href={`/dashboard/${ev.id}/settings`}
+                    className="dashboard-action-button dashboard-action-button-paper"
+                  >
+                    Modifier les paramètres
+                  </Link>
+                </div>
+              </section>
+
+              {/* Tolerance notice */}
+              {ev.plan_id && ev.max_guests > (getPlan(ev.plan_id)?.maxGuests ?? Infinity) && (
+                <div style={{ background: "var(--flaash-forest-soft)", border: "1px solid var(--flaash-forest)", borderRadius: "var(--radius-sm)", padding: "12px 16px", fontSize: 13, color: "var(--flaash-forest)" }}>
+                  Votre événement a accueilli plus d&apos;invités que prévu — nous avons accordé cette tolérance gratuitement.
+                </div>
+              )}
+            </aside>
+          </div>
+        )}
+
+        {/* ── REVEAL MOMENT (full-width ink section) ── */}
+        {isLive && (
+          <section className="dashboard-reveal-section">
+            <div className="dashboard-reveal-inner">
+              <div className="dashboard-reveal-content">
+                <p className="dashboard-reveal-eyebrow">Faire revenir la soirée</p>
+                <p className="dashboard-reveal-headline">
+                  {ev.status === "revealed" ? "La galerie est ouverte." : "Les photos attendent."}
+                </p>
+                <p className="dashboard-reveal-body">
+                  {ev.status === "revealed"
+                    ? "Les souvenirs peuvent revenir. Partagez la galerie avec vos invités."
+                    : "Quand tout est prêt, ouvrez la galerie — la soirée revient."}
+                </p>
+              </div>
+              <div className="dashboard-reveal-actions">
+                {ev.status === "active" && (
+                  <form
+                    action={async () => {
+                      "use server";
+                      await revealNow(id);
+                    }}
+                    className="dashboard-reveal-form"
+                  >
+                    <button type="submit" className="dashboard-reveal-cta">
+                      Révéler la galerie
+                    </button>
+                  </form>
+                )}
+                {photoTotal > 0 && (
+                  <a
+                    href={`/api/download/${ev.slug}`}
+                    download
+                    className={`dashboard-reveal-download${ev.status === "revealed" ? " dashboard-reveal-download-primary" : ""}`}
+                  >
+                    Télécharger les souvenirs ({photoTotal} photos)
+                  </a>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── SECONDARY: Cover + Details ── */}
+        <div className="dashboard-secondary-grid">
+          <CoverUploadCard eventId={ev.id} initialCoverUrl={ev.cover_url} />
+
+          <div className="dashboard-details-card">
+            <div className="dashboard-details-header">
+              <p className="dashboard-section-label">Détails</p>
+              <Link href={`/dashboard/${ev.id}/settings`} className="dashboard-details-link">
+                Paramètres →
+              </Link>
+            </div>
+            <div className="dashboard-details-list">
+              {[
+                ["Invités maximum", `${ev.max_guests}`],
+                ["Poses par invité", `${ev.photos_per_guest}`],
+                ["Photos depuis la galerie", ev.allow_library_upload ? "Oui" : "Non"],
+                [
+                  "Révélation",
+                  ev.reveal_at
+                    ? `Prévue le ${new Date(ev.reveal_at).toLocaleString("fr-CH")}`
+                    : "Manuelle",
+                ],
+                // BUG 4 fix — use eventUrl (built from NEXT_PUBLIC_APP_URL)
+                ["Lien invité", eventUrl],
+                ["Tarif", `CHF ${ev.price_chf}`],
+              ].map(([k, v]) => (
+                <div key={k} className="dashboard-details-row">
+                  <span>{k}</span>
+                  <span>{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      )}
-      {/* Delete event */}
-      <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid var(--border)" }}>
-        <DeleteButton eventId={ev.id} />
+
+        {/* ── DELETE ZONE ── */}
+        <div className="dashboard-delete-zone">
+          <DeleteButton eventId={ev.id} />
+        </div>
       </div>
     </div>
   );

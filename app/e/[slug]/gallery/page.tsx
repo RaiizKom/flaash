@@ -36,28 +36,20 @@ export default async function GalleryPage({ params }: Props) {
 
   if (effectiveEvent.status !== "revealed") {
     return (
-      <div
-        style={{
-          minHeight: "100dvh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "40px 24px",
-          textAlign: "center",
-          background: "var(--flaash-ink)",
-        }}
-      >
-        <div style={{ height: 6, background: "var(--flaash-amber)", position: "absolute", top: 0, left: 0, right: 0 }} />
-        <p className="f-script" style={{ color: "var(--flaash-amber)", fontSize: 28, marginBottom: 12 }}>
-          bientôt —
-        </p>
-        <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 14 }}>
+      <main className="guest-page-center guest-page-ink">
+        <p className="guest-label">Reveal</p>
+        <h1 className="guest-title">
+          La galerie attend son moment.
+        </h1>
+        <p className="guest-copy">
           {effectiveEvent.status === "active" && effectiveEvent.reveal_at
             ? `La galerie sera révélée le ${formatRevealAt(effectiveEvent.reveal_at)}.`
-            : "La galerie n'est pas encore disponible."}
+            : "La galerie sera révélée au bon moment."}
         </p>
-      </div>
+        <p className="guest-status-pill guest-status-pill-dark" style={{ marginTop: 26 }}>
+          Les souvenirs se découvriront plus tard.
+        </p>
+      </main>
     );
   }
 
@@ -87,21 +79,18 @@ export default async function GalleryPage({ params }: Props) {
   }));
 
   return (
-    <div style={{ minHeight: "100dvh", background: "var(--flaash-ink)" }}>
-      <div style={{ height: 6, background: "var(--flaash-amber)" }} />
-
-      <div style={{ padding: "32px 20px 80px" }}>
-        <div style={{ marginBottom: 28, textAlign: "center" }}>
-          <p className="f-script" style={{ color: "var(--flaash-amber)", fontSize: 28, marginBottom: 8 }}>
-            la galerie —
-          </p>
-          <h1 className="f-h2" style={{ color: "var(--flaash-cream)", marginBottom: 0 }}>
-            {effectiveEvent.title}
+    <main className="guest-gallery-page">
+      <div className="guest-gallery-inner">
+        <header className="guest-gallery-header">
+          <p className="guest-label">La soirée revient</p>
+          <h1 className="guest-gallery-title">
+            Les souvenirs de la soirée
           </h1>
-          <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 13, marginTop: 8 }}>
+          <p className="guest-gallery-subtitle">
+            {effectiveEvent.title} ·{" "}
             {photos.length} photo{photos.length !== 1 ? "s" : ""}
           </p>
-        </div>
+        </header>
 
         <GalleryClient
           eventId={effectiveEvent.id}
@@ -112,37 +101,21 @@ export default async function GalleryPage({ params }: Props) {
 
         <nav
           aria-label="Liens légaux"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 18,
-            marginTop: 44,
-            fontSize: 12,
-          }}
+          className="guest-gallery-footer"
         >
           <Link
             href="/privacy"
-            style={{
-              color: "rgba(250,247,242,0.45)",
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
           >
             Confidentialité
           </Link>
           <Link
             href="/mentions-legales"
-            style={{
-              color: "rgba(250,247,242,0.45)",
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
           >
             Mentions légales
           </Link>
         </nav>
       </div>
-    </div>
+    </main>
   );
 }
 

@@ -11,99 +11,76 @@ export default async function RegisterPage({ searchParams }: Props) {
 
   if (success === "account-created") {
     return (
-      <div
-        className="flex flex-col flex-1 items-center justify-center px-6"
-        style={{ background: "var(--flaash-forest)" }}
-      >
-        <div
-          style={{
-            background: "var(--flaash-cream)",
-            borderRadius: "var(--radius-xl)",
-            padding: "40px 28px",
-            textAlign: "center",
-            maxWidth: 380,
-          }}
-        >
-          <p className="f-eyebrow" style={{ marginBottom: 12 }}>
-            Compte créé
-          </p>
-          <h1 className="f-h2" style={{ marginBottom: 12 }}>
-            Votre compte est prêt
-          </h1>
-          <p style={{ color: "var(--fg-2)", fontSize: 15, lineHeight: 1.5 }}>
-            Votre compte a été créé. Vous pouvez maintenant vous connecter à
-            votre espace organisateur.
-          </p>
-          <p className="f-script" style={{ color: "var(--flaash-forest)", marginTop: 20 }}>
-            merci d'avoir rejoint Flaash.
-          </p>
-          <div style={{ marginTop: 28 }}>
-            <Link href="/login" className="btn-pill btn-ink">
-              SE CONNECTER
+      <main className="auth-page">
+        <div className="auth-frame">
+          <section className="auth-brand" aria-label="Flaash">
+            <Link href="/" className="auth-back-link">
+              ← Retour à l'accueil
             </Link>
-          </div>
+            <span className="auth-wordmark">Flaash</span>
+            <h2>Votre espace est prêt.</h2>
+            <p>
+              Vous pouvez préparer votre événement, partager le QR code et
+              choisir le moment du reveal.
+            </p>
+          </section>
+
+          <section className="auth-card" aria-labelledby="account-created-title">
+            <div className="auth-card-header">
+              <p className="flaash-label">Compte créé</p>
+              <h1 id="account-created-title">Votre compte est prêt</h1>
+              <p>
+                Votre compte a été créé. Vous pouvez maintenant vous connecter
+                à votre espace organisateur.
+              </p>
+            </div>
+
+            <Link href="/login" className="flaash-btn flaash-btn-primary auth-submit">
+              Se connecter
+            </Link>
+          </section>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "var(--flaash-forest)" }}>
-      <div style={{ height: 6, background: "var(--flaash-amber)" }} />
-
-      <div className="flex flex-col flex-1 px-6 pb-10" style={{ paddingTop: 56 }}>
-        {/* Logo */}
-        <div style={{ marginBottom: 48 }}>
-          <div
-            className="f-display"
-            style={{ color: "var(--flaash-cream)", fontSize: "clamp(48px,14vw,72px)" }}
-          >
-            Fl<em>aa</em>sh
-          </div>
-          <p
-            className="f-script"
-            style={{ color: "var(--flaash-forest-soft)", marginTop: 8 }}
-          >
-            vos souvenirs se développent…
+    <main className="auth-page">
+      <div className="auth-frame">
+        <section className="auth-brand" aria-label="Flaash">
+          <Link href="/" className="auth-back-link">
+            ← Retour à l'accueil
+          </Link>
+          <span className="auth-wordmark">Flaash</span>
+          <h2>La soirée se prépare ici.</h2>
+          <p>
+            Préparez le QR code, invitez vos proches, puis laissez la soirée se
+            vivre. Les souvenirs attendront le bon moment.
           </p>
-        </div>
+          <ul className="auth-ritual-list">
+            <li>QR code prêt à partager</li>
+            <li>Photos cachées jusqu'au reveal</li>
+            <li>Galerie privée pour vos invités</li>
+          </ul>
+        </section>
 
-        {/* Card */}
-        <div
-          style={{
-            background: "var(--flaash-cream)",
-            borderRadius: "var(--radius-xl)",
-            padding: "32px 24px 28px",
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 24,
-          }}
-        >
-          <div>
-            <p className="f-eyebrow" style={{ marginBottom: 6 }}>
-              Organisateur
+        <section className="auth-card" aria-labelledby="register-title">
+          <div className="auth-card-header">
+            <p className="flaash-label">Organisateur</p>
+            <h1 id="register-title">Créer votre événement Flaash</h1>
+            <p>
+              Créez votre compte pour préparer l'événement et accéder à votre
+              espace organisateur.
             </p>
-            <h1 className="f-h2">Créer un compte</h1>
           </div>
 
           {error && (
-            <div
-              style={{
-                background: "var(--flaash-error-soft)",
-                border: "1px solid var(--flaash-error)",
-                borderRadius: "var(--radius-sm)",
-                padding: "12px 14px",
-                fontSize: 14,
-                color: "var(--flaash-error)",
-                fontWeight: 500,
-              }}
-            >
+            <div className="auth-message auth-message-error">
               {decodeURIComponent(error)}
             </div>
           )}
 
-          <form action={register} className="flex flex-col gap-5">
+          <form action={register} className="auth-form">
             <div className="f-input-wrap">
               <label className="f-label" htmlFor="email">
                 Adresse e-mail
@@ -130,42 +107,24 @@ export default async function RegisterPage({ searchParams }: Props) {
                 minLength={8}
                 placeholder="8 caractères minimum"
               />
-              <span style={{ fontSize: 12, color: "var(--fg-3)" }}>
+              <span className="auth-hint">
                 Au moins 8 caractères.
               </span>
             </div>
 
-            <div style={{ marginTop: 8 }}>
-              <button type="submit" className="btn-pill btn-forest">
-                CRÉER MON COMPTE
-              </button>
-            </div>
+            <button type="submit" className="flaash-btn flaash-btn-primary auth-submit">
+              Créer mon compte
+            </button>
           </form>
 
-          <div
-            style={{
-              borderTop: "1px solid var(--border)",
-              paddingTop: 20,
-              textAlign: "center",
-            }}
-          >
-            <span style={{ fontSize: 14, color: "var(--fg-3)" }}>
-              Déjà un compte ?{" "}
-            </span>
-            <Link
-              href="/login"
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "var(--flaash-amber-deep)",
-                textDecoration: "none",
-              }}
-            >
+          <div className="auth-card-footer">
+            Déjà un compte ?{" "}
+            <Link href="/login" className="auth-link">
               Se connecter
             </Link>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

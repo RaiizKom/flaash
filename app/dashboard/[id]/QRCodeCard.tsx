@@ -24,7 +24,7 @@ export default function QRCodeCard({ url, title }: Props) {
   }
 
   return (
-    <div className="qr-card" style={{ width: "100%", maxWidth: 300, margin: "0 auto" }}>
+    <div className="qr-card">
       {/* QR code */}
       <div style={{ position: "relative" }}>
         <QRCodeSVG
@@ -44,7 +44,7 @@ export default function QRCodeCard({ url, title }: Props) {
             fontWeight: 800,
             fontSize: 18,
             color: "var(--flaash-ink)",
-            letterSpacing: "-0.02em",
+            letterSpacing: 0,
             margin: 0,
           }}
         >
@@ -58,10 +58,9 @@ export default function QRCodeCard({ url, title }: Props) {
       {/* Share button */}
       <button
         onClick={handleShare}
-        className="btn-pill btn-ink"
-        style={{ fontSize: 13 }}
+        className="dashboard-action-button dashboard-action-button-red"
       >
-        PARTAGER LE LIEN
+        Partager le lien
       </button>
     </div>
   );

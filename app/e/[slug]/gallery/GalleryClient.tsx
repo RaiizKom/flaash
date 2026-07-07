@@ -97,7 +97,7 @@ function Lightbox({
       {/* Bottom bar */}
       <div style={{ padding: "16px 24px 24px", flexShrink: 0, textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
         {current.guestName && (
-          <p className="f-eyebrow" style={{ color: "var(--flaash-amber)", marginBottom: 4 }}>{current.guestName}</p>
+          <p className="guest-label" style={{ color: "rgb(250 247 242 / 0.62)", marginBottom: 4 }}>{current.guestName}</p>
         )}
         <p style={{ color: "rgba(250,247,242,0.4)", fontSize: 12 }}>{fmtDate(current.taken_at)}</p>
       </div>
@@ -119,15 +119,9 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
   useEffect(() => {
     try {
       const sessionRaw = localStorage.getItem(`flaash_guest_${eventSlug}`);
-      console.log("[gallery] localStorage key:", `flaash_guest_${eventSlug}`);
-      console.log("[gallery] raw session:", sessionRaw);
       if (sessionRaw) {
         const s = JSON.parse(sessionRaw) as { guestId: string };
-        console.log("[gallery] guestId:", s.guestId);
-        console.log("[gallery] photo guest_ids:", photos.map((p) => p.guest_id));
         setGuestId(s.guestId);
-      } else {
-        console.log("[gallery] no session found for slug:", eventSlug);
       }
     } catch { /* */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -219,40 +213,14 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
             <button
               onClick={handleDownload}
               disabled={isDownloading}
-              style={{
-                background: "rgba(250,247,242,0.08)",
-                border: "1px solid rgba(250,247,242,0.2)",
-                borderRadius: "var(--radius-pill)",
-                color: "var(--flaash-cream)",
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                padding: "10px 18px",
-                cursor: isDownloading ? "default" : "pointer",
-                opacity: isDownloading ? 0.6 : 1,
-                transition: "opacity 0.15s",
-              }}
+              className="guest-gallery-action"
+              style={{ opacity: isDownloading ? 0.6 : 1 }}
             >
-              {isDownloading ? "⏳ PRÉPARATION…" : "⬇ TOUT TÉLÉCHARGER"}
+              {isDownloading ? "Préparation…" : "Télécharger les souvenirs"}
             </button>
           </div>
-          <p
-            style={{
-              background: "rgba(250,247,242,0.07)",
-              border: "1px solid rgba(250,247,242,0.12)",
-              borderRadius: 10,
-              color: "rgba(250,247,242,0.68)",
-              fontSize: 12,
-              fontWeight: 600,
-              lineHeight: 1.5,
-              margin: "10px auto 0",
-              maxWidth: 420,
-              padding: "10px 12px",
-              textAlign: "center",
-            }}
-          >
-            Le fichier ZIP sera enregistré dans les fichiers ou téléchargements de ton
-            appareil. Ouvre-le ensuite pour extraire les photos et les ajouter à ta galerie.
+          <p className="guest-gallery-note">
+            Le téléchargement regroupe les souvenirs de la soirée.
           </p>
           {downloadError && (
             <p style={{
@@ -270,22 +238,25 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
 
       {/* Photo grid */}
       {photos.length === 0 && (
-        <div style={{ textAlign: "center", paddingTop: 40 }}>
-          <p style={{ fontSize: 40 }}>📷</p>
-          <p style={{ color: "rgba(250,247,242,0.5)", fontSize: 14, marginTop: 12 }}>
-            Aucune photo pour l&apos;instant.
+        <div className="guest-empty-state">
+          <p className="guest-label">Galerie vide</p>
+          <h2 className="guest-gallery-title" style={{ fontSize: "clamp(30px, 7vw, 48px)" }}>
+            Aucune photo pour le moment.
+          </h2>
+          <p className="guest-gallery-subtitle">
+            Revenez plus tard, les souvenirs arrivent.
           </p>
         </div>
       )}
 
       {photos.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 6 }}>
+        <div className="guest-gallery-grid">
           {photos.map((photo, index) => (
-            <div key={photo.id} style={{ position: "relative", aspectRatio: "1", borderRadius: 4, overflow: "hidden", background: "rgba(250,247,242,0.05)" }}>
+            <div key={photo.id} className="guest-gallery-tile">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxIdx(index); }}
-                style={{ display: "block", width: "100%", height: "100%", padding: 0, border: "none", background: "none", cursor: "zoom-in" }}
+                className="guest-thumb-button"
                 aria-label="Agrandir"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -298,26 +269,7 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
 
               {photo.guestName && (
                 <span
-                  style={{
-                    position: "absolute",
-                    left: 8,
-                    bottom: 8,
-                    zIndex: 2,
-                    maxWidth: "calc(100% - 16px)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    borderRadius: "var(--radius-pill)",
-                    background: "rgba(10,8,5,0.58)",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
-                    color: "var(--flaash-cream)",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: "0.04em",
-                    lineHeight: 1,
-                    padding: "6px 9px",
-                    pointerEvents: "none",
-                  }}
+                  className="guest-gallery-name"
                 >
                   {photo.guestName}
                 </span>
@@ -329,15 +281,7 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
                   type="button"
                   onClick={() => setDeleteConfirm(photo.id)}
                   title="Supprimer ma photo"
-                  style={{
-                    position: "absolute", top: 4, right: 4,
-                    background: "rgba(220,38,38,0.82)",
-                    border: "1.5px solid rgba(255,255,255,0.25)",
-                    borderRadius: "50%", width: 26, height: 26,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", color: "white", fontSize: 13, fontWeight: 700,
-                    lineHeight: 1,
-                  }}
+                  className="guest-delete-dot"
                   aria-label="Supprimer"
                 >
                   ✕
@@ -356,11 +300,12 @@ export default function GalleryClient({ eventId, eventSlug, eventTitle, photos: 
       {/* Delete confirmation modal */}
       {deleteConfirm && (
         <div
-          style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(10,8,5,0.85)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+          className="guest-modal-backdrop"
+          style={{ zIndex: 10000 }}
           onClick={() => setDeleteConfirm(null)}
         >
           <div
-            style={{ background: "var(--flaash-cream)", borderRadius: "var(--radius-xl)", padding: "28px 24px", maxWidth: 320, width: "100%", textAlign: "center" }}
+            className="guest-modal-card"
             onClick={(e) => e.stopPropagation()}
           >
             <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Supprimer cette photo ?</p>

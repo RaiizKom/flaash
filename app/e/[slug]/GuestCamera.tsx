@@ -34,26 +34,13 @@ const CLIENT_JPEG_QUALITY = 0.82;
 
 function PrivacyNote() {
   return (
-    <p
-      style={{
-        color: "var(--fg-3)",
-        fontSize: 12,
-        lineHeight: 1.55,
-        margin: 0,
-        textAlign: "center",
-      }}
-    >
+    <p className="guest-privacy">
       Tes photos restent liées à cet événement. Tu peux demander leur suppression à
       l&apos;organisateur ou à Flaash.{" "}
       <Link
         href="/privacy"
         target="_blank"
         rel="noreferrer"
-        style={{
-          color: "var(--flaash-amber-deep)",
-          fontWeight: 700,
-          textDecoration: "none",
-        }}
       >
         Confidentialité
       </Link>
@@ -76,24 +63,10 @@ function GalleryStatusNote({
       ? "Galerie disponible"
       : isFutureReveal(revealAt)
         ? `Galerie révélée le ${formatRevealAt(revealAt)}`
-        : "Galerie disponible après révélation";
+        : "Galerie révélée au bon moment";
 
   return (
-    <p
-      style={{
-        alignSelf: isDark ? "center" : "flex-start",
-        background: isDark ? "rgba(250,247,242,0.1)" : "var(--surface-2)",
-        border: isDark ? "1px solid rgba(250,247,242,0.14)" : "1px solid var(--border)",
-        borderRadius: "var(--radius-pill)",
-        color: isDark ? "rgba(250,247,242,0.72)" : "var(--fg-3)",
-        display: "inline-flex",
-        fontSize: 12,
-        fontWeight: 700,
-        lineHeight: 1.25,
-        margin: 0,
-        padding: "8px 11px",
-      }}
-    >
+    <p className={`guest-status-pill${isDark ? " guest-status-pill-dark" : ""}`}>
       {statusText}
     </p>
   );
@@ -116,23 +89,11 @@ function HiddenPhotoGrid({
 
   return (
     <div
-      className={isDark ? undefined : "f-card"}
-      style={{
-        background: isDark ? "rgba(250,247,242,0.08)" : undefined,
-        border: isDark ? "1px solid rgba(250,247,242,0.14)" : undefined,
-        borderRadius: isDark ? "var(--radius-lg)" : undefined,
-        marginTop: isDark ? 28 : 22,
-        maxWidth: isDark ? 320 : undefined,
-        padding: "14px",
-        width: "100%",
-      }}
+      className={`guest-hidden-film${isDark ? " guest-hidden-film-dark" : ""}`}
     >
       <p
-        className="f-eyebrow"
-        style={{
-          color: isDark ? "rgba(250,247,242,0.62)" : undefined,
-          marginBottom: 6,
-        }}
+        className="guest-label"
+        style={isDark ? { color: "rgb(250 247 242 / 0.62)" } : undefined}
       >
         Pellicule commune
       </p>
@@ -142,32 +103,20 @@ function HiddenPhotoGrid({
           fontSize: 13,
           fontWeight: 600,
           lineHeight: 1.45,
-          marginBottom: 12,
+          margin: "0 0 12px",
         }}
       >
-        Les photos sont cachées jusqu&apos;à la révélation.
-        {revealAt ? ` Révélation prévue le ${formatRevealAt(revealAt)}.` : ""}
+        Les photos sont cachées jusqu&apos;au reveal.
+        {revealAt ? ` Reveal prévu le ${formatRevealAt(revealAt)}.` : ""}
       </p>
       <div
         aria-hidden="true"
-        style={{
-          display: "grid",
-          gap: 7,
-          gridTemplateColumns: "repeat(4, 1fr)",
-        }}
+        className="guest-hidden-film-grid"
       >
         {Array.from({ length: visibleCount }).map((_, index) => (
           <div
             key={index}
-            style={{
-              aspectRatio: "1",
-              background: isDark
-                ? "linear-gradient(135deg, rgba(250,247,242,0.18), rgba(250,247,242,0.06))"
-                : "linear-gradient(135deg, var(--flaash-cream-line), var(--surface-2))",
-              border: isDark ? "1px solid rgba(250,247,242,0.1)" : "1px solid var(--border)",
-              borderRadius: 6,
-              boxShadow: isDark ? "none" : "inset 0 0 0 1px rgba(255,255,255,0.32)",
-            }}
+            className="guest-hidden-frame"
           />
         ))}
       </div>
@@ -414,7 +363,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
           setPhase("blocked");
           return;
         }
-        showToast(data.error ?? "Erreur d'upload.", false);
+        showToast(data.error ?? "La photo n'a pas pu être envoyée.", false);
         return;
       }
 
@@ -455,95 +404,48 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
 
   if (phase === "loading") {
     return (
-      <div style={centered}>
-        <div style={spinner} />
+      <div className="guest-page-center">
+        <div style={{ ...spinner, borderTopColor: "var(--primary-action)" }} />
       </div>
     );
   }
 
   if (phase === "join") {
     return (
-      <div
-        style={{
-          minHeight: "100dvh",
-          display: "flex",
-          flexDirection: "column",
-          padding: "0 24px 40px",
-        }}
-      >
+      <main className="guest-page">
         {event.cover_url && (
-          <div style={{ paddingTop: 24 }}>
+          <div style={{ marginBottom: 28 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={event.cover_url}
               alt=""
-              style={{
-                width: "100%",
-                aspectRatio: "16 / 10",
-                objectFit: "cover",
-                borderRadius: "var(--radius-xl)",
-                display: "block",
-                boxShadow: "var(--shadow-md)",
-              }}
+              className="guest-cover"
             />
           </div>
         )}
 
-        {/* Hero */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            paddingTop: event.cover_url ? 30 : 64,
-            paddingBottom: 32,
-          }}
-        >
-          <p
-            className="f-script"
-            style={{
-              color: "var(--flaash-amber)",
-              fontSize: 36,
-              marginBottom: 10,
-              lineHeight: 1,
-            }}
-          >
-            flaash —
+        <section className="guest-card guest-card-pad" style={{ marginTop: event.cover_url ? 0 : "auto" }}>
+          <span className="guest-wordmark">Flaash</span>
+          <p className="guest-label" style={{ marginTop: 26 }}>
+            Vous êtes invité.
           </p>
-          <h1
-            className="f-h1"
-            style={{ marginBottom: 6, lineHeight: 1.04 }}
-          >
+          <h1 className="guest-title">
             {event.title}
           </h1>
-          <p
-            style={{
-              fontSize: 14,
-              color: "var(--fg-3)",
-              marginTop: 4,
-              fontWeight: 500,
-            }}
-          >
-            Capture l&apos;instant, partage le souvenir.
+          <p className="guest-copy">
+            Ajoutez vos photos de la soirée. Les souvenirs se découvriront au
+            bon moment.
           </p>
           <div style={{ marginTop: 14 }}>
             <GalleryStatusNote status={event.status} revealAt={event.reveal_at} />
           </div>
-        </div>
+        </section>
 
-        {/* Join form */}
-        <form onSubmit={handleJoin} style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+        <form onSubmit={handleJoin} className="guest-form" style={{ marginTop: 26 }}>
           <div className="f-input-wrap">
             <label
               htmlFor="firstName"
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: "var(--fg-3)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-              }}
+              className="guest-label"
             >
               Comment tu t&apos;appelles ?
             </label>
@@ -566,24 +468,24 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
 
           <button
             type="submit"
-            className="btn-pill btn-forest"
+            className="flaash-btn flaash-btn-primary"
             disabled={!firstName.trim() || isJoining}
           >
-            {isJoining ? "Inscription…" : "REJOINDRE →"}
+            {isJoining ? "Préparation…" : "Participer à l'album"}
           </button>
 
           <PrivacyNote />
         </form>
-      </div>
+      </main>
     );
   }
 
   if (phase === "blocked") {
     return (
-      <div style={centered}>
-        <p style={{ fontSize: 32, marginBottom: 16 }}>🚫</p>
-        <p style={{ fontWeight: 700, marginBottom: 8 }}>Accès bloqué</p>
-        <p style={{ color: "var(--fg-3)", fontSize: 14, textAlign: "center" }}>
+      <div className="guest-page-center">
+        <p className="guest-label">Accès bloqué</p>
+        <h1 className="guest-title">Participation impossible</h1>
+        <p className="guest-copy">
           Tu n&apos;as pas accès à cet événement.
         </p>
       </div>
@@ -593,32 +495,12 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
   if (phase === "quota-full") {
     const taken = session?.photosTaken ?? event.photos_per_guest;
     return (
-      <div
-        style={{
-          minHeight: "100dvh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "40px 24px",
-          textAlign: "center",
-          background: "var(--flaash-forest)",
-          color: "var(--flaash-cream)",
-        }}
-      >
-        <p
-          className="f-script"
-          style={{ fontSize: 36, color: "var(--flaash-amber)", marginBottom: 16 }}
-        >
-          merci, {session?.firstName ?? "invité"} —
-        </p>
-        <h2
-          className="f-h2"
-          style={{ color: "var(--flaash-cream)", marginBottom: 12 }}
-        >
+      <div className="guest-page-center guest-page-ink">
+        <p className="guest-label">Merci, {session?.firstName ?? "invité"}</p>
+        <h1 className="guest-title">
           Pellicule terminée
-        </h2>
-        <p style={{ color: "rgba(250,247,242,0.65)", fontSize: 14, maxWidth: 280, marginBottom: 20 }}>
+        </h1>
+        <p className="guest-copy" style={{ maxWidth: 300, marginBottom: 20 }}>
           {taken} / {event.photos_per_guest} photos capturées. Toutes les poses ont été utilisées.
         </p>
         <GalleryStatusNote status={event.status} revealAt={event.reveal_at} variant="dark" />
@@ -645,55 +527,21 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
 
   if (phase === "revealed") {
     return (
-      <div
-        style={{
-          minHeight: "100dvh",
-          display: "flex",
-          flexDirection: "column",
-          background: "var(--flaash-ink)",
-        }}
-      >
-        <div style={{ height: 6, background: "var(--flaash-amber)", flexShrink: 0 }} />
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "40px 28px",
-            textAlign: "center",
-          }}
-        >
-          <p className="f-script" style={{ color: "var(--flaash-amber)", fontSize: 28, marginBottom: 16, lineHeight: 1 }}>
-            vos souvenirs sont développés.
-          </p>
-          <h1 className="f-display" style={{ color: "var(--flaash-cream)", fontSize: "clamp(28px,8vw,48px)", marginBottom: 8, lineHeight: 1.1 }}>
-            La galerie est disponible&nbsp;!
+      <div className="guest-page-center guest-page-ink">
+          <p className="guest-label">Reveal</p>
+          <h1 className="guest-title">
+            La soirée revient.
           </h1>
-          <p style={{ color: "rgba(250,247,242,0.45)", fontSize: 14, fontWeight: 500, marginBottom: 40 }}>
+          <p className="guest-copy" style={{ marginBottom: 34 }}>
             {event.title}
           </p>
           <Link
             href={`/e/${event.slug}/gallery`}
-            style={{
-              display: "inline-block",
-              padding: "14px 28px",
-              background: "var(--flaash-cream)",
-              color: "var(--flaash-ink)",
-              borderRadius: "var(--radius-pill)",
-              fontWeight: 700,
-              fontSize: 14,
-              letterSpacing: "0.08em",
-              textDecoration: "none",
-              maxWidth: 280,
-              width: "100%",
-              textAlign: "center",
-            }}
+            className="flaash-btn flaash-btn-primary"
+            style={{ width: "min(100%, 280px)" }}
           >
-            VOIR LA GALERIE →
+            Voir la galerie
           </Link>
-        </div>
       </div>
     );
   }
@@ -706,14 +554,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
   const pct = (taken / total) * 100;
 
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        display: "flex",
-        flexDirection: "column",
-        padding: "24px 20px 40px",
-      }}
-    >
+    <main className="guest-page">
       {/* Event hub header */}
       <div style={{ marginBottom: 14 }}>
         {event.cover_url && (
@@ -722,25 +563,18 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
             <img
               src={event.cover_url}
               alt=""
-              style={{
-                width: "100%",
-                aspectRatio: "16 / 10",
-                objectFit: "cover",
-                borderRadius: "var(--radius-lg)",
-                display: "block",
-                boxShadow: "var(--shadow-sm)",
-              }}
+              className="guest-cover"
             />
           </div>
         )}
-        <p className="f-eyebrow" style={{ marginBottom: 6 }}>
-          Flaash event
+        <p className="guest-label">
+          Vous êtes invité.
         </p>
-        <h1 className="f-h1" style={{ fontSize: "clamp(34px,10vw,48px)", lineHeight: 1.02, marginBottom: 8 }}>
+        <h1 className="guest-title">
           {event.title}
         </h1>
         {session?.firstName && (
-          <p style={{ fontSize: 13, color: "var(--fg-3)", fontWeight: 600, marginBottom: 12 }}>
+          <p className="guest-copy" style={{ marginBottom: 12 }}>
             Connecté en tant que {session.firstName}
           </p>
         )}
@@ -751,105 +585,48 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
 
       {/* Quota card */}
       <div
-        className="f-card"
-        style={{ padding: "16px 17px 14px", marginBottom: 24 }}
+        className="guest-card guest-progress-card"
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 14,
-            marginBottom: 12,
-          }}
-        >
+        <div className="guest-progress-row">
           <div style={{ minWidth: 0 }}>
-            <p className="f-eyebrow" style={{ marginBottom: 6 }}>
+            <p className="guest-label">
               Pellicule
             </p>
-            <p
-              style={{
-                color: "var(--flaash-ink)",
-                fontFamily: "var(--font-display)",
-                fontSize: 24,
-                fontWeight: 800,
-                lineHeight: 1,
-                marginBottom: 6,
-              }}
-            >
+            <p className="guest-progress-value">
               {taken} / {total} photos
             </p>
-            <p
-              style={{
-                color: remaining === 0 ? "var(--fg-3)" : "var(--flaash-forest)",
-                fontSize: 12,
-                fontWeight: 700,
-                lineHeight: 1.35,
-              }}
-            >
+            <p className="guest-progress-meta">
               {remaining === 0
                 ? "Toutes les poses ont été utilisées"
                 : `${remaining} pose${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`}
             </p>
           </div>
 
-          <p
-            style={{
-              background: remaining === 0 ? "var(--flaash-cream-line)" : "rgba(199,132,59,0.14)",
-              borderRadius: "var(--radius-pill)",
-              color: remaining === 0 ? "var(--fg-3)" : "var(--flaash-amber-deep)",
-              flexShrink: 0,
-              fontSize: 11,
-              fontWeight: 800,
-              letterSpacing: "0.08em",
-              lineHeight: 1,
-              padding: "8px 10px",
-              textTransform: "uppercase",
-            }}
-          >
+          <p className="guest-progress-badge">
             {remaining === 0 ? "Terminée" : "En cours"}
           </p>
         </div>
 
         {/* Progress bar */}
-        <div
-          style={{
-            height: 6,
-            borderRadius: 999,
-            background: "var(--flaash-cream-line)",
-            overflow: "hidden",
-          }}
-        >
+        <div className="guest-progress-track">
           <div
+            className="guest-progress-fill"
             style={{
-              height: "100%",
               width: `${pct}%`,
-              background: pct >= 100 ? "var(--fg-3)" : "var(--flaash-forest)",
-              borderRadius: 2,
-              transition: "width 0.4s var(--ease-out)",
+              background: pct >= 100 ? "var(--text-muted)" : undefined,
             }}
           />
         </div>
       </div>
 
       {/* Camera button area */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 14,
-          minHeight: 230,
-        }}
-      >
+      <div className="guest-capture-stage">
         <div style={{ textAlign: "center" }}>
-          <p className="f-eyebrow" style={{ marginBottom: 5 }}>
+          <p className="guest-label">
             Appareil photo
           </p>
-          <p style={{ color: "var(--fg-3)", fontSize: 13, fontWeight: 600, margin: 0 }}>
-            Capture une pose pour l&apos;événement.
+          <p className="guest-copy" style={{ margin: 0 }}>
+            Prends une photo, puis reviens à la soirée.
           </p>
         </div>
 
@@ -883,33 +660,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
           onClick={() => fileRef.current?.click()}
           disabled={isUploading}
           aria-label="Prendre une photo"
-          style={{
-            width: 120,
-            height: 120,
-            borderRadius: "50%",
-            background: isUploading ? "var(--fg-3)" : "var(--flaash-forest)",
-            border: "none",
-            cursor: isUploading ? "default" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "var(--shadow-lg)",
-            transition: "transform var(--t-fast) var(--ease-out), background var(--t-fast)",
-            WebkitTapHighlightColor: "transparent",
-            touchAction: "manipulation",
-          }}
-          onMouseDown={(e) =>
-            (e.currentTarget.style.transform = "scale(0.93)")
-          }
-          onMouseUp={(e) =>
-            (e.currentTarget.style.transform = "scale(1)")
-          }
-          onTouchStart={(e) =>
-            (e.currentTarget.style.transform = "scale(0.93)")
-          }
-          onTouchEnd={(e) =>
-            (e.currentTarget.style.transform = "scale(1)")
-          }
+          className="guest-shutter"
         >
           {isUploading ? (
             <div style={{ ...spinner, borderTopColor: "var(--flaash-cream)" }} />
@@ -924,15 +675,15 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
             fontWeight: 600,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
-            color: "var(--fg-3)",
+            color: "var(--text-muted)",
             margin: 0,
           }}
         >
-          {isUploading ? "Envoi en cours…" : "PRENDRE UNE PHOTO"}
+          {isUploading ? "Envoi en cours…" : "Prendre une photo"}
         </p>
         {event.allow_library_upload && (
-          <p style={{ color: "var(--fg-3)", fontSize: 12, lineHeight: 1.4, margin: 0, maxWidth: 240, textAlign: "center" }}>
-            Tu peux aussi choisir une image de ta photothèque.
+          <p className="guest-copy" style={{ margin: 0, maxWidth: 260, fontSize: 12, textAlign: "center" }}>
+            Tu peux aussi ajouter une photo depuis ta photothèque.
           </p>
         )}
 
@@ -940,32 +691,25 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
 
       {/* ── Carrousel photos prises ─────────────────────────────────────── */}
       {uploadedPhotos.length > 0 && (
-        <div className="f-card" style={{ marginTop: 22, padding: "14px 14px 12px" }}>
+        <div className="guest-card guest-uploaded-card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 10 }}>
-            <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", color: "var(--fg-3)", textTransform: "uppercase", margin: 0 }}>
-              Mes photos
+            <p className="guest-label" style={{ margin: 0 }}>
+              Mes souvenirs
             </p>
             <span style={{ color: "var(--fg-3)", fontSize: 12, fontWeight: 700 }}>
               {uploadedPhotos.length}
             </span>
           </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              overflowX: "auto",
-              paddingBottom: 4,
-            }}
-          >
+          <div className="guest-photo-strip">
             {uploadedPhotos.map((photo) => (
               <div
                 key={photo.id}
-                style={{ position: "relative", flexShrink: 0, width: 74, height: 74, borderRadius: "var(--radius-sm)", overflow: "hidden", background: "var(--surface-2)" }}
+                className="guest-photo-thumb"
               >
                 <button
                   type="button"
                   onClick={() => setLightboxPhoto(photo.thumbnailUrl)}
-                  style={{ display: "block", width: "100%", height: "100%", padding: 0, border: "none", background: "none", cursor: "zoom-in" }}
+                  className="guest-thumb-button"
                   aria-label="Agrandir"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -978,14 +722,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
                 <button
                   type="button"
                   onClick={() => setDeleteConfirm(photo.id)}
-                  style={{
-                    position: "absolute", top: 3, right: 3,
-                    background: "rgba(220,38,38,0.85)",
-                    border: "none", borderRadius: "50%",
-                    width: 22, height: 22,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", color: "white", fontSize: 12, lineHeight: 1,
-                  }}
+                  className="guest-delete-dot"
                   aria-label="Supprimer"
                 >
                   ✕
@@ -1056,15 +793,18 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
       {/* Delete confirmation */}
       {deleteConfirm && (
         <div
-          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(10,8,5,0.82)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+          className="guest-modal-backdrop"
           onClick={() => setDeleteConfirm(null)}
         >
           <div
-            style={{ background: "var(--flaash-cream)", borderRadius: "var(--radius-xl)", padding: "28px 24px", maxWidth: 300, width: "100%", textAlign: "center" }}
+            className="guest-modal-card"
             onClick={(e) => e.stopPropagation()}
           >
-            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Supprimer cette photo ?</p>
-            <p style={{ color: "var(--fg-3)", fontSize: 14, lineHeight: 1.45, marginBottom: 24 }}>
+            <p className="guest-label">Supprimer</p>
+            <h2 style={{ color: "var(--foreground)", fontSize: 22, marginBottom: 8 }}>
+              Supprimer cette photo ?
+            </h2>
+            <p className="guest-copy" style={{ fontSize: 14, marginBottom: 24 }}>
               Cette photo sera supprimée, mais elle comptera toujours dans ta pellicule.
             </p>
             <div style={{ display: "flex", gap: 10 }}>
@@ -1102,7 +842,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
           100% { transform: scale(1) rotate(-3deg); opacity: 1; }
         }
       `}</style>
-    </div>
+    </main>
   );
 }
 
@@ -1115,7 +855,7 @@ function CameraIcon() {
       height="40"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="var(--flaash-cream)"
+      stroke="var(--primary-action-text)"
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -1136,16 +876,6 @@ function formatRevealAt(revealAt: string) {
     timeStyle: "short",
   });
 }
-
-const centered: React.CSSProperties = {
-  minHeight: "100dvh",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "40px 24px",
-  textAlign: "center",
-};
 
 const spinner: React.CSSProperties = {
   width: 28,
