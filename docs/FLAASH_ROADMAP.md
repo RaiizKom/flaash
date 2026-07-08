@@ -124,7 +124,7 @@ Stripe live — validé (commit `57eda6a`) :
 P1 post-release — Analytics & Conversion Tracking :
 
 - [ ] À faire après le monitoring minimal webhook/upload, pour suivre le tunnel Flaash et arrêter d'avancer à l'aveugle.
-- [ ] Peut passer après l'audit "Sauvegarder sur téléphone sans ZIP" si celui-ci est rapide.
+- [ ] Voir P2 "Mobile photo save / share" ci-dessous — peut passer avant si on veut glisser un petit lot UX premium.
 - [ ] À placer avant les grosses features : photobook, App Clip, landing V2 ou gros refactor.
 - [ ] Marketing : visites landing, sources de trafic, clics CTA, inscriptions, créations de compte.
 - [ ] Conversion business : création d'événement, checkout started, checkout cancelled, checkout completed, code promo utilisé, événement activé.
@@ -132,6 +132,15 @@ P1 post-release — Analytics & Conversion Tracking :
 - [ ] Approche : Vercel Web Analytics ou équivalent pour le trafic global ; custom events ou table Supabase pour les événements produit.
 - [ ] Garde-fou : ne collecter aucun nom, email, URL photo, token invité, secret ou donnée sensible dans les events.
 - [ ] Préparer plus tard un mini-dashboard analytics organisateur.
+
+P2 post-release — Mobile photo save / share :
+
+- [ ] Objectif : permettre à un invité ou organisateur d'enregistrer facilement une photo individuelle sur son téléphone après reveal.
+- [ ] Scope : bouton "Enregistrer cette photo" dans la lightbox galerie ; Web Share API mobile si disponible ; fallback téléchargement image ; route same-origin avec reveal guard strict.
+- [ ] Hors scope : sauvegarde automatique dans la pellicule, téléchargement de toute la galerie dans Photos, remplacement du ZIP, partage massif de dizaines/centaines de photos.
+- [ ] Le ZIP reste le moyen fiable de récupérer toute la galerie — inchangé.
+- [ ] Aucune promesse d'enregistrement automatique dans Photos / Galerie (une web app ne peut pas le garantir).
+- [ ] Priorité : à faire après le monitoring minimal et l'analytics MVP (P1 ci-dessus), sauf si on glisse volontairement un petit lot UX premium avant.
 
 Backlog plus tard :
 
