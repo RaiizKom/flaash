@@ -121,6 +121,18 @@ Stripe live — validé (commit `57eda6a`) :
 - [ ] Prioriser les prochaines features avec Pedro.
 - [ ] Stabilisation et monitoring post-release.
 
+P1 post-release — Analytics & Conversion Tracking :
+
+- [ ] À faire après le monitoring minimal webhook/upload, pour suivre le tunnel Flaash et arrêter d'avancer à l'aveugle.
+- [ ] Peut passer après l'audit "Sauvegarder sur téléphone sans ZIP" si celui-ci est rapide.
+- [ ] À placer avant les grosses features : photobook, App Clip, landing V2 ou gros refactor.
+- [ ] Marketing : visites landing, sources de trafic, clics CTA, inscriptions, créations de compte.
+- [ ] Conversion business : création d'événement, checkout started, checkout cancelled, checkout completed, code promo utilisé, événement activé.
+- [ ] Produit organisateur : scans QR ou vues page invité, invités actifs, photos uploadées, taux invités → photos, vues galerie après reveal, téléchargements souvenirs.
+- [ ] Approche : Vercel Web Analytics ou équivalent pour le trafic global ; custom events ou table Supabase pour les événements produit.
+- [ ] Garde-fou : ne collecter aucun nom, email, URL photo, token invité, secret ou donnée sensible dans les events.
+- [ ] Préparer plus tard un mini-dashboard analytics organisateur.
+
 Backlog plus tard :
 
 - [ ] Amélioration future de la carte QR / supports physiques, si nécessaire.
@@ -141,7 +153,6 @@ Backlog plus tard :
 - [ ] best photos filter
 - [ ] photobook export
 - [ ] App Clip / web app
-- [ ] organizer analytics
 - [ ] possible V2 landing images, not priority
 
 ## Technical Debt
