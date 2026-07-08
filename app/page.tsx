@@ -1,6 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { PLANS } from "@/lib/utils/pricing";
+
+export const dynamic = "force-dynamic";
 
 const PUBLIC_PLANS = PLANS.filter((p) => p.id !== "test");
 const MIN_PRICE = Math.min(...PUBLIC_PLANS.map((p) => p.price));
@@ -92,7 +96,14 @@ const PLAN_NOTES: Record<string, string> = {
   premium: "Grand format, jusqu'à 250 invités.",
 };
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) redirect("/dashboard");
+
   return (
     <div style={{ background: "var(--flaash-cream)", overflowX: "hidden" }}>
 
