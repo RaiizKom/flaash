@@ -101,15 +101,22 @@ Planned commits:
 
 ## Post-Release / Prochaines Priorités
 
-Direction : la refonte est en production et validée. La priorité passe maintenant à la solidification du paiement réel et à la stabilisation, avant de reprendre des features.
+Direction : la refonte est en production et validée. Stripe live est configuré et validé — la priorité passe maintenant à la stabilisation et à l'audit produit.
+
+Stripe live — validé (commit `57eda6a`) :
+
+- [x] Stripe passé en mode production / live.
+- [x] Checkout live confirmé, ouverture en CHF.
+- [x] Webhook Stripe live fonctionnel (`checkout.session.completed`).
+- [x] Code promo 100% créé et testé avec succès.
+- [x] Passage brouillon → actif après checkout confirmé.
+- [x] Flux d'annulation checkout corrigé (retour propre si paiement annulé).
+- [ ] TWINT activé côté Stripe, en attente de validation système (pas encore testable de bout en bout).
+- [ ] Test d'un vrai paiement carte réel — pas encore fait, mais **n'est plus bloquant** : le parcours checkout → webhook → activation est déjà validé via le test code promo.
 
 À faire maintenant :
 
-- [ ] Passer Stripe en mode production / live.
-- [ ] Vérifier les produits et prix Stripe live.
-- [ ] Vérifier le webhook Stripe live (`checkout.session.completed`).
-- [ ] Vérifier les variables d'environnement Vercel production.
-- [ ] Faire un test de paiement réel contrôlé.
+- [ ] Vérifier les variables d'environnement Vercel production restantes (Supabase, R2, Resend).
 - [ ] Audit complet post-release du produit.
 - [ ] Prioriser les prochaines features avec Pedro.
 - [ ] Stabilisation et monitoring post-release.
