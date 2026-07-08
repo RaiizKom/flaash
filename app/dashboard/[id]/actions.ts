@@ -125,7 +125,8 @@ export async function resumePayment(eventId: string) {
       quantity: 1,
     }],
     success_url: `${appUrl}/dashboard/${eventId}?payment=success`,
-    cancel_url:  `${appUrl}/dashboard/${eventId}`,
+    cancel_url:  `${appUrl}/dashboard/${eventId}?payment=cancelled`,
+    allow_promotion_codes: true,
     metadata:    { event_id: eventId },
   });
 
