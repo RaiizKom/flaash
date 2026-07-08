@@ -11,6 +11,7 @@ export default function PaymentBanner({ status }: Props) {
   const searchParams = useSearchParams();
   const router       = useRouter();
   const isSuccess    = searchParams.get("payment") === "success";
+  const isCancelled  = searchParams.get("payment") === "cancelled";
 
   const [attempts,  setAttempts]  = useState(0);
   const [dismissed, setDismissed] = useState(false);
@@ -35,63 +36,49 @@ export default function PaymentBanner({ status }: Props) {
     return () => clearTimeout(t);
   }, [isSuccess, status, attempts, dismissed, router]);
 
+  if (isCancelled && status === "draft") {
+    return (
+      <div className="dashboard-payment-banner dashboard-payment-banner-cancelled">
+        <div>
+          <p className="dashboard-payment-banner-title">
+            Paiement non finalisé. Votre soirée est toujours en brouillon.
+          </p>
+          <p className="dashboard-payment-banner-text">
+            Vous pouvez reprendre le paiement quand tout est prêt.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isSuccess || dismissed) return null;
 
   if (status === "active") {
     return (
-      <div
-        style={{
-          background: "var(--flaash-forest-soft)",
-          border: "1px solid var(--flaash-forest)",
-          borderRadius: "var(--radius-sm)",
-          padding: "12px 16px",
-          marginBottom: 20,
-          fontSize: 14,
-          fontWeight: 600,
-          color: "var(--flaash-forest)",
-        }}
-      >
-        ✓ Paiement reçu — votre événement est actif !
+      <div className="dashboard-payment-banner dashboard-payment-banner-success">
+        <p className="dashboard-payment-banner-title">
+          Paiement reçu. Votre événement est actif.
+        </p>
       </div>
     );
   }
 
   if (attempts >= 3) {
     return (
-      <div
-        style={{
-          background: "var(--flaash-amber-soft)",
-          border: "1px solid var(--flaash-amber-deep)",
-          borderRadius: "var(--radius-sm)",
-          padding: "12px 16px",
-          marginBottom: 20,
-          fontSize: 13,
-          color: "var(--flaash-amber-deep)",
-        }}
-      >
-        Si votre événement n&apos;est pas encore actif dans quelques minutes, contactez-nous.
+      <div className="dashboard-payment-banner dashboard-payment-banner-waiting">
+        <p className="dashboard-payment-banner-text">
+          Si votre événement n&apos;est pas encore actif dans quelques minutes, contactez-nous.
+        </p>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        background: "var(--flaash-amber-soft)",
-        border: "1px solid var(--flaash-amber-deep)",
-        borderRadius: "var(--radius-sm)",
-        padding: "12px 16px",
-        marginBottom: 20,
-        fontSize: 14,
-        fontWeight: 600,
-        color: "var(--flaash-amber-deep)",
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-      }}
-    >
-      <span style={{ display: "inline-block", width: 14, height: 14, border: "2px solid var(--flaash-amber-deep)", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-      Paiement reçu — activation en cours…
+    <div className="dashboard-payment-banner dashboard-payment-banner-waiting">
+      <span className="dashboard-payment-spinner" aria-hidden="true" />
+      <p className="dashboard-payment-banner-title">
+        Paiement reçu. Activation en cours.
+      </p>
     </div>
   );
 }

@@ -61,7 +61,8 @@ export async function POST(
       },
     ],
     success_url: `${appUrl}/dashboard/${id}?payment=success`,
-    cancel_url: `${appUrl}/dashboard/${id}`,
+    cancel_url: `${appUrl}/dashboard/${id}?payment=cancelled`,
+    allow_promotion_codes: true,
     metadata: { event_id: id },
   });
 

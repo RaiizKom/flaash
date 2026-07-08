@@ -3079,6 +3079,65 @@ summary:focus-visible,
   line-height: 1.5;
 }
 
+.dashboard-payment-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.dashboard-payment-banner-cancelled {
+  border: 1px solid var(--border-warm);
+  background: var(--flaash-paper);
+  box-shadow: inset 3px 0 0 var(--flaash-amber);
+}
+
+.dashboard-payment-banner-success {
+  border: 1px solid rgb(30 61 47 / 0.22);
+  background: var(--flaash-forest-soft);
+  color: var(--flaash-forest);
+}
+
+.dashboard-payment-banner-waiting {
+  border: 1px solid rgb(224 123 46 / 0.34);
+  background: rgb(224 123 46 / 0.14);
+  color: var(--flaash-amber-deep);
+}
+
+.dashboard-payment-banner-title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--font-impact);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.dashboard-payment-banner-cancelled .dashboard-payment-banner-title {
+  color: var(--flaash-ink);
+}
+
+.dashboard-payment-banner-text {
+  margin: 4px 0 0;
+  color: var(--flaash-ink-soft);
+  font-size: 13px;
+}
+
+.dashboard-payment-spinner {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin-top: 3px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
 .dashboard-action-button {
   width: 100%;
   min-height: 50px;
