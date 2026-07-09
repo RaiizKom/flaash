@@ -28,6 +28,13 @@ interface MyPhotoResponse {
   photos?: UploadedPhoto[];
 }
 
+interface UploadResponse {
+  error?: string;
+  photoId?: string;
+  remainingShots?: number;
+  thumbnailUrl?: string;
+}
+
 const MAX_UPLOAD_BYTES = 25_000_000;
 const CLIENT_IMAGE_MAX_DIMENSION = 2048;
 const CLIENT_JPEG_QUALITY = 0.82;
@@ -185,6 +192,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
   const [isJoining, setIsJoining] = useState(false);
   const [joinError, setJoinError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgressText, setUploadProgressText] = useState("");
   const [lastThumb, setLastThumb] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
@@ -305,83 +313,120 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
   // ── Upload ────────────────────────────────────────────────────────────────
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !session || isUploading) return;
+    const selectedFiles = Array.from(e.target.files ?? []);
+    if (selectedFiles.length === 0 || !session || isUploading) return;
     e.target.value = "";
 
-    if (!file.type.startsWith("image/")) {
-      showToast("Choisis une image valide.", false);
+    const remaining = event.photos_per_guest - session.photosTaken;
+    if (remaining <= 0) {
+      setPhase("quota-full");
       return;
     }
 
-    if (file.size > MAX_UPLOAD_BYTES) {
-      showToast("Image trop lourde. Choisis une photo de moins de 25 MB.", false);
-      return;
+    let files = selectedFiles;
+    if (selectedFiles.length > remaining) {
+      files = selectedFiles.slice(0, remaining);
+      showToast(
+        `${remaining} pose${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}. Les autres photos sont mises de côté.`,
+        false
+      );
     }
 
     setIsUploading(true);
-    const previewUrl = URL.createObjectURL(file);
+    setUploadProgressText(files.length > 1 ? `Envoi 1/${files.length}…` : "Envoi en cours…");
 
     try {
-      let uploadFile = file;
-      try {
-        uploadFile = await compressImageForUpload(file);
-      } catch {
-        uploadFile = file;
-      }
+      let currentSession = session;
 
-      if (uploadFile.size > MAX_UPLOAD_BYTES) {
-        showToast("Image trop lourde. Choisis une photo de moins de 25 MB.", false);
-        return;
-      }
+      for (const [index, file] of files.entries()) {
+        setUploadProgressText(files.length > 1 ? `Envoi ${index + 1}/${files.length}…` : "Envoi en cours…");
 
-      const fd = new FormData();
-      fd.append("token", session.token);
-      fd.append("file", uploadFile);
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30_000);
-
-      let res: Response;
-      try {
-        res = await fetch("/api/upload", { method: "POST", body: fd, signal: controller.signal });
-      } catch (err) {
-        const isTimeout = err instanceof Error && err.name === "AbortError";
-        showToast(isTimeout ? "Délai dépassé. Réessaie." : "Erreur réseau. Réessaie.", false);
-        return;
-      } finally {
-        clearTimeout(timeoutId);
-      }
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (res.status === 429) {
-          setPhase("quota-full");
+        if (!file.type.startsWith("image/")) {
+          showToast("Choisis une image valide.", false);
           return;
         }
-        if (res.status === 403) {
-          setPhase("blocked");
+
+        let uploadFile: File;
+        try {
+          uploadFile = await compressImageForUpload(file);
+        } catch {
+          showToast("La photo n'a pas pu être préparée. Essaie une autre image.", false);
           return;
         }
-        showToast(data.error ?? "La photo n'a pas pu être envoyée.", false);
-        return;
+
+        if (uploadFile.size > MAX_UPLOAD_BYTES) {
+          showToast("Photo trop lourde après préparation. Choisis une image plus légère.", false);
+          return;
+        }
+
+        const fd = new FormData();
+        fd.append("token", currentSession.token);
+        fd.append("file", uploadFile);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30_000);
+
+        let res: Response;
+        try {
+          res = await fetch("/api/upload", { method: "POST", body: fd, signal: controller.signal });
+        } catch (err) {
+          const isTimeout = err instanceof Error && err.name === "AbortError";
+          showToast(isTimeout ? "Délai dépassé. Réessaie." : "Erreur réseau. Réessaie.", false);
+          return;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+
+        let data: UploadResponse | null = null;
+        try {
+          data = (await res.json()) as UploadResponse;
+        } catch {
+          // The upload endpoint can fail before returning JSON on some platforms.
+        }
+
+        if (!res.ok) {
+          if (res.status === 429) {
+            setPhase("quota-full");
+            return;
+          }
+          if (res.status === 403) {
+            setPhase("blocked");
+            return;
+          }
+          showToast(data?.error ?? "La photo n'a pas pu être envoyée. Réessaie.", false);
+          return;
+        }
+
+        if (!data?.photoId || !data.thumbnailUrl) {
+          showToast("La photo a reçu une réponse illisible. Réessaie.", false);
+          return;
+        }
+
+        const uploadedPhoto: UploadedPhoto = {
+          id: data.photoId,
+          thumbnailUrl: data.thumbnailUrl,
+        };
+        const previewUrl = URL.createObjectURL(file);
+        const newPhotosTaken = currentSession.photosTaken + 1;
+        const updated: GuestSession = { ...currentSession, photosTaken: newPhotosTaken };
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+        setSession(updated);
+        currentSession = updated;
+        setLastThumb(previewUrl);
+        // Track uploaded photo for carousel
+        setUploadedPhotos((prev) => [...prev, uploadedPhoto]);
+        setCollectivePhotoCount((count) => count + 1);
+
+        if (data.remainingShots === 0) {
+          setTimeout(() => setPhase("quota-full"), 1400);
+          break;
+        }
       }
 
-      const newPhotosTaken = session.photosTaken + 1;
-      const updated: GuestSession = { ...session, photosTaken: newPhotosTaken };
-      localStorage.setItem(storageKey, JSON.stringify(updated));
-      setSession(updated);
-      setLastThumb(previewUrl);
-      // Track uploaded photo for carousel
-      setUploadedPhotos((prev) => [...prev, { id: data.photoId, thumbnailUrl: data.thumbnailUrl }]);
-      setCollectivePhotoCount((count) => count + 1);
-      showToast("Photo enregistrée !");
-
-      if (data.remainingShots === 0) {
-        setTimeout(() => setPhase("quota-full"), 1400);
-      }
+      showToast(files.length > 1 ? "Photos enregistrées !" : "Photo enregistrée !");
     } finally {
       setIsUploading(false);
+      setUploadProgressText("");
     }
   }
 
@@ -679,7 +724,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
             margin: 0,
           }}
         >
-          {isUploading ? "Envoi en cours…" : "Prendre une photo"}
+          {isUploading ? uploadProgressText || "Envoi en cours…" : "Prendre une photo"}
         </p>
         {event.allow_library_upload && (
           <p className="guest-copy" style={{ margin: 0, maxWidth: 260, fontSize: 12, textAlign: "center" }}>
@@ -742,6 +787,7 @@ export default function GuestCamera({ event, photoCount = 0 }: { event: Event; p
         ref={fileRef}
         type="file"
         accept="image/*"
+        multiple={event.allow_library_upload ? true : undefined}
         {...(event.allow_library_upload ? {} : { capture: "environment" as const })}
         style={{ display: "none" }}
         onChange={handleFileChange}
