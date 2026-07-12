@@ -73,8 +73,8 @@ export async function POST(req: NextRequest) {
     [fullBuffer, thumbBuffer] = await Promise.all([
       sharp(raw)
         .rotate()
-        .resize({ width: 1920, height: 1920, fit: "inside", withoutEnlargement: true })
-        .jpeg({ quality: 82, progressive: true })
+        .resize({ width: 2560, height: 2560, fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: 85, progressive: true })
         .toBuffer(),
       sharp(raw)
         .rotate()
