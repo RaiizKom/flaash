@@ -36,8 +36,8 @@ interface UploadResponse {
 }
 
 const MAX_UPLOAD_BYTES = 25_000_000;
-const CLIENT_IMAGE_MAX_DIMENSION = 2048;
-const CLIENT_JPEG_QUALITY = 0.82;
+const CLIENT_IMAGE_MAX_DIMENSION = 2560;
+const CLIENT_JPEG_QUALITY = 0.85;
 
 function PrivacyNote() {
   return (
