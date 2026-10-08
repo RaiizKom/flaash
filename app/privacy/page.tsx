@@ -39,7 +39,7 @@ const sections = [
   {
     title: "Conservation",
     body: [
-      "Les photos et données associées sont conservées jusqu'à 90 jours après la révélation de la galerie ou après l'événement.",
+      "Les souvenirs restent accessibles tant que l'événement est actif. Une suppression complète peut être demandée à tout moment par l'organisateur.",
       "Une suppression anticipée complète peut être demandée par l'organisateur.",
     ],
   },
