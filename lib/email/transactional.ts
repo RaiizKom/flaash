@@ -44,7 +44,7 @@ function buildEventReadyEmail(input: OrganizerEventReadyEmailInput) {
     `Lien invité à partager : ${guestUrl}`,
     `Carte QR à imprimer : ${printUrl}`,
     "",
-    "Les photos sont conservées jusqu'à 90 jours, sauf suppression anticipée demandée par l'organisateur.",
+    "Les souvenirs restent accessibles tant que l'événement est actif. Une suppression complète peut être demandée à tout moment par l'organisateur.",
     "",
     "Besoin d'aide ? Écrivez-nous à hello@flaash.ch.",
     "",
@@ -70,7 +70,7 @@ function buildEventReadyEmail(input: OrganizerEventReadyEmailInput) {
           <p style="font-size:12px;line-height:1.6;color:#6E6862;margin:0 0 6px;">Invités : <span style="color:#1A1A1A;">${guestUrl}</span></p>
           <p style="font-size:12px;line-height:1.6;color:#6E6862;margin:0;">Carte QR : <span style="color:#1A1A1A;">${printUrl}</span></p>
         </div>
-        <p style="font-size:14px;line-height:1.6;color:#6E6862;margin:0 0 18px;">Les photos sont conservées jusqu'à 90 jours, sauf suppression anticipée demandée par l'organisateur.</p>
+        <p style="font-size:14px;line-height:1.6;color:#6E6862;margin:0 0 18px;">Les souvenirs restent accessibles tant que l'événement est actif. Une suppression complète peut être demandée à tout moment par l'organisateur.</p>
         <p style="font-size:14px;line-height:1.6;color:#6E6862;margin:0;">Support : <a href="mailto:hello@flaash.ch" style="color:#B85F1E;font-weight:700;">hello@flaash.ch</a></p>
       </div>
     </div>
