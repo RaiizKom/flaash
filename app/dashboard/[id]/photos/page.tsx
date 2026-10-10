@@ -66,6 +66,7 @@ export default async function PhotosPage({ params }: Props) {
       .filter((guestId): guestId is string => Boolean(guestId))
   ).size;
   const isRevealed = ev.status === "revealed";
+  const canDownload = activePhotos.length > 0 && isRevealed;
   const preparationCopy = isRevealed
     ? "La galerie est ouverte. Les souvenirs peuvent être conservés."
     : "Gardez les regards qui doivent revenir dans la galerie.";
@@ -148,9 +149,19 @@ export default async function PhotosPage({ params }: Props) {
               <h2>Télécharger les souvenirs</h2>
               <p>Le téléchargement regroupe les souvenirs visibles, prêts à être conservés.</p>
               {activePhotos.length > 0 && (
-                <a href={`/api/download/${ev.slug}`} download className="dashboard-photos-download">
-                  Télécharger les souvenirs
-                </a>
+                canDownload ? (
+                  <a href={`/api/download/${ev.slug}`} download className="dashboard-photos-download">
+                    Télécharger les souvenirs
+                  </a>
+                ) : (
+                  <span
+                    className="dashboard-photos-download"
+                    aria-disabled="true"
+                    style={{ opacity: 0.58 }}
+                  >
+                    Téléchargement disponible après la révélation.
+                  </span>
+                )
               )}
             </div>
           </aside>

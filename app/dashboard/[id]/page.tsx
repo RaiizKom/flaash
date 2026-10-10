@@ -76,6 +76,7 @@ export default async function EventDetailPage({ params }: Props) {
   const photoTotal = photoCount ?? 0;
   const activeGuestTotal = guestCount ?? 0;
   const isLive = ev.status === "active" || ev.status === "revealed";
+  const canDownload = photoTotal > 0 && ev.status === "revealed";
 
   return (
     <div className="dashboard-event-detail">
@@ -292,13 +293,23 @@ export default async function EventDetailPage({ params }: Props) {
                   </form>
                 )}
                 {photoTotal > 0 && (
-                  <a
-                    href={`/api/download/${ev.slug}`}
-                    download
-                    className={`dashboard-reveal-download${ev.status === "revealed" ? " dashboard-reveal-download-primary" : ""}`}
-                  >
-                    Télécharger les souvenirs ({photoTotal} photos)
-                  </a>
+                  canDownload ? (
+                    <a
+                      href={`/api/download/${ev.slug}`}
+                      download
+                      className="dashboard-reveal-download dashboard-reveal-download-primary"
+                    >
+                      Télécharger les souvenirs ({photoTotal} photos)
+                    </a>
+                  ) : (
+                    <span
+                      className="dashboard-reveal-download"
+                      aria-disabled="true"
+                      style={{ opacity: 0.58 }}
+                    >
+                      Téléchargement disponible après la révélation.
+                    </span>
+                  )
                 )}
               </div>
             </div>
