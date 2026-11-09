@@ -1,23 +1,32 @@
 "use client";
 
 import { useState } from "react";
+import { isRedirectError } from "next/dist/client/components/redirect";
 import { deleteEvent } from "./actions";
 
 export default function DeleteButton({ eventId }: { eventId: string }) {
   const [showModal, setShowModal] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState(false);
 
   async function handleConfirm() {
     setIsPending(true);
-    await deleteEvent(eventId); // redirects on success
-    setIsPending(false);
+    setError(false);
+    try {
+      await deleteEvent(eventId); // redirects on success
+    } catch (err) {
+      if (isRedirectError(err)) throw err;
+      setError(true);
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setShowModal(true)}
+        onClick={() => { setError(false); setShowModal(true); }}
         className="dashboard-delete-button"
       >
         Supprimer l&apos;événement
@@ -50,6 +59,11 @@ export default function DeleteButton({ eventId }: { eventId: string }) {
             <p style={{ color: "var(--fg-3)", fontSize: 14, marginBottom: 24, lineHeight: 1.5 }}>
               Cette action est irréversible. Toutes les photos seront définitivement supprimées.
             </p>
+            {error && (
+              <p role="alert" style={{ color: "var(--fg-3)", fontSize: 14, marginBottom: 16, lineHeight: 1.5 }}>
+                La suppression n’a pas abouti. Réessayez dans un instant.
+              </p>
+            )}
             <div style={{ display: "flex", gap: 10 }}>
               <button
                 onClick={() => setShowModal(false)}
