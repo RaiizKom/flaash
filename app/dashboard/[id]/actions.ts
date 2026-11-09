@@ -57,16 +57,24 @@ export async function deleteEvent(eventId: string) {
 
   if (!user) redirect("/login");
 
-  // Clean up R2 objects (best effort)
-  try { await deleteEventObjects(eventId); } catch (err) {
-    console.error("[deleteEvent] R2 cleanup failed:", err);
-  }
+  const { data: event, error } = await supabase
+    .from("events")
+    .select("id")
+    .eq("id", eventId)
+    .eq("owner_id", user.id)
+    .single();
 
-  await supabase
+  if (error || !event) throw new Error("Événement introuvable ou accès refusé.");
+
+  await deleteEventObjects(event.id);
+
+  const { error: deleteError } = await supabase
     .from("events")
     .delete()
     .eq("id", eventId)
     .eq("owner_id", user.id);
+
+  if (deleteError) throw new Error("La suppression de la soirée n’a pas abouti.");
 
   redirect("/dashboard");
 }

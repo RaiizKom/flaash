@@ -26,10 +26,11 @@ export async function deleteEventObjects(eventId: string): Promise<void> {
 
     const keys = (list.Contents ?? []).map((o) => ({ Key: o.Key! }));
     if (keys.length > 0) {
-      await s3.send(new DeleteObjectsCommand({
+      const result = await s3.send(new DeleteObjectsCommand({
         Bucket: BUCKET,
         Delete: { Objects: keys, Quiet: true },
       }));
+      if (result.Errors?.length) throw new Error("R2 event cleanup failed.");
     }
 
     continuationToken = list.NextContinuationToken;
