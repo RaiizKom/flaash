@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { type EventType } from "@/types";
 
 type UpdateEventSettingsResult =
@@ -29,14 +30,14 @@ export async function updateEventSettings(
 
   if (!user) redirect("/login");
 
-  const { data: event } = await supabase
+  const { data: event, error: lookupError } = await supabase
     .from("events")
     .select("id, owner_id, slug, status, photos_per_guest")
     .eq("id", eventId)
     .eq("owner_id", user.id)
     .single();
 
-  if (!event) {
+  if (lookupError || !event) {
     return { error: "Événement introuvable." };
   }
 
@@ -74,13 +75,14 @@ export async function updateEventSettings(
       return { error: "La limite de photos doit être comprise entre 1 et 20." };
     }
 
-    const { data: guests } = await supabase
+    const { data: guests, error: guestsError } = await supabase
       .from("guests")
       .select("photos_taken")
       .eq("event_id", event.id)
       .order("photos_taken", { ascending: false })
       .limit(1);
 
+    if (guestsError) return { error: "Impossible de vérifier les poses déjà prises." };
     const maxPhotosTaken = guests?.[0]?.photos_taken ?? 0;
     if (rawPhotosPerGuest < maxPhotosTaken) {
       return {
@@ -109,15 +111,19 @@ export async function updateEventSettings(
     update.photos_per_guest = rawPhotosPerGuest;
   }
 
-  const { error } = await supabase
+  const { data: updated, error } = await createAdminClient()
     .from("events")
     .update(update)
     .eq("id", event.id)
-    .eq("owner_id", user.id);
+    .eq("owner_id", user.id)
+    .eq("status", event.status)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return { error: "Impossible d'enregistrer les paramètres." };
   }
+  if (!updated) return { error: "La soirée a changé. Rechargez la page et réessayez." };
 
   revalidatePath(`/dashboard/${event.id}`);
   revalidatePath(`/dashboard/${event.id}/settings`);

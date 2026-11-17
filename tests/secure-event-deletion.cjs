@@ -67,6 +67,7 @@ for (const scenario of [
       "next/cache": {},
       "next/navigation": { redirect(path) { calls.push(path); throw new Error(`redirect:${path}`); } },
       "@/lib/supabase/server": { createClient: async () => supabase },
+      "@/lib/supabase/admin": {},
       stripe: {},
       "@/lib/utils/pricing": {},
       "@/lib/r2": { async deleteEventObjects(id) {
