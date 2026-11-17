@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { generateSlug } from "@/lib/utils/slug";
 import { getPlan } from "@/lib/utils/pricing";
 import { sendOrganizerEventReadyEmail } from "@/lib/email/transactional";
@@ -12,6 +13,12 @@ type CreateEventResult =
   | { eventId: string; requiresPayment: true }
   | { error: string };
 
+function readPositiveInteger(value: FormDataEntryValue | null) {
+  return typeof value === "string" && /^[1-9][0-9]*$/.test(value)
+    ? Number(value)
+    : NaN;
+}
+
 export async function createEvent(formData: FormData): Promise<CreateEventResult> {
   const supabase = await createClient();
   const {
@@ -20,7 +27,9 @@ export async function createEvent(formData: FormData): Promise<CreateEventResult
 
   if (!user) redirect("/login");
 
-  const title           = (formData.get("title") as string).trim();
+  const rawTitle = formData.get("title");
+  const title = typeof rawTitle === "string" ? rawTitle.trim() : "";
+  if (!title) return { error: "Le titre est requis." };
   const event_type      = formData.get("event_type") as EventType;
   const plan_id         = formData.get("plan_id") as string;
   const reveal_mode     = formData.get("reveal_mode") as "fixed" | "manual" | null;
@@ -30,15 +39,17 @@ export async function createEvent(formData: FormData): Promise<CreateEventResult
   const plan = getPlan(plan_id);
   if (!plan) return { error: "Plan invalide." };
 
-  // Server-side enforcement for Test plan
-  const max_guests      = plan_id === "test"
-    ? 3
-    : parseInt(formData.get("max_guests") as string, 10);
-  const photos_per_guest = plan_id === "test"
-    ? 20
-    : parseInt(formData.get("photos_per_guest") as string, 10);
+  const requestedGuests = readPositiveInteger(formData.get("max_guests"));
+  const requestedPhotos = readPositiveInteger(formData.get("photos_per_guest"));
+  const maxPhotos = plan.photosPerGuest ?? 20;
+  if (!Number.isSafeInteger(requestedGuests) || requestedGuests > plan.maxGuests) {
+    return { error: `Ce plan accepte de 1 à ${plan.maxGuests} invités.` };
+  }
+  if (!Number.isSafeInteger(requestedPhotos) || requestedPhotos > maxPhotos) {
+    return { error: `Choisissez entre 1 et ${maxPhotos} poses par invité.` };
+  }
 
-  const price_chf  = plan.price;
+  const isTest = plan.id === "test";
   let reveal_at: string | null = null;
   if (reveal_mode === "fixed") {
     if (!reveal_at_raw) return { error: "Choisissez une date de révélation." };
@@ -48,37 +59,37 @@ export async function createEvent(formData: FormData): Promise<CreateEventResult
     }
     reveal_at = parsedRevealAt.toISOString();
   }
-  const status     = plan_id === "test" ? "active" : "draft";
-
+  const admin = createAdminClient();
   let slug = generateSlug(title);
-  const { data: existing } = await supabase
+  const { data: existing, error: lookupError } = await admin
     .from("events")
     .select("id")
     .eq("slug", slug)
     .maybeSingle();
+  if (lookupError) return { error: "Impossible de créer la soirée." };
   if (existing) slug = generateSlug(title);
 
-  const { data: event, error } = await supabase
+  const { data: event, error } = await admin
     .from("events")
     .insert({
       owner_id: user.id,
       title,
       event_type,
       slug,
-      status,
-      max_guests,
-      photos_per_guest,
+      status: isTest ? "active" : "draft",
+      max_guests: isTest ? plan.maxGuests : requestedGuests,
+      photos_per_guest: isTest ? maxPhotos : requestedPhotos,
       reveal_at,
       allow_library_upload: allow_library,
-      price_chf,
-      plan_id,
+      price_chf: plan.price,
+      plan_id: plan.id,
     })
-    .select()
+    .select("id, title, slug")
     .single();
 
-  if (error) return { error: error.message };
+  if (error || !event) return { error: "Impossible de créer la soirée." };
 
-  if (plan_id === "test") {
+  if (isTest) {
     await sendOrganizerEventReadyEmail({
       to: user.email,
       title: event.title,
@@ -89,6 +100,6 @@ export async function createEvent(formData: FormData): Promise<CreateEventResult
 
   return {
     eventId: event.id,
-    requiresPayment: plan_id !== "test",
+    requiresPayment: !isTest,
   };
 }

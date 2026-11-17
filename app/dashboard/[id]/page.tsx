@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { type Event, STATUS_LABELS, EVENT_TYPE_LABELS } from "@/types";
 import QRCodeCard from "./QRCodeCard";
 import { revealNow, activateEvent, resumePayment, deleteDraftAndNew } from "./actions";
@@ -42,17 +43,33 @@ export default async function EventDetailPage({ params }: Props) {
   if (!event) notFound();
 
   let ev = event as Event;
-  if (ev.status === "active" && ev.reveal_at && new Date(ev.reveal_at).getTime() <= Date.now()) {
-    const { data: revealedEvent } = await supabase
+  const now = new Date();
+  if (ev.status === "active" && ev.reveal_at && new Date(ev.reveal_at) <= now) {
+    const { data: revealedEvent, error } = await createAdminClient()
       .from("events")
       .update({ status: "revealed" })
       .eq("id", id)
       .eq("owner_id", user.id)
       .eq("status", "active")
-      .select("*")
-      .single();
+      .lte("reveal_at", now.toISOString())
+      .select("status")
+      .maybeSingle();
 
-    ev = (revealedEvent as Event | null) ?? { ...ev, status: "revealed" };
+    if (error) {
+      console.error("[dashboard] Scheduled reveal failed:", error.message);
+    } else if (revealedEvent) {
+      ev = { ...ev, status: revealedEvent.status };
+    } else {
+      const { data: current, error: readError } = await supabase
+        .from("events")
+        .select("*")
+        .eq("id", id)
+        .eq("owner_id", user.id)
+        .maybeSingle();
+      if (readError) throw new Error("Impossible de recharger la soirée.");
+      if (!current) notFound();
+      ev = current as Event;
+    }
   }
 
   const [{ count: photoCount }, { count: guestCount }] = await Promise.all([

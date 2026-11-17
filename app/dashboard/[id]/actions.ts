@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import Stripe from "stripe";
 import { getPlan } from "@/lib/utils/pricing";
 import { deleteEventObjects } from "@/lib/r2";
@@ -15,23 +16,25 @@ export async function revealNow(eventId: string) {
 
   if (!user) redirect("/login");
 
-  const { data: event } = await supabase
+  const { data: event, error } = await createAdminClient()
     .from("events")
     .update({ status: "revealed", reveal_at: new Date().toISOString() })
     .eq("id", eventId)
     .eq("owner_id", user.id)
+    .eq("status", "active")
     .select("slug")
-    .single();
+    .maybeSingle();
+
+  if (error) throw new Error("Impossible de révéler la galerie.");
+  if (!event) throw new Error("Soirée introuvable ou indisponible pour le reveal.");
 
   revalidatePath(`/dashboard/${eventId}`);
-  if (event?.slug) {
-    revalidatePath(`/e/${event.slug}`);
-    revalidatePath(`/e/${event.slug}/gallery`);
-  }
+  revalidatePath(`/e/${event.slug}`);
+  revalidatePath(`/e/${event.slug}/gallery`);
 }
 
-export async function activateWithoutPayment(eventId: string) {
-  if (process.env.NODE_ENV !== "development") return;
+export async function activateEvent(eventId: string) {
+  if (process.env.NODE_ENV !== "development") throw new Error("Activation réservée au développement.");
 
   const supabase = await createClient();
   const {
@@ -40,13 +43,20 @@ export async function activateWithoutPayment(eventId: string) {
 
   if (!user) redirect("/login");
 
-  await supabase
+  const { data: event, error } = await createAdminClient()
     .from("events")
     .update({ status: "active" })
     .eq("id", eventId)
-    .eq("owner_id", user.id);
+    .eq("owner_id", user.id)
+    .eq("status", "draft")
+    .select("slug")
+    .maybeSingle();
+
+  if (error) throw new Error("Impossible d'activer la soirée.");
+  if (!event) throw new Error("Brouillon introuvable ou accès refusé.");
 
   revalidatePath(`/dashboard/${eventId}`);
+  revalidatePath(`/e/${event.slug}`);
 }
 
 export async function deleteEvent(eventId: string) {
@@ -139,29 +149,4 @@ export async function resumePayment(eventId: string) {
   });
 
   redirect(session.url!);
-}
-
-export async function activateEvent(eventId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
-
-  const { data: ev } = await supabase
-    .from("events")
-    .select("slug")
-    .eq("id", eventId)
-    .eq("owner_id", user.id)
-    .single();
-
-  await supabase
-    .from("events")
-    .update({ status: "active" })
-    .eq("id", eventId)
-    .eq("owner_id", user.id);
-
-  revalidatePath(`/dashboard/${eventId}`);
-  if (ev?.slug) revalidatePath(`/e/${ev.slug}`);
 }

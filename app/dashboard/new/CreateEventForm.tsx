@@ -235,8 +235,8 @@ export default function CreateEventForm({ error }: { error?: string }) {
     const fd = new FormData();
     fd.set("title",            title);
     fd.set("event_type",       eventType);
-    fd.set("max_guests",       String(maxGuests));
-    fd.set("photos_per_guest", String(photosPerGuest));
+    fd.set("max_guests",       String(selectedPlanId === "test" ? selectedPlan.maxGuests : maxGuests));
+    fd.set("photos_per_guest", String(selectedPlan.photosPerGuest ?? photosPerGuest));
     fd.set("plan_id",          selectedPlanId);
     fd.set("reveal_mode",      revealMode);
     if (revealMode === "fixed") {

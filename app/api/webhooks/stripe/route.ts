@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Event not found." }, { status: 500 });
     }
 
-    if (flaashEvent.status === "active") {
-      console.log("[webhook] Event already active, skipping update:", eventId);
+    if (flaashEvent.status !== "draft") {
+      console.log("[webhook] Event is no longer a draft, skipping update:", eventId);
       return NextResponse.json({ received: true });
     }
 
@@ -80,15 +80,19 @@ export async function POST(req: NextRequest) {
 
     console.log("[webhook] Updating event:", eventId, "with:", updateData);
 
-    const { error: updateError } = await supabase
+    const { data: activatedEvent, error: updateError } = await supabase
       .from("events")
       .update(updateData)
-      .eq("id", eventId);
+      .eq("id", eventId)
+      .eq("status", "draft")
+      .select("id")
+      .maybeSingle();
 
     if (updateError) {
       console.error("[webhook] DB update failed:", eventId, updateError);
       return NextResponse.json({ error: "DB update failed." }, { status: 500 });
     }
+    if (!activatedEvent) return NextResponse.json({ received: true });
 
     console.log("[webhook] ✅ Event activated:", eventId, "plan:", flaashEvent.plan_id);
 
